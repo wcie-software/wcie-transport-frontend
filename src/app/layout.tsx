@@ -44,7 +44,7 @@ export default function RootLayout({
 					<p className="text-lg">Support</p>
 				</Link>
 			</header>
-			<main>
+			<main className="flex flex-col flex-1 justify-center items-center">
 				{children}
 			</main>
 		</div>

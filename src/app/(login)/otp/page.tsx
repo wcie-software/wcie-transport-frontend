@@ -3,25 +3,25 @@
 import NumberInput from "@/app/ui/number_input";
 import { useState } from "react";
 
-export default function Home() {
-	const [phone, setPhone] = useState("");
+export default function OTP() {
+	const [code, setCode] = useState("");
 	const [doneTyping, setDoneTyping] = useState(false);
 
 	return (
 		<div className="flex flex-col gap-1.5">
-			<p className="text-lg font-semibold">Enter Phone Number</p>
+			<p className="text-lg font-semibold">Enter Code</p>
 			<div className="flex flex-col gap-6 max-w-xl w-full justify-center items-start">
 				<NumberInput
-				maxLength={10}
-				pretext="+1"
-				placeholder="780 966 2026"
+				maxLength={6}
+				numberOfSpaces={1}
+				placeholder="333 444"
 				onChanged={(_) => {
 					if (doneTyping) {
 						setDoneTyping(false);
 					}
 				}}
 				onComplete={(i) => {
-					setPhone(i)
+					setCode(i)
 					setDoneTyping(true);
 				}}/>
 				<button
