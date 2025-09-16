@@ -3,11 +3,11 @@
 import { ChangeEvent, useState } from "react";
 
 export default function NumberInput({
-	maxLength, placeholder, pretext = "",
-	numberOfSpaces = 3, spacesInterval = 3,
+	maxLength, placeholder, prefix = "",
+	numberOfSpaces = 2, spacesInterval = 3,
 	onChanged, onComplete
 }: {
-	maxLength: number, placeholder: string, pretext?: string
+	maxLength: number, placeholder: string, prefix?: string
 	numberOfSpaces?: number, spacesInterval?: number,
 	onChanged?: (input: string) => void
 	onComplete?: (input: string) => void
@@ -21,11 +21,11 @@ export default function NumberInput({
 		}
 		const numericValue = value.replace(/\D/g, ''); // Remove all non-numbers
 		
-		let finalValue = numericValue.substring(0, 3);
+		let finalValue = numericValue.substring(0, spacesInterval);
 		// Add spaces between every 3 characters
-		for (let i = 3; i < numericValue.length; i += spacesInterval) {
+		for (let i = spacesInterval; i < numericValue.length; i += spacesInterval) {
 			// After the sixth character, don't add anymore spaces
-			if (i == (numberOfSpaces - 1) * spacesInterval) {
+			if (i == numberOfSpaces * spacesInterval) {
 				finalValue += ` ${numericValue.substring(i, numericValue.length)}`;
 				break;
 			} else {
@@ -36,18 +36,18 @@ export default function NumberInput({
 		setPhone(finalValue);
 
 		if (onChanged != undefined) {
-			onChanged(numericValue);
+			onChanged(prefix + numericValue);
 		}
 
 		if (finalValue.length >= maxLength + numberOfSpaces && onComplete != undefined) {
-			onComplete(numericValue);
+			onComplete(prefix + numericValue);
 		}
 	}
 
 	return (
 		<div className="flex flex-row items-baseline text-4xl lg:text-6xl font-bold">
-			<span>{pretext}</span>
-			{pretext.length > 0 && (
+			<span>{prefix}</span>
+			{prefix.length > 0 && (
 				<span>&nbsp;</span>
 			)}
 			<input 

@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+firebase*
+firestore*
+.firebaserc
+wcie-transport-backend-firebase-adminsdk-fbsvc-f9562c3374.json
