@@ -8,10 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "firebase": "^12.2.1",
+    "fs": "0.0.1-security",
+    "net": "^1.0.2",
     "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "tls": "^0.0.1",
+    "twilio": "^5.9.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

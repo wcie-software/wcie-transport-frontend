@@ -1,15 +1,17 @@
 "use client"
 
+import clsx from "clsx";
 import { ChangeEvent, useState } from "react";
 
 export default function NumberInput({
 	maxLength, placeholder, prefix = "",
 	numberOfSpaces = 2, spacesInterval = 3,
+	centerText = false,
 	onChanged, onComplete
 }: {
 	maxLength: number, placeholder: string, prefix?: string
-	numberOfSpaces?: number, spacesInterval?: number,
-	onChanged?: (input: string) => void
+	centerText?: boolean, numberOfSpaces?: number,
+	spacesInterval?: number, onChanged?: (input: string) => void
 	onComplete?: (input: string) => void
 }) {
 	const [phone, setPhone] = useState("");
@@ -45,7 +47,7 @@ export default function NumberInput({
 	}
 
 	return (
-		<div className="flex flex-row items-baseline text-4xl lg:text-6xl font-bold">
+		<div className="flex flex-row items-baseline text-5xl lg:text-6xl xl:text-7xl font-bold">
 			<span>{prefix}</span>
 			{prefix.length > 0 && (
 				<span>&nbsp;</span>
@@ -55,7 +57,9 @@ export default function NumberInput({
 				value={phone}
 				onChange={userTyping}
 				placeholder={`${placeholder}`}
-				className="outline-0 placeholder-gray-500"/>
+				className={clsx("outline-0 placeholder-gray-500 w-fit", {
+					"text-center": centerText
+				})}/>
 		</div>
 	);
 }
