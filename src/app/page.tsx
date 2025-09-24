@@ -7,34 +7,36 @@ import { ConfirmationResult } from "firebase/auth";
 
 export default function Home() {
 	const [phone, setPhone] = useState("");
-	const [otpSent, setOtpSent] = useState(false)
 	const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+	const [status, setStatus] = useState("login");
 
 	return (
-		<>
-		{!otpSent
-			? <PhonePage 
-				onCodeSent={(phone, result) => {
-					setPhone(phone);
-					setOtpSent(true);
-					setConfirmationResult(result);
-				}}
-			/>
-			: <OTPPage
-				phoneNumber={phone}
-				onCodeSubmitted={(code) => {
-					if (confirmationResult != null) {
-						confirmationResult.confirm(code).then((result) => {
-							console.log("I'm logged in!");
-							console.log(result.user);
-							// Move to next screen
-						}).catch((error) => {
-							// Bad code show error message
-							console.error(error);
-						});
-					}
-				}}/>
-		}
-	</>
+		<div className="max-w-2xl">
+			{status === "login" &&
+				 <PhonePage 
+					onCodeSent={(phone, result) => {
+						setPhone(phone);
+						setStatus("code-sent");
+						setConfirmationResult(result);
+					}}
+				/>
+			}
+			{status === "code-sent" &&
+				<OTPPage
+					phoneNumber={phone}
+					onCodeSubmitted={(code) => {
+						if (confirmationResult != null) {
+							confirmationResult.confirm(code).then(async (result) => {
+								console.log("I'm logged in!");
+								setStatus("correct-code");
+							}).catch((error) => {
+								// Bad code show error message
+								console.error(error);
+							});
+						}
+					}}
+				/>
+			}
+		</div>
 	);
 }
