@@ -19,3 +19,5 @@ env:
 
   - variable: GOOGLE_PLACES_API_KEY
     secret: google-places-autocomplete-details-key
+    availability:
+      - RUNTIME
