@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 		});
 		const body = await response.json();
 		if (!("suggestions" in body)) {
-			return [];
+			return NextResponse.json([]);
 		}
 		
 		const suggestions: Place[] = [];

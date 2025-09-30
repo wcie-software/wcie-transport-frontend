@@ -10,5 +10,16 @@
       "enabled": true
     },
     "singleProjectMode": true
+  },
+  "apphosting": {
+    "backendId": "wcie-transport-frontend",
+    "rootDir": "/",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ]
   }
 }
