@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 			},
 			body: JSON.stringify({
 				input: q,
-				regionCode: "ca"
+				includedRegionCodes: ["ca"],
 			}),
 		});
 		const body = await response.json();
