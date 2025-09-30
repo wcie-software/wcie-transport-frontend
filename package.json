@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@googlemaps/places": "^2.1.0",
+    "@heroicons/react": "^2.2.0",
     "clsx": "^2.1.1",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
@@ -17,7 +19,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tls": "^0.0.1",
-    "twilio": "^5.9.0"
+    "twilio": "^5.9.0",
+    "use-debounce": "^10.0.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

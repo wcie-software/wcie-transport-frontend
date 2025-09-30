@@ -40,8 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-firebase*
-firestore*
+firebase.json
+firestore-debug.log
 .firebaserc
 wcie-transport-backend-firebase-adminsdk-fbsvc-f9562c3374.json
 src/app/utils/firebase_admin_setup.ts
