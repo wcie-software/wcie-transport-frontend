@@ -24,7 +24,8 @@ export default function AddressPage({ defaultAddress, onSelected }:
 				<input
 					type="text"
 					className="outline-0 placeholder-gray-500 font-bold text-4xl"
-					placeholder={defaultAddress ?? "12950 50 Street NW"}
+					placeholder={(defaultAddress && defaultAddress.length > 0)
+						? defaultAddress : "12950 50 Street NW"}
 					onChange={(event) => {
 						const text = event.target.value.trim();
 						if (text.length > 0) {

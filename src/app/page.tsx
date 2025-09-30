@@ -56,11 +56,12 @@ export default function Home() {
 						if (user == null) {
 							// TODO: Show error
 							setStatus("login");
+							return;
 						}
 
 						const res = await fetch(`/api/coordinates?placeId=${id}`);
 						const coord = await res.json() as Coordinates;
-						setUserLocation(user!.uid, coord, text);
+						await setUserLocation(user!.uid, coord, text);
 
 						const token = await user!.getIdToken();
 

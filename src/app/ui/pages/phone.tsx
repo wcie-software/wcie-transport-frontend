@@ -32,7 +32,7 @@ export default function PhonePage({ onCodeSent }:
 				caption="We will send you a code"
 				prefix="+1"
 				placeholder="780 123 4567"
-				buttonText="Login"
+				buttonText="Continue"
 				onSubmitted={(phone) => {
 					signInWithPhoneNumber(auth, phone, recaptchaVerifier)
 						.then((confirmationResult) => {
