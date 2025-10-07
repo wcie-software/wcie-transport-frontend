@@ -47,7 +47,7 @@ export default function NumberInput({
 	}
 
 	return (
-		<div className="flex flex-row items-baseline text-5xl lg:text-6xl xl:text-7xl font-bold">
+		<div className="flex flex-row items-baseline text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold">
 			<span>{prefix}</span>
 			{prefix.length > 0 && (
 				<span>&nbsp;</span>
@@ -57,7 +57,7 @@ export default function NumberInput({
 				value={phone}
 				onChange={userTyping}
 				placeholder={`${placeholder}`}
-				className={clsx("outline-0 placeholder-gray-500 w-fit", {
+				className={clsx("outline-0 placeholder-gray-500 truncate w-full", {
 					"text-center": centerText
 				})}/>
 		</div>

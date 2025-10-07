@@ -26,7 +26,7 @@ export default function CollectNumber({
 	const [status, setStatus] = useState("typing");
 
 	return (
-		<div className="flex flex-col gap-1.5">
+		<div className="flex flex-col gap-1.5 mx-4">
 			<div className="flex flex-col">
 				<p className="text-lg font-semibold">{title}</p>
 				<p className="text-gray-400">{caption}</p>

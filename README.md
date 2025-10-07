@@ -10,5 +10,5 @@ WCIE Transport allows church members to request rides to church
 ## TODO
 - [ ] Add animations between pages
 - [ ] Add more information in the first page.
-- [ ] Make mobile-friendly.
-- [ ] (Fillout) Show user what day he/she is making a request for
+- [x] Make mobile-friendly.
+- [ ] Show date of request.

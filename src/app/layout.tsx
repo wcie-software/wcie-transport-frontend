@@ -2,6 +2,8 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { Montserrat, PT_Serif } from "next/font/google";
+// import { PhoneIcon } from "@heroicons/react/24/outline";
+import { PhoneIcon } from "@heroicons/react/16/solid";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -31,17 +33,18 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${pt_serif.variable} ${montserrat.variable} antialiased`}>
 		<div className="min-h-screen flex flex-col font-[family-name:var(--font-mont)]">
-			<header className="flex flex-row justify-between items-center px-3 py-2">
+			<header className="flex flex-row justify-between items-center p-3">
 				<div className="flex flex-row items-center justify-between gap-2.5">
 					<Image
 						src="/Logo.png"
 						alt="WCIE Logo"
 						width={40}
 						height={40}/>
-					<p className="text-2xl font-[family-name:var(--font-pt-serif)]">WCIE Transport</p>
+					<p className="text-2xl truncate font-[family-name:var(--font-pt-serif)]">WCIE Transport</p>
 				</div>
 				<Link href="tel:+17808602845" title="Phone Number of Transport Unit Coordinator">
-					<p className="text-lg">Support</p>
+					<p className="text-lg hidden sm:block">Support</p>
+					<PhoneIcon className="block sm:hidden" width={24} height={24} />
 				</Link>
 			</header>
 			<main className="flex flex-col flex-1 justify-center items-center">

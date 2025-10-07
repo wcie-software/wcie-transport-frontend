@@ -18,12 +18,12 @@ export default function AddressPage({ defaultAddress, onSelected }:
 	}, 400);
 
 	return (
-		<div className="flex flex-col gap-6 items-start justify-start w-full">
+		<div className="flex flex-col gap-6 items-start justify-start w-full mx-4">
 			<div className="flex flex-col gap-1.5 w-full">
 				<h2 className="text-lg font-semibold">Enter Pickup Location</h2>
 				<input
 					type="text"
-					className="outline-0 placeholder-gray-500 font-bold text-4xl"
+					className="outline-0 placeholder-gray-500 w-full truncate font-bold text-4xl"
 					placeholder={(defaultAddress && defaultAddress.length > 0)
 						? defaultAddress : "12950 50 Street NW"}
 					onChange={(event) => {
