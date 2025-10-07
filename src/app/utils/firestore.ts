@@ -15,7 +15,7 @@ export async function addUser(user: User): Promise<void> {
 	const userSnap = await getDoc(userRef);
 
 	if (!userSnap.exists()) {
-		await setDoc(userRef, { phone_number: user.phoneNumber! });
+		await setDoc(userRef, { "phone_number": user.phoneNumber! });
 	}
 }
 
