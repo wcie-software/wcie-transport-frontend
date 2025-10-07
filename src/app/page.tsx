@@ -66,7 +66,11 @@ export default function Home() {
 						const token = await user!.getIdToken();
 
 						const formURL = "https://wcie.fillout.com/transport";
-						const params = `?phone_number=${phone}&auth_token=${token}&name=${user!.displayName ?? ""}`;
+
+						const encodedPhone = encodeURIComponent(phone);
+						const encodedToken = encodeURIComponent(token);
+						const encodedName = encodeURIComponent(user!.displayName ?? "")
+						const params = `?phone_number=${encodedPhone}&auth_token=${encodedToken}&name=${encodedName}`;
 
 						router.replace(formURL + params);
 					}
