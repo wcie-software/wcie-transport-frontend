@@ -13,12 +13,12 @@ export async function GET(request: NextRequest) {
 			method: "GET",
 			headers: {
 				"Accept": "application/json",
-				"X-Goog-FieldMask": "location",
+				"X-Goog-FieldMask": "location,googleMapsUri",
 				"X-Goog-Api-Key": process.env.GOOGLE_PLACES_API_KEY!,
 			},
 		});
 		const body = await response.json();
-		return NextResponse.json(body["location"]);
+		return NextResponse.json(body);
 	} catch (e) {
 		console.error(e);
 		return NextResponse.error();

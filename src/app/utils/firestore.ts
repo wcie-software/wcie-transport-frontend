@@ -1,6 +1,6 @@
 import { doc, getDoc, getDocFromServer, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/app/utils/firebase";
-import Coordinates from "@/app/models/coordinates";
+import PlaceDetails from "@/app/models/place_details";
 import { User } from "firebase/auth";
 
 const USER_COLLECTION = "users";
@@ -15,7 +15,7 @@ export async function addUser(user: User): Promise<void> {
 	const userSnap = await getDoc(userRef);
 
 	if (!userSnap.exists()) {
-		await setDoc(userRef, { phoneNumber: user.phoneNumber! });
+		await setDoc(userRef, { phone_number: user.phoneNumber! });
 	}
 }
 
@@ -34,14 +34,8 @@ export async function getUserLocation(uid: string): Promise<string> {
 }
 
 export async function setUserLocation(
-	uid: string, coordinates: Coordinates, address: string
+	uid: string, placeDetails: PlaceDetails, address: string
 ): Promise<void> {
 	const userRef = doc(db, USER_COLLECTION, uid);
-	await updateDoc(userRef, {
-		address: address,
-		location: {
-			"latitude": coordinates.latitude,
-			"longitude": coordinates.longitude
-		}
-	});
+	await updateDoc(userRef, { address: address, location_details: placeDetails });
 }

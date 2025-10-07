@@ -6,7 +6,7 @@ import PhonePage from "@/app/ui/pages/phone";
 import OTPPage from "@/app/ui/pages/otp";
 import AddressPage from "@/app/ui/pages/address";
 import { ConfirmationResult, User } from "firebase/auth";
-import Coordinates from "@/app/models/coordinates";
+import PlaceDetails from "@/app/models/place_details";
 import { addUser, getUserLocation, setUserLocation } from "@/app/utils/firestore";
 
 // TODO: Add loading
@@ -60,8 +60,8 @@ export default function Home() {
 						}
 
 						const res = await fetch(`/api/coordinates?placeId=${id}`);
-						const coord = await res.json() as Coordinates;
-						await setUserLocation(user!.uid, coord, text);
+						const details = await res.json() as PlaceDetails;
+						await setUserLocation(user!.uid, details, text);
 
 						const token = await user!.getIdToken();
 
