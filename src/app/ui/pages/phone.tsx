@@ -28,7 +28,7 @@ export default function PhonePage({ onCodeSent }:
 	return (
 		<div className="flex flex-col">
 			<CollectNumber
-				title="Enter Phone Number"
+				title="Enter Your Phone Number"
 				caption="We will send you a code"
 				prefix="+1"
 				placeholder="780 123 4567"

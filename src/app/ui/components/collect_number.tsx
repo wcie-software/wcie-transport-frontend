@@ -2,6 +2,7 @@
 
 import NumberInput from "@/app/ui/components/number_input";
 import { useState } from "react";
+import PrimaryButton from "./primary_button";
 
 export default function CollectNumber({
 	title,
@@ -47,16 +48,15 @@ export default function CollectNumber({
 						setStatus("done-typing");
 					}}
 				/>
-				<button
+				<PrimaryButton
+				 	text={buttonText}
 					id="login-button"
 					disabled={status !== "done-typing"}
-					className="bg-primary px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default"
-					onClick={(_) => {
+					onClick={() => {
 						setStatus("loading");
 						onSubmitted?.(no);
-					}}>
-					{buttonText}
-				</button>
+					}}
+					/>
 			</div>
 		</div>
 	);
