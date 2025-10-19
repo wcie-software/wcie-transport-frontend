@@ -6,7 +6,7 @@ export default function Layout({ children, }: Readonly<{ children: React.ReactNo
 	<div className="min-h-screen flex flex-col">
 		<header className="flex flex-row justify-between items-center py-3 px-6">
 			<Link
-				className="flex flex-row items-center  gap-2.5"
+				className="flex flex-row items-center gap-2.5"
 				href="/">
 				<Image
 					src="/Logo.png"

@@ -4,7 +4,7 @@ import { auth } from "@/app/utils/firebase";
 export async function sendEmailLink(email: string): Promise<boolean> {
 	try {
 		await sendSignInLinkToEmail(auth, email, {
-			url: "http://192.168.1.69:5002/admin",//"https://transport.wcie.app/admin",
+			url: `${process.env.DEBUG_URL ?? "https://transport.wcie.app"}/admin`,
 			handleCodeInApp: true,
 			// linkDomain: "transport.wcie.app"
 		});
