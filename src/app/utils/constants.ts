@@ -1,0 +1,1 @@
+export const EMAIL_LOCALSTORAGE_KEY = "wcie-transport-email";

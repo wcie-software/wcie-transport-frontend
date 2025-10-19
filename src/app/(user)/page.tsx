@@ -6,14 +6,14 @@ export default function Home() {
 			<h2 className="font-medium text-3xl md:text-4xl font-[family-name:var(--font-mont)]">
 				Request A Ride To Winners Chapel Int'l Edmonton
 			</h2>
-			<p className="mt-1">It's free.</p>
-			<div className="mt-5 flex flex-row gap-5 items-center justify-between">
+			{/* <p className="mt-1">It's free.</p> */}
+			<div className="mt-5 flex flex-row gap-6 items-center justify-between">
 				<Link
 					href="/request"
 					className="bg-primary px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default">
 					Request
 				</Link>
-				<Link href="/admin" className="truncate">Admin Login</Link>
+				<Link href="/driver" className="truncate">Driver Login</Link>
 			</div>
 		</div>
 	);

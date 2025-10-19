@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import PhonePage from "@/app/ui/pages/phone";
-import OTPPage from "@/app/ui/pages/otp";
-import AddressPage from "@/app/ui/pages/address";
+import PhonePage from "@/app/(user)/request/pages/phone";
+import OTPPage from "@/app/(user)/request/pages/otp";
+import AddressPage from "@/app/(user)/request/pages/address";
 import { ConfirmationResult, User } from "firebase/auth";
 import PlaceDetails from "@/app/models/place_details";
 import { addUser, getUserLocation, setUserLocation } from "@/app/utils/firestore";

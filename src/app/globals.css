@@ -4,18 +4,21 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #EC1C24;
+--tertiary: rgba(234, 191, 99, 0.09);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-tertiary: var(--tertiary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+	--tertiary: rgba(111, 111, 111, 0.29);
   }
 }
 
