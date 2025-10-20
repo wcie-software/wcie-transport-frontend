@@ -11,9 +11,9 @@ export default function Home() {
 				<Link
 					href="/request"
 					className="bg-primary px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default">
-					Request
+					Login
 				</Link>
-				<Link href="/driver" className="truncate">Driver Login</Link>
+				{/* <Link href="/admin" className="truncate">Admin Login</Link> */}
 			</div>
 		</div>
 	);

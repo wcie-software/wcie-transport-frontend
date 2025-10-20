@@ -1,7 +1,6 @@
 import { PhoneIcon } from "@heroicons/react/16/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { Bars4Icon } from "@heroicons/react/24/solid";
 
 export default function Layout({ children, }: Readonly<{ children: React.ReactNode; }>) {
   return (
@@ -17,13 +16,10 @@ export default function Layout({ children, }: Readonly<{ children: React.ReactNo
 					height={40}/>
 				<p className="text-2xl truncate font-[family-name:var(--font-pt-serif)]">WCIE Transport</p>
 			</Link>
-			<div className="flex flex-row justify-between items-center gap-3">
-				<Link href="tel:+17808602845" title="Phone Number of Transport Unit Coordinator">
-					<p className="text-lg hidden sm:block">Support</p>
-					<PhoneIcon className="block sm:hidden" width={24} height={24} />
-				</Link>
-				<Bars4Icon width={24} height={24} className="cursor-pointer" />
-			</div>
+			<Link href="tel:+17808602845" title="Phone Number of Transport Unit Coordinator">
+				<p className="text-lg hidden sm:block">Support</p>
+				<PhoneIcon className="block sm:hidden" width={24} height={24} />
+			</Link>
 		</header>
 		<main className="flex flex-col flex-1 justify-center items-center">
 			{children}

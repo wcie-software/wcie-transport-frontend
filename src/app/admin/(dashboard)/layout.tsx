@@ -10,7 +10,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	const pathname = usePathname();
 
 	const pages = {
-		"Dashboard": {
+		"Requests": {
 			icon: Squares2X2Icon,
 			href: "/admin"
 		},
@@ -45,7 +45,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 							height={40}/>
 						<p className="text-2xl truncate font-[family-name:var(--font-pt-serif)]">WCIE Transport</p>
 				</Link>
-				<ul className="flex-1 gap-2 flex flex-col mt-12 w-full">
+				<ul className="flex-1 flex flex-col mt-12 w-full">
 					{Object.entries(pages).map(([k, v]) => {
 						const {icon, href} = v;
 						const Icon = icon;
@@ -54,8 +54,8 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 								"bg-background": pathname === href
 							})}>
 								<Link href={href} className="flex flex-row items-center gap-2">
-									<Icon width={24} height={24}/>
-									<p className="text-xl">{k}</p>
+									<Icon width={20} height={20}/>
+									<p className="text-lg">{k}</p>
 								</Link>
 							</li>
 						);
@@ -63,7 +63,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 				</ul>
 				{/* <p className="text-lg">Sign Out</p> */}
 			</nav>
-			<main className="flex-1">
+			<main className="flex-1 mx-8 mt-12">
 				{children}
 			</main>
 		</div>
