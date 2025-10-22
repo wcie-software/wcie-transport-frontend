@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import PhonePage from "@/app/(user)/request/pages/phone";
-import OTPPage from "@/app/(user)/request/pages/otp";
+import PhonePage from "@/app/(user)/login/pages/phone";
+import OTPPage from "@/app/(user)/login/pages/otp";
 import AddressPage from "@/app/(user)/request/pages/address";
 import { ConfirmationResult, User } from "firebase/auth";
 import PlaceDetails from "@/app/models/place_details";
