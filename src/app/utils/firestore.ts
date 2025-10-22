@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/app/utils/firebase";
 import { ZodObject } from "zod";
 
@@ -106,4 +106,11 @@ export async function getCollection(
 	});
 
 	return docs;
+}
+
+export async function deleteDocument(
+	collectionName: FirestoreCollections,
+	documentPath: string
+) {
+	await deleteDoc(doc(db, collectionName, documentPath));
 }
