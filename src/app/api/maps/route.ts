@@ -1,5 +1,4 @@
-// import { PlacesClient } from "@googlemaps/places";
-import Place from "@/app/models/place";
+import { Place } from "@/app/models/place";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -35,7 +34,7 @@ export async function GET(request: NextRequest) {
 			const id = prediction["placeId"];
 			const text = prediction["text"]["text"];
 
-			suggestions.push({placeId: id, text: text});
+			suggestions.push({id: id, text: text});
 		}
 
 		return NextResponse.json(suggestions);

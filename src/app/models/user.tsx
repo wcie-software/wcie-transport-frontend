@@ -5,15 +5,15 @@ const Location = z.object({
 	longitude: z.number()
 });
 
-const LocationDetails = z.object({
+export const LocationDetails = z.object({
 	googleMapsUri: z.url(),
 	location: Location,
 });
 
-export const TransportUser = z.looseObject({
+export const TransportUserSchema = z.looseObject({
 	address: z.string(),
 	phone_number: z.string(),
 	location_details: LocationDetails
 });
 
-type TransportUser = z.infer<typeof TransportUser>;
+export type TransportUser = z.infer<typeof TransportUserSchema>;

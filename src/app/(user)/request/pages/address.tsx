@@ -1,6 +1,6 @@
 "use client"
 
-import Place from "@/app/models/place";
+import { Place } from "@/app/models/place";
 import { MapPinIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -38,9 +38,9 @@ export default function AddressPage({ defaultAddress, onSelected }:
 			<ul className="w-full">
 				{places.map((p) => 
 					<li
-						key={p.placeId}
+						key={p.id}
 						className="group cursor-pointer p-2 hover:bg-gray-800 w-full flex flex-row items-center gap-1.5"
-						onClick={(e) => onSelected?.(p.placeId, p.text)}>
+						onClick={(e) => onSelected?.(p.id, p.text)}>
 						<MapPinIcon width={24} height={24} className="shrink-0"/>
 						<p className="text-lg truncate">{p.text}</p>
 						<ArrowRightIcon

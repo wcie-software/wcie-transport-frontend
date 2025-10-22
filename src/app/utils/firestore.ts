@@ -2,45 +2,13 @@ import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc 
 import { db } from "@/app/utils/firebase";
 import { ZodObject } from "zod";
 
-enum FirestoreCollections {
+export enum FirestoreCollections {
 	Users = "users",
 	Requests = "requests",
+	UserRoles = "user-roles",
+	Drivers = "drivers",
+	Vehicles = "vehicles"
 }
-
-// export async function addUser(user: User): Promise<void> {
-// 	if (!user.phoneNumber) {
-// 		// TODO: Throw error
-// 		return;
-// 	}
-
-// 	const userRef = doc(db, USER_COLLECTION, user.uid);
-// 	const userSnap = await getDoc(userRef);
-
-// 	if (!userSnap.exists()) {
-// 		await setDoc(userRef, { "phone_number": user.phoneNumber! });
-// 	}
-// }
-
-// export async function getUserLocation(uid: string): Promise<string> {
-// 	const userRef = doc(db, USER_COLLECTION, uid);
-// 	const userSnap = await getDocFromServer(userRef);
-
-// 	if (userSnap.exists()) {
-// 		const data = userSnap.data();
-// 		if ("address" in data) {
-// 			return data["address"] as string;
-// 		}
-// 	}
-
-// 	return "";
-// }
-
-// export async function setUserLocation(
-// 	uid: string, placeDetails: PlaceDetails, address: string
-// ): Promise<void> {
-// 	const userRef = doc(db, USER_COLLECTION, uid);
-// 	await updateDoc(userRef, { address: address, location_details: placeDetails });
-// }
 
 export async function addDocument(
 	collectionName: FirestoreCollections,
