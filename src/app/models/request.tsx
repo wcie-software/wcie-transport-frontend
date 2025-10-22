@@ -1,12 +1,12 @@
 import * as z from "zod";
 
 export const TransportRequest = z.object({
-	fullName: z.string(),
-	phoneNumber: z.string(),
+	full_name: z.string(),
+	phone_number: z.string(),
 	address: z.string(),
-	googleMapsLink: z.url(),
-	serviceNumber: z.int(),
-	noOfChildren: z.nullable(z.int()),
-	noOfSeats: z.int(),
-	timestamp: z.date(),
+	google_maps_link: z.url(),
+	service_number: z.int(),
+	no_of_children: z.nullable(z.int()),
+	no_of_seats: z.int(),
+	timestamp: z.iso.datetime({local: true})
 });
