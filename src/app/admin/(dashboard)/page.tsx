@@ -5,6 +5,7 @@ import { signInWithLink } from "@/app/utils/firebase_email_auth";
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
 import { useRouter } from "next/navigation";
 import { getRequests } from "@/app/utils/firestore";
+import TransportRequest from "@/app/models/request";
 
 export default async function AdminPage() {
 	// const router = useRouter();
@@ -35,7 +36,7 @@ export default async function AdminPage() {
 		"Location"
 	];
 
-	const requests = await getRequests();
+	const requests: TransportRequest[] = [];//await getRequests();
 
 	return (
 		<div className="w-full">
