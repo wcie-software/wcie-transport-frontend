@@ -1,28 +1,32 @@
+"use client"
+
 import { redirect, RedirectType } from "next/navigation";
 import AddressPage from "@/app/(user)/request/pages/address";
 import { LocationDetails, TransportUser, TransportUserSchema } from "@/app/models/user";
 import { addDocument, FirestoreCollections, getDocument } from "@/app/utils/firestore";
 import { auth } from "@/app/utils/firebase";
+import { getPlaceDetails } from "@/app/utils/google_maps";
 
 export default async function Request() {
 	const user = auth.currentUser;
-	if (!user) {
-		redirect("/login", RedirectType.replace);
-	}
+	// if (!user) {
+	// 	redirect("/login", RedirectType.replace);
+	// }
 
-	const transportUser = await getDocument(
-		FirestoreCollections.Users,
-		user.uid,
-		TransportUserSchema
-	) as TransportUser | null;
+	// const transportUser = await getDocument(
+	// 	FirestoreCollections.Users,
+	// 	user.uid,
+	// 	TransportUserSchema
+	// ) as TransportUser | null;
 
 	return (
 		<div className="max-w-2xl w-full">
 			<AddressPage
-				defaultAddress={transportUser?.address}
+				// defaultAddress={transportUser?.address}
 				onSelected={async (id, text) => {
-					const res = await fetch(`/api/coordinates?placeId=${id}`);
-					const details = LocationDetails.parse(await res.json());
+					// const res = await fetch(`/api/coordinates?placeId=${id}`);
+					// const details = LocationDetails.parse(await res.json());
+					const details = await getPlaceDetails(id);
 
 					const transportUser: TransportUser = {
 						address: text,

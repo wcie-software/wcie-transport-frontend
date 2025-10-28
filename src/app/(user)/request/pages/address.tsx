@@ -1,6 +1,7 @@
 "use client"
 
 import { Place } from "@/app/models/place";
+import { getPlacePredictions } from "@/app/utils/google_maps";
 import { MapPinIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -11,8 +12,10 @@ export default function AddressPage({ defaultAddress, onSelected }:
 	const [places, setPlaces] = useState<Place[]>([]);
 
 	const search = useDebouncedCallback(async (q: string) => {
-		const res = await fetch(`/api/maps?q=${q}`);
-		const places = await res.json() as Place[];
+		// const res = await fetch(`/api/maps?q=${q}`);
+		// const places = await res.json() as Place[];
+		// TODO: Error handling
+		const places = await getPlacePredictions(q);
 
 		setPlaces(places);
 	}, 400);

@@ -33,17 +33,17 @@ export default function LoginPage() {
 						if (confirmationResult != null) {
 							confirmationResult.confirm(code).then(async (result) => {
 								const user = result.user;
-								const userRole = await getDocument(
-									FirestoreCollections.UserRoles,
-									user.uid,
-									UserRoleSchema
-								) as UserRole;
+								// const userRole = await getDocument(
+								// 	FirestoreCollections.UserRoles,
+								// 	user.uid,
+								// 	UserRoleSchema
+								// ) as UserRole;
 
-								if (userRole && userRole.role == "driver") {
-									router.push("/driver");
-								} else {
-									router.push("/request");
-								}
+								// if (userRole && userRole.role == "driver") {
+								// 	router.push("/driver");
+								// } else {
+								// 	router.push("/request");
+								// }
 							}).catch((error) => {
 								console.error(error);
 							});
