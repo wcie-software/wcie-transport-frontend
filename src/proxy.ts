@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/app/utils/firebase_setup/server";
+import { auth } from "@/app/utils/firebase_setup/server_admin";
 
 export async function proxy(request: NextRequest) {
 	const sessionCookie = request.cookies.get("session");
@@ -9,8 +9,12 @@ export async function proxy(request: NextRequest) {
 	}
 
 	try {
-		await auth.verifySessionCookie(sessionCookie.value, true);
-		return NextResponse.next();
+		const decodedClaims = await auth.verifySessionCookie(sessionCookie.value);
+
+		const res = NextResponse.next();
+		res.headers.set("X-Proxy-UID", decodedClaims.uid);
+
+		return res;
 	} catch (e) {
 		console.error("A session cookie exists, but it's invalid. " + e);
 

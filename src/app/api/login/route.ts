@@ -1,12 +1,16 @@
-import { auth } from "@/app/utils/firebase_setup/server";
+import { UserRoleSchema } from "@/app/models/user_role";
+import { auth, adminDB } from "@/app/utils/firebase_setup/server_admin";
+import { FirestoreCollections } from "@/app/utils/firestore";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
 	const { idToken } = await request.json();
+	let uid: string;
 
 	const expiresIn = 1000 * 60 * 60 * 24; // 1 day
 	try {
-		await auth.verifyIdToken(idToken);
+		const decodedToken = await auth.verifyIdToken(idToken);
+		uid = decodedToken.uid;
 	} catch (e) {
 		return new Response(
 			JSON.stringify({
@@ -19,7 +23,19 @@ export async function POST(request: NextRequest) {
 	
 	try {
 		const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
-		const response = new NextResponse("OK", { status: 200 });
+		
+		let role;
+		const userRoleDoc = adminDB.collection(FirestoreCollections.UserRoles).doc(uid);
+		const userRoleRef = await userRoleDoc.get();
+		if (userRoleRef.exists) {
+			const userRole = UserRoleSchema.safeParse(userRoleRef.data()).data;
+			role = userRole?.role;
+		}
+
+		const response = new NextResponse(
+			JSON.stringify({ role: role ?? "user" }),
+			{ status: 200 }
+		);
 		response.cookies.set("session", sessionCookie, {
 			maxAge: expiresIn / 1000,
 			httpOnly: true,

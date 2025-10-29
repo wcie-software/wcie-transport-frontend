@@ -1,56 +1,39 @@
-"use client"
-
 import { redirect, RedirectType } from "next/navigation";
+import { headers, cookies } from "next/headers";
 import AddressPage from "@/app/(user)/request/pages/address";
-import { LocationDetails, TransportUser, TransportUserSchema } from "@/app/models/user";
-import { addDocument, FirestoreCollections, getDocument } from "@/app/utils/firestore";
-import { auth } from "@/app/utils/firebase_setup/client";
-import { getPlaceDetails } from "@/app/utils/google_maps";
+import { TransportUser, TransportUserSchema } from "@/app/models/user";
+import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
+import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
 
 export default async function Request() {
-	const user = auth.currentUser;
-	// if (!user) {
-	// 	redirect("/login", RedirectType.replace);
-	// }
+	const headerObj = await headers();
+	const cookieObj = await cookies();
 
-	// const transportUser = await getDocument(
-	// 	FirestoreCollections.Users,
-	// 	user.uid,
-	// 	TransportUserSchema
-	// ) as TransportUser | null;
+	const idToken = cookieObj.get("session");
+	const uid = headerObj.get("X-Proxy-UID");
+
+	if (!idToken?.value || !uid) {
+		return redirect("/login", RedirectType.replace);
+	}
+
+	const { app, auth, db } = await getFirebaseServer(idToken.value, headerObj);
+
+	await auth.authStateReady();
+	if (!auth.currentUser) {
+		console.warn("Couldn't sign in on server.");
+		return redirect("/login", RedirectType.replace);
+	}
+
+	const firestore = new FirestoreHelper(db);
+	const transportUser = await firestore.getDocument<TransportUser>(
+		FirestoreCollections.Users,
+		uid,
+		TransportUserSchema
+	);
 
 	return (
 		<div className="max-w-2xl w-full">
-			<AddressPage
-				// defaultAddress={transportUser?.address}
-				onSelected={async (id, text) => {
-					// const res = await fetch(`/api/coordinates?placeId=${id}`);
-					// const details = LocationDetails.parse(await res.json());
-					const details = await getPlaceDetails(id);
-
-					const transportUser: TransportUser = {
-						address: text,
-						phone_number: user!.phoneNumber!,
-						location_details: details
-					};
-
-					await addDocument(
-						FirestoreCollections.Users,
-						transportUser,
-						user!.uid,
-					);
-
-					const formURL = "https://wcie.fillout.com/transport";
-					const token = await user!.getIdToken();
-
-					const encodedPhone = encodeURIComponent(user!.phoneNumber!);
-					const encodedToken = encodeURIComponent(token);
-					const encodedName = encodeURIComponent(user!.displayName ?? "")
-					const params = `?phone_number=${encodedPhone}&auth_token=${encodedToken}&name=${encodedName}`;
-
-					redirect(formURL + params, RedirectType.replace);
-				}
-			}/>
+			<AddressPage defaultAddress={transportUser?.address} />
 		</div>
 	);
 }

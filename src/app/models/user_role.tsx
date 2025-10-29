@@ -5,4 +5,4 @@ export const UserRoleSchema = z.object({
 	role: z.enum(["admin", "driver", "user"])
 });
 
-export type Role = z.infer<typeof UserRoleSchema>;
+export type UserRole = z.infer<typeof UserRoleSchema>;

@@ -39,21 +39,15 @@ export default function LoginPage() {
 								});
 
 								if (res.ok) {
-									console.log("Cookie created successfully!");
+									const { role } = await res.json();
+									if (role == "driver") {
+										router.push("/driver");
+									} else {
+										router.push("/request");
+									}
 								} else {
 									console.error(await res.text());
 								}
-								// const userRole = await getDocument(
-								// 	FirestoreCollections.UserRoles,
-								// 	user.uid,
-								// 	UserRoleSchema
-								// ) as UserRole;
-
-								// if (userRole && userRole.role == "driver") {
-								// 	router.push("/driver");
-								// } else {
-								// 	router.push("/request");
-								// }
 							}).catch((error) => {
 								console.error(error);
 							});
