@@ -1,5 +1,5 @@
 import { isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink } from "firebase/auth";
-import { auth } from "@/app/utils/firebase";
+import { auth } from "@/app/utils/firebase_setup/client";
 
 export async function sendEmailLink(email: string): Promise<boolean> {
 	try {

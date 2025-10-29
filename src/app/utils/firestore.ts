@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
-import { db } from "@/app/utils/firebase";
+import { db } from "@/app/utils/firebase_setup/client";
 import { ZodObject } from "zod";
 
 export enum FirestoreCollections {

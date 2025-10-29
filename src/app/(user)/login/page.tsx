@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import PhonePage from "@/app/(user)/login/pages/phone";
 import OTPPage from "@/app/(user)/login/pages/otp";
 import { ConfirmationResult } from "firebase/auth";
-import { FirestoreCollections, getDocument } from "@/app/utils/firestore";
-import { Role as UserRole, UserRoleSchema } from "@/app/models/role";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -33,6 +31,18 @@ export default function LoginPage() {
 						if (confirmationResult != null) {
 							confirmationResult.confirm(code).then(async (result) => {
 								const user = result.user;
+								const idToken = await user.getIdToken();
+
+								const res = await fetch("/api/login", {
+									method: "POST",
+									body: JSON.stringify({ idToken: idToken })
+								});
+
+								if (res.ok) {
+									console.log("Cookie created successfully!");
+								} else {
+									console.error(await res.text());
+								}
 								// const userRole = await getDocument(
 								// 	FirestoreCollections.UserRoles,
 								// 	user.uid,

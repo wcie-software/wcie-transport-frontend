@@ -4,7 +4,7 @@ import { redirect, RedirectType } from "next/navigation";
 import AddressPage from "@/app/(user)/request/pages/address";
 import { LocationDetails, TransportUser, TransportUserSchema } from "@/app/models/user";
 import { addDocument, FirestoreCollections, getDocument } from "@/app/utils/firestore";
-import { auth } from "@/app/utils/firebase";
+import { auth } from "@/app/utils/firebase_setup/client";
 import { getPlaceDetails } from "@/app/utils/google_maps";
 
 export default async function Request() {

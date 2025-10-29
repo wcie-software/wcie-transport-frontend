@@ -1,6 +1,6 @@
 "use client"
 
-import { auth } from "@/app/utils/firebase";
+import { auth } from "@/app/utils/firebase_setup/client";
 import { signInWithLink } from "@/app/utils/firebase_email_auth";
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
 import { useRouter } from "next/navigation";

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { auth } from "@/app/utils/firebase";
+import { auth } from "@/app/utils/firebase_setup/client";
 import { RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from "firebase/auth";
 import CollectNumber from "@/app/ui/components/collect_number";
 
