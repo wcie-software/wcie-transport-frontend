@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/app/utils/firebase_setup/server_admin";
+import { getFirebaseAdmin } from "./app/utils/firebase_setup/server";
 
 export async function proxy(request: NextRequest) {
 	const sessionCookie = request.cookies.get("session");
@@ -8,6 +8,7 @@ export async function proxy(request: NextRequest) {
 		return NextResponse.redirect(new URL("/login", request.url));
 	}
 
+	const { app, auth, db } = await getFirebaseAdmin();
 	try {
 		const decodedClaims = await auth.verifySessionCookie(sessionCookie.value);
 

@@ -1,11 +1,13 @@
 import { UserRoleSchema } from "@/app/models/user_role";
-import { auth, adminDB } from "@/app/utils/firebase_setup/server_admin";
+import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
 	const { idToken } = await request.json();
 	let uid: string;
+
+	const { app, auth, db } = await getFirebaseAdmin();
 
 	const expiresIn = 1000 * 60 * 60 * 24; // 1 day
 	try {
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
 		const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
 		
 		let role;
-		const userRoleDoc = adminDB.collection(FirestoreCollections.UserRoles).doc(uid);
+		const userRoleDoc = db.collection(FirestoreCollections.UserRoles).doc(uid);
 		const userRoleRef = await userRoleDoc.get();
 		if (userRoleRef.exists) {
 			const userRole = UserRoleSchema.safeParse(userRoleRef.data()).data;
