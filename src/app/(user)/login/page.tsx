@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import PhonePage from "@/app/(user)/login/pages/phone";
 import OTPPage from "@/app/(user)/login/pages/otp";
 import { ConfirmationResult } from "firebase/auth";
+import { userLogin } from "@/app/utils/login";
+import { FirebaseError } from "firebase/app";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -30,23 +32,23 @@ export default function LoginPage() {
 					onCodeSubmitted={(code) => {
 						if (confirmationResult != null) {
 							confirmationResult.confirm(code).then(async (result) => {
-								const user = result.user;
-								const idToken = await user.getIdToken();
+								const idToken = await result.user.getIdToken();
 
-								const res = await fetch("/api/login", {
-									method: "POST",
-									body: JSON.stringify({ idToken: idToken })
-								});
-
-								if (res.ok) {
-									const { role } = await res.json();
-									if (role == "driver") {
+								try {
+									const userRole = await userLogin(idToken);
+									if (userRole == "driver") {
 										router.push("/driver");
 									} else {
 										router.push("/request");
 									}
-								} else {
-									console.error(await res.text());
+								} catch (e) {
+									if (e instanceof FirebaseError) {
+										throw e;
+									} else {
+										console.log(e);
+										// TODO: Handle errors
+										// router.refresh();
+									}
 								}
 							}).catch((error) => {
 								console.error(error);

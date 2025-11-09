@@ -12,7 +12,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	const pages = {
 		"Requests": {
 			icon: Squares2X2Icon,
-			href: "/admin"
+			href: "/admin/requests"
 		},
 		"Assignments": {
 			icon: ArrowsRightLeftIcon,

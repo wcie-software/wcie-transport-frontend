@@ -8,6 +8,7 @@ import { getAuth, connectAuthEmulator, Auth } from "firebase/auth";
 import { connectFirestoreEmulator, Firestore, getFirestore } from "firebase/firestore";
 import { headers, cookies } from "next/headers";
 import { redirect, RedirectType } from "next/navigation";
+import { SESSION_COOKIE_KEY } from "@/app/utils/constants";
 
 export async function getFirebaseServer(): Promise<{
 	app: FirebaseServerApp,
@@ -17,10 +18,10 @@ export async function getFirebaseServer(): Promise<{
 	const headerObj = await headers();
 	const cookieObj = await cookies();
 
-	const idToken = cookieObj.get("session");
-	const uid = headerObj.get("X-Proxy-UID");
+	const idToken = cookieObj.get(SESSION_COOKIE_KEY);
+	// const uid = headerObj.get("X-Proxy-UID");
 
-	if (!idToken?.value || !uid) {
+	if (!idToken?.value) {
 		return redirect("/login", RedirectType.replace);
 	}
 

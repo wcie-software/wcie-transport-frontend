@@ -1,9 +1,25 @@
 "use client"
 
 import PrimaryButton from "@/app/ui/components/primary_button";
-import { sendEmailLink } from "@/app/utils/firebase_email_auth";
 import { useState, FormEvent } from "react";
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
+import { sendSignInLinkToEmail } from "firebase/auth";
+import { auth } from "@/app/utils/firebase_setup/client";
+
+async function sendEmailLink(emailAddress: string) {
+	try {
+		await sendSignInLinkToEmail(auth, emailAddress, {
+			url: `${process.env.NEXT_PUBLIC_DEBUG_URL ?? "https://transport.wcie.app"}/admin`,
+			handleCodeInApp: true,
+			// linkDomain: "transport.wcie.app"
+		});
+	} catch (e) {
+		console.error(e);
+		return false;
+	}
+
+	return true;
+}
 
 export default function AdminLogin() {
 	const [status, setStatus] = useState("default");
@@ -15,7 +31,8 @@ export default function AdminLogin() {
 		const formElement = e.target as HTMLFormElement;
 		if (formElement.checkValidity()) {
 			const emailAddr = formElement.email.value;
-			if (emailAddr) {
+			const endsWithADotSomething = /\.[a-z]+$/;
+			if (emailAddr && endsWithADotSomething.test(emailAddr)) {
 				const linkSent = await sendEmailLink(emailAddr);
 				if (linkSent) {
 					setStatus("link-sent");
@@ -56,7 +73,7 @@ export default function AdminLogin() {
 				<div className="flex flex-col gap-1">
 					<p className="text-4xl font-semibold">Check your inbox</p>
 					<p className="text-gray-400 text-xl">
-						We sent a magic link to your email "<span className="font-bold">{email}</span>". The link expires
+						We sent a magic link to your email "<span className="font-bold">{email}</span>". Use that to sign in. The link expires
 						in an hour.
 					</p>
 				</div>

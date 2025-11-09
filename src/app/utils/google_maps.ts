@@ -1,7 +1,7 @@
 "use server"
 
 import { Place } from "@/app/models/place";
-import { LocationDetails } from "../models/user";
+import { LocationDetails } from "@/app/models/user";
 
 export async function getPlacePredictions(query: string): Promise<Place[]> {
 	const endpoint = "https://places.googleapis.com/v1/places:autocomplete";
