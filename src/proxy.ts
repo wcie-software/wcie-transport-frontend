@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
 
 	const { app, auth, db } = await getFirebaseAdmin();
 	try {
-		const decodedClaims = await auth.verifySessionCookie(sessionCookie.value);
+		await auth.verifySessionCookie(sessionCookie.value);
 		
 		// Check if user is trying to access admin page, but doesn't have required privilege
 		const userRole = request.cookies.get(USER_ROLE_COOKIE_KEY);
