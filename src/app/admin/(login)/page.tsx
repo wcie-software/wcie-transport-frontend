@@ -50,6 +50,9 @@ export default function AdminPage() {
 		});
 	} else {
 		// TODO: Check if user is already logged in
+		if (state !== "login") {
+			setState("login");
+		}
 	}
 	
 	if (state === "login") {

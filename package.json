@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fast-csv/parse": "^5.0.5",
     "@heroicons/react": "^2.2.0",
     "clsx": "^2.1.1",
     "firebase": "^12.4.0",
