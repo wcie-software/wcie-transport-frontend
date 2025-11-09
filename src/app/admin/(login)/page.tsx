@@ -5,8 +5,8 @@ import { auth } from "@/app/utils/firebase_setup/client";
 import { isSignInWithEmailLink, onAuthStateChanged, signInWithEmailLink, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
-import AdminLogin from "@/app/admin/pages/admin-login";
-import NotAnAdminPage from "@/app/admin/pages/not-an-admin";
+import AdminLogin from "@/app/admin/(login)/pages/admin-login";
+import NotAnAdminPage from "@/app/admin/(login)/pages/not-an-admin";
 import { FirebaseError } from "firebase/app";
 import { adminLogin } from "@/app/utils/login";
 
