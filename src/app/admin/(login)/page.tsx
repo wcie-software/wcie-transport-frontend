@@ -23,45 +23,46 @@ export default function AdminPage() {
 		setEmail(localStorage.getItem(EMAIL_LOCALSTORAGE_KEY));
 	}, []);
 
-	onAuthStateChanged(auth, async (u) => {
-		if (u && await isAdmin()) {
+	auth.authStateReady().then(async (_) => {
+		const user = auth.currentUser;
+		if (user && await isAdmin()) {
 			router.replace("/admin/requests");
+		} else if (email && url && isSignInWithEmailLink(auth, url)) {
+			try {
+				const result = await signInWithEmailLink(auth, email, url);
+				localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
+
+				const idToken = await result.user.getIdToken();
+				try {
+					const loginSuccessful = await adminLogin(idToken);
+					if (loginSuccessful) {
+						router.replace("/admin/requests");
+					} else {
+						auth.signOut();
+						setState("not-an-admin");
+					}
+				} catch (e) {
+					if (e instanceof FirebaseError) {
+						throw e;
+					} else {
+						auth.signOut();
+						setState("login");
+					}
+				}
+			} catch (e) {
+				console.error("Some error occurred: " + e);
+				// TODO: Handle bad email and expired link
+			}
 		} else {
 			setState("login");
+			console.log("I was called");
 		}
 	});
 
-	if (email && url && isSignInWithEmailLink(auth, url)) {
-		signInWithEmailLink(auth, email, url).then(async (result) => {
-			localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
-
-			const idToken = await result.user.getIdToken();
-			try {
-				const loginSuccessful = await adminLogin(idToken);
-				if (loginSuccessful) {
-					router.replace("/admin/requests");
-				} else {
-					auth.signOut();
-					setState("not-an-admin");
-				}
-			} catch (e) {
-				if (e instanceof FirebaseError) {
-					throw e;
-				} else {
-					auth.signOut();
-					setState("login");
-				}
-			}
-		}).catch((e: unknown) => {
-			console.error("Some error occurred: " + e);
-			// TODO: Handle bad email and expired link
-		});
-	}
-
-	if (state === "login") {
+	if (state === "not-an-admin") {
+		return <NotAnAdminPage />;
+	} else if (state === "login") {
 		return <AdminLogin />;
-	} else if (state === "not-an-admin") {
-		return <NotAnAdminPage />
 	} else {
 		return <p>Loading...</p>
 	}

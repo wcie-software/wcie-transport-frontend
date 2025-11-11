@@ -10,7 +10,7 @@ export default async function RequestsPage() {
 		"Phone": "phone_number",
 		"Service": "service_number",
 		"Seats": "no_of_seats",
-		"Location": "address"
+		// "Location": "address"
 	};
 
 	const { app, auth, db } = await getFirebaseServer();
@@ -22,7 +22,19 @@ export default async function RequestsPage() {
 		<div className="w-full">
 			<Table<TransportRequest>
 				headerMap={headers}
-				body={body}/>
+				body={body}
+				fieldFormatter={(k, v, i) => {
+					if (k === "timestamp") {
+						return new Date(v).toLocaleDateString();
+					} else if (k === "no_of_seats") {
+						const children = body[i].no_of_children ?? 0;
+						if (children) {
+							return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
+						}
+						return v;
+					}
+					return v;
+				}}/>
 		</div>
 	);
 }

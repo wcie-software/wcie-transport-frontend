@@ -16,5 +16,5 @@ export async function GET(req: NextRequest) {
 		.on("data", row =>  requests.add(row))
 		.on("end", (rowCount: number) => `Parsed ${rowCount} rows`);
 		
-	return new Response("Done")
+	return new Response("Done");
 }
