@@ -70,8 +70,17 @@ export async function adminLogin(idToken: string): Promise<boolean> {
 		maxAge: expiresIn4H / 1000,
 		httpOnly: true,
 		secure: true,
-		sameSite: "lax",
+		sameSite: "strict",
 	});
 	
 	return (userRole == "admin");
+}
+
+export async function isAdmin(): Promise<boolean> {
+	const c = await cookies();
+	const role = c.get(USER_ROLE_COOKIE_KEY);
+
+	return c.has(SESSION_COOKIE_KEY)
+		&& role != undefined
+		&& role.value === "admin";
 }

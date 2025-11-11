@@ -8,7 +8,7 @@ import { useLayoutEffect, useState } from "react";
 import AdminLogin from "@/app/admin/(login)/pages/admin-login";
 import NotAnAdminPage from "@/app/admin/(login)/pages/not-an-admin";
 import { FirebaseError } from "firebase/app";
-import { adminLogin } from "@/app/utils/login";
+import { adminLogin, isAdmin } from "@/app/utils/login";
 
 export default function AdminPage() {
 	const router = useRouter();
@@ -22,6 +22,14 @@ export default function AdminPage() {
 		setUrl(window.location.href);
 		setEmail(localStorage.getItem(EMAIL_LOCALSTORAGE_KEY));
 	}, []);
+
+	onAuthStateChanged(auth, async (u) => {
+		if (u && await isAdmin()) {
+			router.replace("/admin/requests");
+		} else {
+			setState("login");
+		}
+	});
 
 	if (email && url && isSignInWithEmailLink(auth, url)) {
 		signInWithEmailLink(auth, email, url).then(async (result) => {
@@ -48,13 +56,8 @@ export default function AdminPage() {
 			console.error("Some error occurred: " + e);
 			// TODO: Handle bad email and expired link
 		});
-	} else {
-		// TODO: Check if user is already logged in
-		if (state !== "login") {
-			setState("login");
-		}
 	}
-	
+
 	if (state === "login") {
 		return <AdminLogin />;
 	} else if (state === "not-an-admin") {
