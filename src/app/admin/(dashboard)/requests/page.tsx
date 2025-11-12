@@ -1,7 +1,7 @@
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
-import Table from "@/app/ui/components/table";
 import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
+import RequestTable from "./request_table";
 
 export default async function RequestsPage() {
 	const headers = {
@@ -15,26 +15,15 @@ export default async function RequestsPage() {
 
 	const { app, auth, db } = await getFirebaseServer();
 	const firestore = new FirestoreHelper(db);
-	const body = await firestore.getCollection<TransportRequest>(FirestoreCollections.Requests, TransportRequestSchema);
 
-	// TODO: Add field converter
+	const data = await firestore.getCollection<TransportRequest>(FirestoreCollections.Requests, TransportRequestSchema);
+	const body = data.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+
 	return (
 		<div className="w-full">
-			<Table<TransportRequest>
-				headerMap={headers}
+			<RequestTable
 				body={body}
-				fieldFormatter={(k, v, i) => {
-					if (k === "timestamp") {
-						return new Date(v).toLocaleDateString();
-					} else if (k === "no_of_seats") {
-						const children = body[i].no_of_children ?? 0;
-						if (children) {
-							return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
-						}
-						return v;
-					}
-					return v;
-				}}/>
+				header={headers} />
 		</div>
 	);
 }

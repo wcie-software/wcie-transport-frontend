@@ -1,22 +1,20 @@
-export default function Table<Type>({ headerMap, body, fieldFormatter }: { 
+export type ActionButton = {
+	icon: React.ReactNode,
+	onPressed: (index: number) => void
+};
+
+export default function Table<Type>({ headerMap, body, fieldFormatter, actionButtons }: { 
 	headerMap: Record<string, string>,
 	body: Type[],
-	fieldFormatter?: (fieldName: string, fieldValue: string, index: number) => string
+	fieldFormatter?: (fieldName: string, fieldValue: string, index: number) => string,
+	actionButtons?: ActionButton[]
 }) {
-	const length = Object.entries(headerMap).length;
 	return (
 		<table className="block w-full px-6 mt-12 border-spacing-0 border-collapse table-fixed">
-			<colgroup>
-				{Array.from({ length: length }).map((i) =>
-					<col span={1} style={{ width: `${100.0 / length}%` }}/>
-				)}
-				{/* <col span={1} style={{ width: "25px" }} /> */}
-			</colgroup>
-			
 			<thead>
 				<tr>
 					{Object.keys(headerMap).map((h) =>
-						<th key={h} className="text-sm font-normal text-gray-300 text-left">{h}</th>
+						<th key={h} className="text-sm font-normal text-gray-300 text-left w-[15%]">{h}</th>
 					)}
 				</tr>
 			</thead>
@@ -34,7 +32,18 @@ export default function Table<Type>({ headerMap, body, fieldFormatter }: {
 										</td>
 									);
 								})}
-								{/* <td>...</td> */}
+								<td key={`Action Buttons`}>
+									<div className="flex flex-row gap-2.5">
+										{actionButtons?.map((btn, i) => 
+											<button
+												key={`Action Button ${i}`}
+												className="cursor-pointer"
+												onClick={() => btn.onPressed(index)}>
+												{btn.icon}
+											</button>
+										)}
+									</div>
+								</td>
 							</tr>
 						);
 					})}

@@ -8,7 +8,7 @@ export const TransportRequestSchema = z.object({
 	service_number: z.coerce.number(),
 	no_of_children: z.nullable(z.coerce.number()),
 	no_of_seats: z.coerce.number(),
-	timestamp: z.string()
+	timestamp: z.coerce.date()
 });
 
 export type TransportRequest = z.infer<typeof TransportRequestSchema>;
