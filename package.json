@@ -8,8 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@fast-csv/parse": "^5.0.5",
     "@heroicons/react": "^2.2.0",
+    "@mui/material": "^7.3.5",
     "clsx": "^2.1.1",
     "firebase": "^12.4.0",
     "firebase-admin": "^13.5.0",

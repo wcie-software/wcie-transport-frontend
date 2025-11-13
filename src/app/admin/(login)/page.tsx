@@ -2,7 +2,7 @@
 
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
 import { auth } from "@/app/utils/firebase_setup/client";
-import { isSignInWithEmailLink, onAuthStateChanged, signInWithEmailLink, User } from "firebase/auth";
+import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
 import AdminLogin from "@/app/admin/(login)/pages/admin-login";
@@ -25,9 +25,7 @@ export default function AdminPage() {
 
 	auth.authStateReady().then(async (_) => {
 		const user = auth.currentUser;
-		if (user && await isAdmin()) {
-			router.replace("/admin/requests");
-		} else if (email && url && isSignInWithEmailLink(auth, url)) {
+		if (!user && email && url && isSignInWithEmailLink(auth, url)) {
 			try {
 				const result = await signInWithEmailLink(auth, email, url);
 				localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
@@ -53,6 +51,8 @@ export default function AdminPage() {
 				console.error("Some error occurred: " + e);
 				// TODO: Handle bad email and expired link
 			}
+		} else if (user && await isAdmin()) {
+			router.replace("/admin/requests");
 		} else {
 			setState("login");
 			console.log("I was called");

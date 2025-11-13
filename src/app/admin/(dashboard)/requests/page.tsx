@@ -1,16 +1,15 @@
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import RequestTable from "./request_table";
+import RequestTable from "@/app/admin/(dashboard)/requests/components/request_table";
 
 export default async function RequestsPage() {
 	const headers = {
-		"Date": "timestamp",
-		"Name": "full_name",
-		"Phone": "phone_number",
-		"Service": "service_number",
-		"Seats": "no_of_seats",
-		// "Location": "address"
+		"timestamp": "Date",
+		"full_name": "Name",
+		"phone_number": "Phone",
+		"service_number": "Service",
+		"no_of_seats": "Seats",
 	};
 
 	const { app, auth, db } = await getFirebaseServer();
