@@ -1,10 +1,14 @@
 import PrimaryButton from "@/app/ui/components/primary_button";
+import { FormEvent } from "react";
 
-export default function SchemaForm({ schema, labels }: { schema: object, labels?: Record<string, string> }) {
+export default function SchemaForm({ schema, labels, onSubmitted }: {
+	schema: object,
+	labels?: Record<string, string>,
+	onSubmitted?: (newObj: object) => void
+}) {
 	const keys = Object.keys(schema);
 	const types = Object.values(schema).map((v) => typeof v);
-
-	const obj = Array.from(
+	const zipped = Array.from(
 		{ length: keys.length },
 		(_, i) => [keys[i], types[i]]
 	);
@@ -15,7 +19,7 @@ export default function SchemaForm({ schema, labels }: { schema: object, labels?
 		} else if (name.includes("mail")) {
 			return "email";
 		} else if (name.includes("time") || name.includes("date")) {
-			return "date";
+			return "datetime-local";
 		} else if (name.includes("link")) {
 			return "url";
 		} else if (type.includes("number")) {
@@ -25,17 +29,30 @@ export default function SchemaForm({ schema, labels }: { schema: object, labels?
 		return "text";
 	}
 
+	function formSubmitted(e: FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		
+		const newObj = new Map<String, any>();
+		for (const [k, v] of formData.entries()) {
+			newObj.set(k, v);
+		}
+
+		onSubmitted?.(Object.fromEntries(newObj.entries()));
+	}
+
 	return (
-		<form className="flex flex-col gap-2">
+		<form className="flex flex-col gap-2" onSubmit={formSubmitted}>
 			<div>
-				{obj.map(([k, t]) => {
+				{zipped.map(([k, t]) => {
 					const inferredType = inferInputType(k, t);
 					const key = k as keyof object;
 
 					const v = schema[key];
-					const currentValue = (inferredType === "date")
-						? (v as Date).toISOString().split("T")[0]
+					const currentValue = (inferredType === "datetime-local")
+						? (v as Date).toISOString().replace("Z", "")
 						: String(v);
+					console.log(currentValue);
 
 					return (
 						<div className="py-2 flex flex-row items-center gap-3">
@@ -52,15 +69,12 @@ export default function SchemaForm({ schema, labels }: { schema: object, labels?
 					);
 				})}
 			</div>
-			<span className="ml-auto flex flex-row gap-4">
-				<PrimaryButton
-					text="Cancel"
-					inverted={true}
-				/>
-				<PrimaryButton
-					text="Edit"
-				/>
-			</span>
+			<button
+				type="submit"
+				className="ml-auto bg-primary px-6 py-3 rounded cursor-pointer"
+			>
+				Done
+			</button>
 		</form>
 	);
 }
