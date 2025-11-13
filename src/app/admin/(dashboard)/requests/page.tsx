@@ -1,7 +1,7 @@
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import RequestTable from "@/app/admin/(dashboard)/requests/components/request_table";
+import RequestTable from "@/app/admin/(dashboard)/requests/request_table";
 
 export default async function RequestsPage() {
 	const headers = {

@@ -1,10 +1,13 @@
 import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
+import { Location } from "./location";
 
 export const DriverSchema = BaseDocument.extend({
-	phone_number: z.string(),
-	driver_license_class: z.int(),
-	comments: z.optional(z.string())
+	full_name: z.string(),
+	address: z.optional(z.string()),
+	location: z.optional(Location),
+	driver_license_class: z.string(),
+	comments: z.string().default(""),
 });
 
 export type Driver = z.infer<typeof DriverSchema>;

@@ -7,7 +7,7 @@ export const TransportRequestSchema = BaseDocument.extend({
 	address: z.string(),
 	google_maps_link: z.url(),
 	service_number: z.coerce.number(),
-	no_of_children: z.nullable(z.coerce.number()),
+	no_of_children: z.coerce.number().default(0),
 	no_of_seats: z.coerce.number(),
 	timestamp: z.string()
 });

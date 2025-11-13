@@ -16,7 +16,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
 
 	return (
-		<>
+		<div className="mt-12">
 			<Table<TransportRequest>
 				headerMap={header}
 				body={tableData}
@@ -84,6 +84,6 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 					}}
 				/>
 			</PopupForm>
-		</>
+		</div>
 	);
 }

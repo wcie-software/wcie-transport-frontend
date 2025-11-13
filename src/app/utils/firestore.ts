@@ -21,17 +21,18 @@ export class FirestoreHelper {
 		data: Record<string, any>,
 		documentPath?: string,
 	) {
-		if ("documentId" in data) { // See `models/base.tsx`
-			delete data["documentId"];
+		const d = { ... data };
+		if ("documentId" in d) { // See `models/base.tsx`
+			delete d["documentId"];
 		}
 
 		if (!documentPath) {
-			await addDoc(collection(this._db, collectionName), data);
+			await addDoc(collection(this._db, collectionName), d);
 		} else {
 			const ref = doc(this._db, collectionName, documentPath);
 			const snapshot = await getDoc(ref);
 			if (!snapshot.exists()) {
-				await setDoc(ref, data);
+				await setDoc(ref, d);
 			}
 		}
 	}
@@ -43,11 +44,12 @@ export class FirestoreHelper {
 	): Promise<boolean> {
 		const ref = doc(this._db, collectionName, documentPath);
 		try {
-			if ("documentId" in data) { // See `models/base.tsx`
-				delete data["documentId"];
+			const d = { ... data };
+			if ("documentId" in d) { // See `models/base.tsx`
+				delete d["documentId"];
 			}
 
-			await updateDoc(ref, data);
+			await updateDoc(ref, d);
 			return true;
 		} catch (e) {
 			return false;

@@ -11,7 +11,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 }) {
 	const noOfHeaders = Object.entries(headerMap).length;
 	return (
-		<table className="block w-full px-6 mt-12 border-spacing-0 border-collapse table-fixed">
+		<table className="block w-full border-spacing-0 border-collapse table-fixed">
 			<thead>
 				<tr>
 					{Object.values(headerMap).map((h) =>

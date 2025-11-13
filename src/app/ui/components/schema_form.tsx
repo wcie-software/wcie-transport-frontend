@@ -1,8 +1,9 @@
 import { FormEvent } from "react";
 
-export default function SchemaForm({ schema, labels, onSubmitted }: {
+export default function SchemaForm({ schema, labels, suggestedValues, onSubmitted }: {
 	schema: object,
 	labels: Record<string, string>,
+	suggestedValues?: Record<string, string[]>,
 	onSubmitted?: (newObj: object) => void,
 }) {
 	const keys = Object.keys(schema);
@@ -13,7 +14,7 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 	);
 
 	function inferType(name: string, type: string) {
-		if (name.includes("phone") || name.includes("tel")) {
+		if (name.includes("phone") || labels[name].toLowerCase().includes("phone")) {
 			return "tel";
 		} else if (name.includes("mail")) {
 			return "email";
@@ -36,7 +37,8 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 		for (const [k, v] of formData.entries()) {
 			newObj.set(k, String(v));
 		}
-		if ("documentId" in schema) {
+
+		if ("documentId" in schema && !newObj.has("documentId")) {
 			newObj.set("documentId", schema["documentId" as keyof object])
 		}
 		
@@ -62,13 +64,22 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 					return (
 						<div key={k} className="py-2 flex flex-row items-center gap-3">
 							<label htmlFor={k}>{labels[k]}</label>
-							<input
-								name={k}
-								id={k}
-								type={inferredType}
-								defaultValue={currentValue}
-								className="flex-1 border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
-							/>
+							{suggestedValues && k in suggestedValues &&
+								<select id={k} name={k} defaultValue={v}>
+									{suggestedValues[k].map((sv) => 
+										<option value={sv} key={sv}>{sv}</option>
+									)}
+								</select>
+							}
+							{(!suggestedValues || !(k in suggestedValues)) &&
+								<input
+									name={k}
+									id={k}
+									type={inferredType}
+									defaultValue={currentValue}
+									className="flex-1 border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
+								/>
+							}
 						</div>
 					);
 				})}

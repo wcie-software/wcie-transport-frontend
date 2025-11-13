@@ -2,8 +2,8 @@
 
 import clsx from "clsx";
 
-export default function PrimaryButton({ text, id, type = "button", disabled = false, outline = false, onClick }:
-	{text: string, id?: string, type?: "submit" | "reset" | "button", disabled?: boolean, outline?: boolean, onClick?: () => void}
+export default function PrimaryButton({ id, type = "button", disabled = false, outline = false, onClick, children }:
+	{ id?: string, type?: "submit" | "reset" | "button", disabled?: boolean, outline?: boolean, onClick?: () => void, children?: React.ReactNode }
 ) {
 	return (
 		<button
@@ -18,7 +18,7 @@ export default function PrimaryButton({ text, id, type = "button", disabled = fa
 				}
 			)}
 			onClick={(_) => onClick?.()}>
-			{text}
+			{children}
 		</button>
 	);
 }

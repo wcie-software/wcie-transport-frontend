@@ -1,10 +1,6 @@
 import * as z from "zod";
+import { Location } from "@/app/models/location";
 import { BaseDocument } from "@/app/models/base";
-
-const Location = z.object({
-	latitude: z.number(),
-	longitude: z.number()
-});
 
 export const LocationDetails = z.object({
 	googleMapsUri: z.url(),
