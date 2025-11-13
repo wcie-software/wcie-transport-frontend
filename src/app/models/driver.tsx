@@ -2,9 +2,8 @@ import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
 
 export const DriverSchema = BaseDocument.extend({
-	uid: z.string(),
+	phone_number: z.string(),
 	driver_license_class: z.int(),
-	email: z.optional(z.email()),
 	comments: z.optional(z.string())
 });
 
