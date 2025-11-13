@@ -16,7 +16,12 @@ export default async function RequestsPage() {
 	const firestore = new FirestoreHelper(db);
 
 	const data = await firestore.getCollection<TransportRequest>(FirestoreCollections.Requests, TransportRequestSchema);
-	const body = data.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+	const body = data.sort((a, b) => {
+		const aDate = new Date(a.timestamp);
+		const bDate = new Date(b.timestamp);
+		
+		return bDate.getTime() - aDate.getTime();
+	});
 
 	return (
 		<div className="w-full">

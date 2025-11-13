@@ -1,7 +1,7 @@
 import * as z from "zod";
-import { BaseSchema } from "@/app/models/base";
+import { BaseDocument } from "@/app/models/base";
 
-export const TransportRequestSchema = BaseSchema.extend({
+export const TransportRequestSchema = BaseDocument.extend({
 	full_name: z.string(),
 	phone_number: z.string(),
 	address: z.string(),
@@ -9,7 +9,8 @@ export const TransportRequestSchema = BaseSchema.extend({
 	service_number: z.coerce.number(),
 	no_of_children: z.nullable(z.coerce.number()),
 	no_of_seats: z.coerce.number(),
-	timestamp: z.coerce.date()
+	timestamp: z.string()
 });
+
 
 export type TransportRequest = z.infer<typeof TransportRequestSchema>;

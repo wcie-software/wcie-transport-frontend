@@ -21,6 +21,10 @@ export class FirestoreHelper {
 		data: Record<string, any>,
 		documentPath?: string,
 	) {
+		if ("documentId" in data) { // See `models/base.tsx`
+			delete data["documentId"];
+		}
+
 		if (!documentPath) {
 			await addDoc(collection(this._db, collectionName), data);
 		} else {
@@ -39,6 +43,10 @@ export class FirestoreHelper {
 	): Promise<boolean> {
 		const ref = doc(this._db, collectionName, documentPath);
 		try {
+			if ("documentId" in data) { // See `models/base.tsx`
+				delete data["documentId"];
+			}
+
 			await updateDoc(ref, data);
 			return true;
 		} catch (e) {
@@ -56,11 +64,13 @@ export class FirestoreHelper {
 
 		if (docSnap.exists()) {
 			const data = docSnap.data();
-			data["id"] = docSnap.id;
+			data["documentId"] = docSnap.id;
 
 			const result = schema.safeParse(data);
 			if (result.success) {
 				return result.data as Type;
+			} else {
+				console.log("Failed to parse", data);
 			}
 		}
 
@@ -77,11 +87,13 @@ export class FirestoreHelper {
 		const docs: Type[] = [];
 		snapshot.forEach((doc) => {
 			const data = doc.data();
-			data["id"] = doc.id;
+			data["documentId"] = doc.id;
 
 			const result = schema.safeParse(data);
 			if (result.success) {
 				docs.push(result.data as Type);
+			} else {
+				console.log("Failed to parse", data);
 			}
 		});
 

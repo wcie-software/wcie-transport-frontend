@@ -7,15 +7,19 @@ import { Modal } from "@mui/material";
 import { useState } from "react";
 import SchemaForm from "./schema_form";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
+import { db } from "@/app/utils/firebase_setup/client";
 
 export default function RequestTable({ body, header }: { header: Record<string, string>, body: TransportRequest[] }) {
-	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
+	const firestore = new FirestoreHelper(db);
 
+	const [tableData, setTableData] = useState(body);
+	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
 	const actionButtons: ActionButton[] = [
 		{
 			icon: <MapPinIcon width={20} height={20}/>,
 			onPressed: (i) => {
-				window.open(body[i].google_maps_link, "_blank", "noopener,noreferrer");
+				window.open(tableData[i].google_maps_link, "_blank", "noopener,noreferrer");
 			}
 		},
 		{
@@ -24,7 +28,10 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 		},
 		{
 			icon: <TrashIcon width={20} height={20}/>,
-			onPressed: (i) => {}
+			onPressed: (i) => {
+				firestore.deleteDocument(FirestoreCollections.Requests, tableData[i].documentId);
+				setTableData(tableData.filter((r, index) => index != i));
+			}
 		}
 	];
 
@@ -32,7 +39,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 		<>
 			<Table<TransportRequest>
 				headerMap={header}
-				body={body}
+				body={tableData}
 				fieldFormatter={(k, v, i) => {
 					if (k === "service_number") {
 						const suffix: Record<string, string> = {
@@ -43,7 +50,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 					} else if (k === "timestamp") {
 						return new Date(v).toLocaleDateString();
 					} else if (k === "no_of_seats") {
-						const children = body[i].no_of_children ?? 0;
+						const children = tableData[i].no_of_children ?? 0;
 						if (children) {
 							return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
 						}
@@ -66,9 +73,8 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 								onClick={() => setCurrentlyEditing(-1)}
 							/>
 							<SchemaForm
-								schema={body[currentlyEditing]}
+								schema={tableData[currentlyEditing]}
 								labels={{
-									"timestamp": "Date of Request",
 									"full_name": "Full Name",
 									"phone_number": "Phone Number",
 									"service_number": "Service Number",
@@ -78,7 +84,16 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 									"address": "Address"
 								}}
 								onSubmitted={(obj) => {
-									console.log(obj);
+									const newRequest = TransportRequestSchema.parse(obj);
+									setTableData(tableData.map((row, i) => {
+										// Update only that row
+										if (i === currentlyEditing) {
+											return newRequest;
+										}
+										return row;
+									}));
+									firestore.updateDocument(FirestoreCollections.Requests, newRequest.documentId, newRequest);
+									
 									setCurrentlyEditing(-1);
 								}}
 							/>

@@ -1,10 +1,9 @@
-import PrimaryButton from "@/app/ui/components/primary_button";
 import { FormEvent } from "react";
 
 export default function SchemaForm({ schema, labels, onSubmitted }: {
 	schema: object,
-	labels?: Record<string, string>,
-	onSubmitted?: (newObj: object) => void
+	labels: Record<string, string>,
+	onSubmitted?: (newObj: object) => void,
 }) {
 	const keys = Object.keys(schema);
 	const types = Object.values(schema).map((v) => typeof v);
@@ -13,7 +12,7 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 		(_, i) => [keys[i], types[i]]
 	);
 
-	function inferInputType(name: string, type: string) {
+	function inferType(name: string, type: string) {
 		if (name.includes("phone") || name.includes("tel")) {
 			return "tel";
 		} else if (name.includes("mail")) {
@@ -35,9 +34,12 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 		
 		const newObj = new Map<String, any>();
 		for (const [k, v] of formData.entries()) {
-			newObj.set(k, v);
+			newObj.set(k, String(v));
 		}
-
+		if ("documentId" in schema) {
+			newObj.set("documentId", schema["documentId" as keyof object])
+		}
+		
 		onSubmitted?.(Object.fromEntries(newObj.entries()));
 	}
 
@@ -45,22 +47,24 @@ export default function SchemaForm({ schema, labels, onSubmitted }: {
 		<form className="flex flex-col gap-2" onSubmit={formSubmitted}>
 			<div>
 				{zipped.map(([k, t]) => {
-					const inferredType = inferInputType(k, t);
+					if (!(k in labels)) {
+						return null;
+					}
+
+					const inferredType = inferType(k, t);
 					const key = k as keyof object;
 
 					const v = schema[key];
 					const currentValue = (inferredType === "datetime-local")
-						? (v as Date).toISOString().replace("Z", "")
+						? (new Date(v)).toISOString().replace("Z", "")
 						: String(v);
-					console.log(currentValue);
 
 					return (
-						<div className="py-2 flex flex-row items-center gap-3">
-							<label htmlFor={k}>{(labels && labels[k]) ?? k}</label>
+						<div key={k} className="py-2 flex flex-row items-center gap-3">
+							<label htmlFor={k}>{labels[k]}</label>
 							<input
 								name={k}
 								id={k}
-								key={k}
 								type={inferredType}
 								defaultValue={currentValue}
 								className="flex-1 border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"

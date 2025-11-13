@@ -25,7 +25,7 @@ export default function AdminPage() {
 
 	auth.authStateReady().then(async (_) => {
 		const user = auth.currentUser;
-		if (!user && email && url && isSignInWithEmailLink(auth, url)) {
+		if (email && url && isSignInWithEmailLink(auth, url)) {
 			try {
 				const result = await signInWithEmailLink(auth, email, url);
 				localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
@@ -55,7 +55,6 @@ export default function AdminPage() {
 			router.replace("/admin/requests");
 		} else {
 			setState("login");
-			console.log("I was called");
 		}
 	});
 

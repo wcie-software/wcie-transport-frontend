@@ -27,7 +27,10 @@ async function getUserRole(uid: string, db: Firestore): Promise<UserRole["role"]
 	const userRoleDoc = db.collection(FirestoreCollections.UserRoles).doc(uid);
 	const userRoleRef = await userRoleDoc.get();
 	if (userRoleRef.exists) {
-		const userRole = UserRoleSchema.safeParse(userRoleRef.data());
+		const data = userRoleRef.data()!;
+		data["documentId"] = userRoleRef.id;
+
+		const userRole = UserRoleSchema.safeParse(data);
 		if (userRole.success) {
 			return userRole!.data.role;
 		}
@@ -54,6 +57,7 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 			sameSite: "lax"
 		});
 
+		console.log("Created session cookie");
 		return await getUserRole(uid, db);
 	} catch (e) {
 		console.error("Bad idToken. Could not create cookie.");

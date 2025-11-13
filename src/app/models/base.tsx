@@ -1,5 +1,5 @@
 import * as z from "zod";
 
-export const BaseSchema = z.object({
-	id: z.string()
+export const BaseDocument = z.object({
+	documentId: z.string()
 });
