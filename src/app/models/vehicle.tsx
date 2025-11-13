@@ -1,6 +1,7 @@
 import * as z from "zod";
+import { BaseSchema } from "@/app/models/base";
 
-export const Vehicle = z.object({
+export const Vehicle = BaseSchema.extend({
 	name: z.string(),
 	year: z.int(),
 	plate_number: z.string(),

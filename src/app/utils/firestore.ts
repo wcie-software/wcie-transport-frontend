@@ -32,7 +32,7 @@ export class FirestoreHelper {
 		}
 	}
 
-	 async  updateDocument(
+	 async updateDocument(
 		collectionName: FirestoreCollections,
 		documentPath: string,
 		data: Record<string, any>
@@ -55,7 +55,10 @@ export class FirestoreHelper {
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			const result = schema.safeParse(docSnap.data());
+			const data = docSnap.data();
+			data["id"] = docSnap.id;
+
+			const result = schema.safeParse(data);
 			if (result.success) {
 				return result.data as Type;
 			}
@@ -73,7 +76,10 @@ export class FirestoreHelper {
 
 		const docs: Type[] = [];
 		snapshot.forEach((doc) => {
-			const result = schema.safeParse(doc.data());
+			const data = doc.data();
+			data["id"] = doc.id;
+
+			const result = schema.safeParse(data);
 			if (result.success) {
 				docs.push(result.data as Type);
 			}

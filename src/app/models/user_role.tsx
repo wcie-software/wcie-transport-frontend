@@ -1,6 +1,7 @@
 import * as z from "zod";
+import { BaseSchema } from "@/app/models/base";
 
-export const UserRoleSchema = z.object({
+export const UserRoleSchema = BaseSchema.extend({
 	uid: z.string(),
 	role: z.enum(["admin", "driver", "user"])
 });
