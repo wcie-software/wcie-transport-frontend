@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
 
-export const Vehicle = BaseDocument.extend({
+export const VehicleSchema = BaseDocument.extend({
 	name: z.string(),
 	year: z.int(),
 	plate_number: z.string(),
@@ -12,3 +12,5 @@ export const Vehicle = BaseDocument.extend({
 	fuel_cost: z.optional(z.number()),
 	remarks: z.optional(z.string()),
 });
+
+export type Vehicle = z.infer<typeof VehicleSchema>;
