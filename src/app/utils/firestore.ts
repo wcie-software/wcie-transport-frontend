@@ -4,7 +4,7 @@ import { ZodObject } from "zod";
  export enum FirestoreCollections {
 	Users = "users",
 	Requests = "requests",
-	UserRoles = "user-roles",
+	Admins = "admins",
 	Drivers = "drivers",
 	Vehicles = "vehicles"
 }

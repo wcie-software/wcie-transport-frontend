@@ -1,7 +1,7 @@
 "use server"
 
-import { UserRole, UserRoleSchema } from "@/app/models/user_role";
-import { SESSION_COOKIE_KEY, USER_ROLE_COOKIE_KEY } from "@/app/utils/constants";
+import { UserRole, AdminSchema } from "@/app/models/admin";
+import { SESSION_COOKIE_KEY, IS_ADMIN_COOKIE_KEY } from "@/app/utils/constants";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { Auth } from "firebase-admin/auth";
@@ -23,23 +23,14 @@ async function verifyToken(idToken: string, auth: Auth): Promise<string | null> 
 	}	
 }
 
-async function getUserRole(uid: string, db: Firestore): Promise<UserRole["role"]> {
-	const userRoleDoc = db.collection(FirestoreCollections.UserRoles).doc(uid);
-	const userRoleRef = await userRoleDoc.get();
-	if (userRoleRef.exists) {
-		const data = userRoleRef.data()!;
-		data["documentId"] = userRoleRef.id;
-
-		const userRole = UserRoleSchema.safeParse(data);
-		if (userRole.success) {
-			return userRole!.data.role;
-		}
-	}
-
-	return "user";
+async function checkIfAdmin(uid: string, db: Firestore): Promise<boolean> {
+	const doc = db.collection(FirestoreCollections.Admins).doc(uid);
+	const ref = await doc.get();
+	
+	return ref.exists;
 }
 
-export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24): Promise<UserRole["role"]> {
+export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24): Promise<string> {
 	const { app, auth, db } = await getFirebaseAdmin();
 
 	const uid = await verifyToken(idToken, auth);
@@ -58,7 +49,7 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 		});
 
 		console.log("Created session cookie");
-		return await getUserRole(uid, db);
+		return uid;
 	} catch (e) {
 		console.error("Bad idToken. Could not create cookie.");
 		throw LoginError.cookieCreationFailed;
@@ -67,24 +58,28 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 
 export async function adminLogin(idToken: string): Promise<boolean> {
 	const expiresIn4H = 1000 * 60 * 60 * 4;
-	const userRole = await userLogin(idToken, expiresIn4H);
+	const { app, auth, db } = await getFirebaseAdmin();
 
-	const c = await cookies();
-	c.set(USER_ROLE_COOKIE_KEY, userRole, {
-		maxAge: expiresIn4H / 1000,
-		httpOnly: true,
-		secure: true,
-		sameSite: "strict",
-	});
+	const uid = await userLogin(idToken, expiresIn4H);
+	const isAdmin = await checkIfAdmin(uid, db);
+
+	if (isAdmin) {
+		const c = await cookies();
+		c.set(IS_ADMIN_COOKIE_KEY, "TRUE", {
+			maxAge: expiresIn4H / 1000,
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+		});
+	}
 	
-	return (userRole == "admin");
+	return isAdmin;
 }
 
 export async function isAdmin(): Promise<boolean> {
 	const c = await cookies();
-	const role = c.get(USER_ROLE_COOKIE_KEY);
 
 	return c.has(SESSION_COOKIE_KEY)
-		&& role != undefined
-		&& role.value === "admin";
+		&& c.has(IS_ADMIN_COOKIE_KEY)
+		&& c.get(IS_ADMIN_COOKIE_KEY)!.value === "TRUE";
 }
