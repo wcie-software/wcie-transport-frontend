@@ -59,11 +59,11 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 					}}
 					suggestedValues={{ "driver_license_class": Array.from({length: 7}).map((v, i) => `Class ${i+1}`), }}
 					onSubmitted={(obj) => {
-						const newDriver = DriverSchema.parse(obj);
+						const newDriver = obj as Driver;
 						if (currentlyEditing !== -1) {
 							setTableData(tableData.map((r, i) => {
 								if (i === currentlyEditing) {
-									return newDriver;
+									return { ...r, ...newDriver };
 								}
 								return r;
 							}));

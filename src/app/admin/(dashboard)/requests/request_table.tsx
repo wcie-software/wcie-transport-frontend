@@ -28,10 +28,10 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 						};
 						return `${v}${suffix[v]} Service`;
 					} else if (k === "timestamp") {
-						return new Date(v).toLocaleDateString();
+						return new Date(parseInt(v)).toLocaleDateString();
 					} else if (k === "no_of_seats") {
 						const children = tableData[i].no_of_children ?? 0;
-						if (children) {
+						if (children > 0) {
 							return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
 						}
 					}
@@ -70,11 +70,11 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 						"address": "Address"
 					}}
 					onSubmitted={(obj) => {
-						const newRequest = TransportRequestSchema.parse(obj);
+						const newRequest = obj as TransportRequest;
 						setTableData(tableData.map((row, i) => {
 							// Update only that row
 							if (i === currentlyEditing) {
-								return newRequest;
+								return { ...row, ...newRequest };
 							}
 							return row;
 						}));
