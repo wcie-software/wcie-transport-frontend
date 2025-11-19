@@ -28,7 +28,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 						};
 						return `${v}${suffix[v]} Service`;
 					} else if (k === "timestamp") {
-						return new Date(parseInt(v)).toLocaleDateString();
+						return new Date(v).toLocaleDateString();
 					} else if (k === "no_of_seats") {
 						const children = tableData[i].no_of_children ?? 0;
 						if (children > 0) {
@@ -48,7 +48,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 					{
 						icon: <TrashIcon width={20} height={20}/>,
 						onPressed: (i) => {
-							firestore.deleteDocument(FirestoreCollections.Requests, tableData[i].documentId);
+							firestore.deleteDocument(FirestoreCollections.Requests, tableData[i].documentId!);
 							setTableData(tableData.filter((r, index) => index != i));
 						}
 					}
@@ -78,7 +78,7 @@ export default function RequestTable({ body, header }: { header: Record<string, 
 							}
 							return row;
 						}));
-						firestore.updateDocument(FirestoreCollections.Requests, newRequest.documentId, newRequest);
+						firestore.updateDocument(FirestoreCollections.Requests, newRequest.documentId!, newRequest);
 						
 						setCurrentlyEditing(-1);
 					}}

@@ -37,7 +37,7 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 						{
 							icon: <TrashIcon width={20} height={20} />,
 							onPressed: (i) => {
-								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId);
+								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
 								setTableData(tableData.filter((r, index) => index != i));
 							}
 						}
@@ -67,7 +67,7 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 								}
 								return r;
 							}));
-							firestore.updateDocument(FirestoreCollections.Drivers, newDriver.documentId, newDriver);
+							firestore.updateDocument(FirestoreCollections.Drivers, newDriver.documentId!, newDriver);
 						} else {
 							setTableData([...tableData, newDriver]);
 							firestore.addDocument(FirestoreCollections.Drivers, newDriver, newDriver.documentId);

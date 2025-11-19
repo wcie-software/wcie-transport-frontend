@@ -1,5 +1,6 @@
 import { Driver, DriverSchema } from "@/app/models/driver";
-import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
+import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
+import * as firebaseAdmin from "@/app/utils/firestore_admin";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import DriversPage from "./drivers_page";
 
@@ -12,9 +13,12 @@ export default async function RequestsPage() {
 		"comments": "Comments",
 	};
 
-	const { app, auth, db } = await getFirebaseServer();
-	const firestore = new FirestoreHelper(db);
-	const body = await firestore.getCollection<Driver>(FirestoreCollections.Drivers, DriverSchema);
+	const { app, auth, db } = await getFirebaseAdmin();
+	const body = await firebaseAdmin.getCollection<Driver>(
+		db,
+		FirestoreCollections.Drivers,
+		DriverSchema
+	);
 
 	return (
 		<div className="w-full mt-12 mx-4">
