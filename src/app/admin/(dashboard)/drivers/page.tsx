@@ -14,11 +14,7 @@ export default async function RequestsPage() {
 	};
 
 	const { app, auth, db } = await getFirebaseAdmin();
-	const body = await firebaseAdmin.getCollection<Driver>(
-		db,
-		FirestoreCollections.Drivers,
-		DriverSchema
-	);
+	const body = await firebaseAdmin.getCollection<Driver>(db, FirestoreCollections.Drivers, DriverSchema);
 
 	return (
 		<div className="w-full mt-12 mx-4">

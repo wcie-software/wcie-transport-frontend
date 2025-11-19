@@ -1,7 +1,8 @@
-import { getFirebaseServer } from "@/app/utils/firebase_setup/server";
-import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
+import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
+import * as firestoreAdmin from "@/app/utils/firestore_admin";
 import VehiclesPage from "@/app/admin/(dashboard)/vehicles/vehicles_page";
 import { Vehicle, VehicleSchema } from "@/app/models/vehicle";
+import { FirestoreCollections } from "@/app/utils/firestore";
 
 export default async function RequestsPage() {
 	const header = {
@@ -12,9 +13,8 @@ export default async function RequestsPage() {
 		"comments": "Comments",
 	};
 
-	const { app, auth, db } = await getFirebaseServer();
-	const firestore = new FirestoreHelper(db);
-	const body = await firestore.getCollection<Vehicle>(FirestoreCollections.Vehicles, VehicleSchema);
+	const { app, auth, db } = await getFirebaseAdmin();
+	const body = await firestoreAdmin.getCollection<Vehicle>(db, FirestoreCollections.Vehicles, VehicleSchema);
 
 	return (
 		<div className="w-full mt-12 mx-4">
