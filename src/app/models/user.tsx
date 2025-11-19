@@ -7,10 +7,10 @@ export const LocationDetails = z.object({
 	location: Location,
 });
 
-export const TransportUserSchema = z.looseObject(BaseDocument.extend({
+export const TransportUserSchema = BaseDocument.extend({
 	address: z.string(),
 	phone_number: z.string(),
 	location_details: LocationDetails
-}));
+});
 
 export type TransportUser = z.infer<typeof TransportUserSchema>;

@@ -49,14 +49,15 @@ export default function CollectNumber({
 					}}
 				/>
 				<PrimaryButton
-				 	text={buttonText}
 					id="login-button"
 					disabled={status !== "done-typing"}
 					onClick={() => {
 						setStatus("loading");
 						onSubmitted?.(no);
 					}}
-					/>
+				>
+						{buttonText}
+				</PrimaryButton>
 			</div>
 		</div>
 	);

@@ -65,7 +65,7 @@ export default function AdminLogin() {
 							required
 							className="outline-0 placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold"
 						/>
-						<PrimaryButton text="Login" type="submit"/>
+						<PrimaryButton type="submit">Login</PrimaryButton>
 					</form>
 				</div>
 			}

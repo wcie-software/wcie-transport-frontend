@@ -8,7 +8,7 @@ import { getPlaceDetails, getPlacePredictions } from "@/app/utils/google_maps";
 import { MapPinIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { redirect, RedirectType } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function AddressPage({ defaultAddress }:
@@ -22,6 +22,13 @@ export default function AddressPage({ defaultAddress }:
 		const places = await getPlacePredictions(q);
 		setPlaces(places);
 	}, 400);
+
+	// Call search if `defaultAddress` is passed
+	useEffect(() => {
+		if (defaultAddress) {
+			search(defaultAddress);
+		}
+	}, []);
 
 	onAuthStateChanged(auth, (user) => {
 		if (user) {
