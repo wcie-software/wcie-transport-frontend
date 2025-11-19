@@ -1,0 +1,11 @@
+Vehicle Name,Model,License Plate,Maintenance Type,Date Maintenance Approved,Maintenance Completed (Y/N),Maintenance Date,Maintenance Receipt Amount ($),Fuel Date,Fuel Cost ($),Notes / Remarks,
+Chevrolet Van,2008,CFJ-4140,Tire Change and Arm fixing,,Yes,6/18/2025,,,,,
+Ford Van,2022,WCIE 1,Gas,,,,,6/22/2025,$50.00,Top-up,
+Chevrolet Van,2008,CFJ-4041,Gas,,,,,6/29/2025,$50.00,Top-up,
+Toyota Sienna,2004,BSG-9052,Gas,,,,,7/6/2025,$65.02,Tank filled,
+Ford Van,2022,WCIE 1,Gas,,,,,7/6/2025,$103.18,Tank filled,
+Ford Flex,2011,CLM-4052,Gas,,,,,7/6/2025,$24.50,Tank filled,"No more in possession effective July 30, 2025"
+Chevrolet Van,2008,CFJ-4140,Gas,,,,,7/6/2025,$125.04,Tank filled,
+Ford Van,2022,WCIE 1,Gas,,,,,7/20/2025,$124.47,Tank filled,
+Sienna W,2020,WCIE 2,,,,,,,,,
+Toyota Sienna,2004,BSG-9052,Oil and filter change,,Yes,9/22/2025,$112.54,,,,
