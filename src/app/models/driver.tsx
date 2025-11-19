@@ -4,6 +4,7 @@ import { Location } from "@/app/models/location";
 
 export const DriverSchema = BaseDocument.extend({
 	full_name: z.string(),
+	email: z.email(),
 	phone_number: z.string(),
 	address: z.optional(z.string()),
 	location: z.optional(Location),

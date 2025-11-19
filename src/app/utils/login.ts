@@ -80,6 +80,5 @@ export async function isAdmin(): Promise<boolean> {
 	const c = await cookies();
 
 	return c.has(SESSION_COOKIE_KEY)
-		&& c.has(IS_ADMIN_COOKIE_KEY)
-		&& c.get(IS_ADMIN_COOKIE_KEY)!.value === "TRUE";
+		&& c.get(IS_ADMIN_COOKIE_KEY)?.value === "TRUE";
 }
