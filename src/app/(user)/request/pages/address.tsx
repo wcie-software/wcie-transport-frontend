@@ -1,55 +1,106 @@
 "use client"
 
-import Place from "@/app/models/place";
+import { Place } from "@/app/models/place";
+import { TransportUser } from "@/app/models/user";
+import { auth, db } from "@/app/utils/firebase_setup/client";
+import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
+import { getPlaceDetails, getPlacePredictions } from "@/app/utils/google_maps";
 import { MapPinIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { redirect, RedirectType } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
-export default function AddressPage({ defaultAddress, onSelected }:
-	{ defaultAddress?: string, onSelected?: (placeId: string, text: string) => void }
+export default function AddressPage({ defaultAddress }:
+	{ defaultAddress?: string }
 ) {
 	const [places, setPlaces] = useState<Place[]>([]);
+	const [user, setUser] = useState<User | null>(null);
 
 	const search = useDebouncedCallback(async (q: string) => {
-		const res = await fetch(`/api/maps?q=${q}`);
-		const places = await res.json() as Place[];
-
+		// TODO: Error handling
+		const places = await getPlacePredictions(q);
 		setPlaces(places);
 	}, 400);
 
+	// Call search if `defaultAddress` is passed
+	useEffect(() => {
+		if (defaultAddress) {
+			search(defaultAddress);
+		}
+	}, []);
+
+	onAuthStateChanged(auth, (user) => {
+		if (user) {
+			setUser(user);
+		} else {
+			redirect("/login");
+		}
+	})
+
 	return (
 		<div className="flex flex-col gap-6 items-start justify-start w-full mx-4">
-			<div className="flex flex-col gap-1.5 w-full">
-				<h2 className="text-lg font-semibold">Enter Pickup Location</h2>
-				<input
-					type="text"
-					defaultValue={defaultAddress}
-					className="outline-0 placeholder-gray-500 w-full truncate font-bold text-4xl"
-					placeholder="12950 50 Street NW"
-					onChange={(event) => {
-						const text = event.target.value.trim();
-						if (text.length > 0) {
-							search(text);
-						} else {
-							setPlaces([]);
-						}
-					}}/>
+			{user ?
+				<>
+					<div className="flex flex-col gap-1.5 w-full">
+						<h2 className="text-lg font-semibold">Enter Pickup Location</h2>
+						<input
+							type="text"
+							className="outline-0 placeholder-gray-500 w-full truncate font-bold text-4xl"
+							placeholder={defaultAddress ?? "12950 50 Street NW"}
+							onChange={(event) => {
+								const text = event.target.value.trim();
+								if (text.length > 0) {
+									search(text);
+								} else {
+									setPlaces([]);
+								}
+							}}/>
+					</div>
+					<ul className="w-full">
+						{places.map((p) => 
+							<li
+								key={p.id}
+								className="group cursor-pointer p-2 hover:bg-gray-800 w-full flex flex-row items-center gap-1.5"
+								onClick={async (_) => {
+									const details = await getPlaceDetails(p.id);
+									const transportUser: TransportUser = {
+										address: p.text,
+										phone_number: user!.phoneNumber!,
+										location_details: details
+									};
+
+									const firestore = new FirestoreHelper(db);
+									await firestore.addDocument(
+										FirestoreCollections.Users,
+										transportUser,
+										user!.uid,
+									);
+
+									const formURL = "https://wcie.fillout.com/transport";
+
+									const encodedPhone = encodeURIComponent(user!.phoneNumber!);
+									const encodedToken = encodeURIComponent(await user!.getIdToken());
+									const encodedName = encodeURIComponent(user!.displayName ?? "")
+									const params = `?phone_number=${encodedPhone}&auth_token=${encodedToken}&name=${encodedName}`;
+
+									redirect(formURL + params, RedirectType.replace);
+								}}>
+								<MapPinIcon width={24} height={24} className="shrink-0"/>
+								<p className="text-lg truncate">{p.text}</p>
+								<ArrowRightIcon
+									className="ml-auto outline-none hidden group-hover:block"
+									width={24}
+									height={24}/>
+							</li>
+						)}
+					</ul>
+			</>
+			:
+			<div>
+				Loading...
 			</div>
-			<ul className="w-full">
-				{places.map((p) => 
-					<li
-						key={p.placeId}
-						className="group cursor-pointer p-2 hover:bg-gray-800 w-full flex flex-row items-center gap-1.5"
-						onClick={(e) => onSelected?.(p.placeId, p.text)}>
-						<MapPinIcon width={24} height={24} className="shrink-0"/>
-						<p className="text-lg truncate">{p.text}</p>
-						<ArrowRightIcon
-							className="ml-auto outline-none hidden group-hover:block"
-							width={24}
-							height={24}/>
-					</li>
-				)}
-			</ul>
+			}
 		</div>
 	);
 }

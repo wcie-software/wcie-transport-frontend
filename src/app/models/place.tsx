@@ -1,4 +1,4 @@
-export default interface Place {
-	placeId: string;
+export interface Place {
+	id: string;
 	text: string;
-}
+};

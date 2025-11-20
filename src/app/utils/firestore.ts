@@ -1,61 +1,111 @@
-import { doc, getDoc, getDocFromServer, setDoc, updateDoc, query, collection, limit, startAt, getDocs } from "firebase/firestore";
-import { db } from "@/app/utils/firebase";
-import PlaceDetails from "@/app/models/place_details";
-import { User } from "firebase/auth";
-import TransportRequest from "../models/request";
-import { requestConverter } from "./firestore_converter";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc, Firestore } from "firebase/firestore";
+import { ZodObject } from "zod";
 
-const USER_COLLECTION = "users";
-const REQUEST_COLLECTION = "requests";
-
-export async function addUser(user: User): Promise<void> {
-	if (!user.phoneNumber) {
-		// TODO: Throw error
-		return;
-	}
-
-	const userRef = doc(db, USER_COLLECTION, user.uid);
-	const userSnap = await getDoc(userRef);
-
-	if (!userSnap.exists()) {
-		await setDoc(userRef, { "phone_number": user.phoneNumber! });
-	}
+ export enum FirestoreCollections {
+	Users = "users",
+	Requests = "requests",
+	Admins = "admins",
+	Drivers = "drivers",
+	Vehicles = "vehicles"
 }
 
-export async function getUserLocation(uid: string): Promise<string> {
-	const userRef = doc(db, USER_COLLECTION, uid);
-	const userSnap = await getDocFromServer(userRef);
+export class FirestoreHelper {
+	_db: Firestore;
 
-	if (userSnap.exists()) {
-		const data = userSnap.data();
-		if ("address" in data) {
-			return data["address"] as string;
+	constructor(db: Firestore) {
+		this._db = db;
+	}
+
+	 async addDocument(
+		collectionName: FirestoreCollections,
+		data: Record<string, any>,
+		documentPath?: string,
+	) {
+		const d = { ... data };
+		if ("documentId" in d) { // See `models/base.tsx`
+			delete d["documentId"];
+		}
+
+		if (!documentPath) {
+			await addDoc(collection(this._db, collectionName), d);
+		} else {
+			const ref = doc(this._db, collectionName, documentPath);
+			const snapshot = await getDoc(ref);
+			if (!snapshot.exists()) {
+				await setDoc(ref, d);
+			}
 		}
 	}
 
-	return "";
-}
+	 async updateDocument(
+		collectionName: FirestoreCollections,
+		documentPath: string,
+		data: Record<string, any>
+	): Promise<boolean> {
+		const ref = doc(this._db, collectionName, documentPath);
+		try {
+			const d = { ... data };
+			if ("documentId" in d) { // See `models/base.tsx`
+				delete d["documentId"];
+			}
 
-export async function setUserLocation(
-	uid: string, placeDetails: PlaceDetails, address: string
-): Promise<void> {
-	const userRef = doc(db, USER_COLLECTION, uid);
-	await updateDoc(userRef, { address: address, location_details: placeDetails });
-}
+			await updateDoc(ref, d);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
 
-export async function getRequests(page: number = 0): Promise<TransportRequest[]> {
-	const requests: TransportRequest[] = [];
+	 async getDocument<Type>(
+		collectionName: FirestoreCollections,
+		documentPath: string,
+		schema: ZodObject,
+	): Promise<Type | null> {
+		const docRef = doc(this._db, collectionName, documentPath);
+		const docSnap = await getDoc(docRef);
 
-	const top = query(
-		collection(db, REQUEST_COLLECTION),
-		limit(10),
-		// startAt(page * 10)
-	).withConverter(requestConverter);
+		if (docSnap.exists()) {
+			const data = docSnap.data();
+			data["documentId"] = docSnap.id;
 
-	const snapshot = await getDocs(top);
-	snapshot.forEach((doc) => {
-		requests.push(doc.data());
-	})
+			const result = schema.safeParse(data);
+			if (result.success) {
+				return result.data as Type;
+			} else {
+				console.log("Failed to parse", data);
+			}
+		}
 
-	return requests;
+		return null;
+	}
+
+	 async getCollection<Type>(
+		collectionName: FirestoreCollections,
+		schema: ZodObject
+	): Promise<Type[]> {
+		const collectionRef = collection(this._db, collectionName);
+		const snapshot = await getDocs(collectionRef);
+
+		const docs: Type[] = [];
+		snapshot.forEach((doc) => {
+			const data = doc.data();
+			data["documentId"] = doc.id;
+
+			const result = schema.safeParse(data);
+			if (result.success) {
+				docs.push(result.data as Type);
+			} else {
+				console.log("Failed to parse", data);
+			}
+		});
+
+		return docs;
+	}
+
+	 async deleteDocument(
+		collectionName: FirestoreCollections,
+		documentPath: string
+	) {
+		await deleteDoc(doc(this._db, collectionName, documentPath));
+	}
 }

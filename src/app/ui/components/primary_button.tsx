@@ -1,16 +1,24 @@
 "use client"
 
-export default function PrimaryButton({ text, id, type = "button", disabled = false, onClick }:
-	{text: string, id?: string, type?: "submit" | "reset" | "button", disabled?: boolean, onClick?: () => void}
+import clsx from "clsx";
+
+export default function PrimaryButton({ id, type = "button", disabled = false, outline = false, onClick, children }:
+	{ id?: string, type?: "submit" | "reset" | "button", disabled?: boolean, outline?: boolean, onClick?: () => void, children?: React.ReactNode }
 ) {
 	return (
 		<button
 			id={id}
 			disabled={disabled}
 			type={type}
-			className="bg-primary px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default"
+			className={clsx(
+				"px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default",
+				{
+					"bg-primary": !outline,
+					"text-white border border-primary": outline
+				}
+			)}
 			onClick={(_) => onClick?.()}>
-			{text}
+			{children}
 		</button>
 	);
 }

@@ -12,7 +12,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	const pages = {
 		"Requests": {
 			icon: Squares2X2Icon,
-			href: "/admin"
+			href: "/admin/requests"
 		},
 		"Assignments": {
 			icon: ArrowsRightLeftIcon,
@@ -33,11 +33,11 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	};
 
 	return (
-		<div className="h-screen flex flex-row items-start">
-			<nav className="w-[265] h-full shrink-0 bg-tertiary rounded-xl flex flex-col items-start py-3 pl-2">
+		<div className="h-screen flex flex-row items-start overflow-y-auto">
+			<nav className="w-[265] h-full shrink-0 bg-tertiary rounded-xl flex flex-col items-start py-3 pl-2 sticky top-0">
 				<Link
 					className="flex flex-row items-center gap-2.5 mb-6 ml-1 mr-3"
-					href="/">
+					href="/admin">
 						<Image
 							src="/Logo.png"
 							alt="WCIE Logo"
@@ -63,7 +63,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 				</ul>
 				{/* <p className="text-lg">Sign Out</p> */}
 			</nav>
-			<main className="flex-1 mx-8 mt-12">
+			<main className="flex-1 mx-8">
 				{children}
 			</main>
 		</div>
