@@ -19,7 +19,7 @@ export async function getFirebaseServer(): Promise<{
 	const cookieObj = await cookies();
 
 	const idToken = cookieObj.get(SESSION_COOKIE_KEY);
-	console.log("ID TOKEN:", idToken);
+	console.log("ID TOKEN:", idToken?.value);
 	// const uid = headerObj.get("X-Proxy-UID");
 
 	if (!idToken?.value) {

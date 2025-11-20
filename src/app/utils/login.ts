@@ -44,6 +44,7 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 			maxAge: expiresIn / 1000,
 			httpOnly: true,
 			secure: true,
+			path: "/",
 			sameSite: "lax"
 		});
 
