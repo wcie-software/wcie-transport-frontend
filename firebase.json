@@ -11,6 +11,9 @@
     },
     "singleProjectMode": true
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "apphosting": {
     "backendId": "wcie-transport-frontend",
     "rootDir": "/",
