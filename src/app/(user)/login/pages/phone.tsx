@@ -15,12 +15,10 @@ export default function PhonePage({ onCodeSent }:
 		setRecaptchaVerifier(new RecaptchaVerifier(auth, "recaptcha-id", {
 			"size": "normal",
 			"callback": (response: any) => {
-				console.log("Ready to rumble");
 				setVerified(true);
 			},
 			"expired-callback": () => {
 				setVerified(false);
-				console.log("Expired");
 			}
 		}));
 	}, [auth]);

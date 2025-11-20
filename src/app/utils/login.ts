@@ -48,7 +48,7 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 			sameSite: "lax"
 		});
 
-		console.log("Created session cookie: ", idToken);
+		console.log("Created session cookie");
 		return uid;
 	} catch (e) {
 		console.error("Bad idToken. Could not create cookie.");

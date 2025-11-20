@@ -40,7 +40,7 @@ export default function AdminLogin() {
 					localStorage.setItem(EMAIL_LOCALSTORAGE_KEY, emailAddr);
 				} else {
 					// Show error
-					console.log("Something went wrong");
+					console.log("Something went wrong with sending email link.");
 				}
 			}
 		}

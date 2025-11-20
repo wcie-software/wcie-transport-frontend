@@ -72,7 +72,7 @@ export class FirestoreHelper {
 			if (result.success) {
 				return result.data as Type;
 			} else {
-				console.log("Failed to parse", data);
+				console.log(`Failed to parse data from '${collectionName} collection'`, data);
 			}
 		}
 
@@ -95,7 +95,7 @@ export class FirestoreHelper {
 			if (result.success) {
 				docs.push(result.data as Type);
 			} else {
-				console.log("Failed to parse", data);
+				console.log(`Failed to parse data from '${collectionName} collection'`, data);
 			}
 		});
 
