@@ -37,7 +37,7 @@ export default function VehiclesPage({ header, body }: { header: Record<string, 
 						{
 							icon: <TrashIcon width={20} height={20} />,
 							onPressed: (i) => {
-								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId);
+								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
 								setTableData(tableData.filter((r, index) => index != i));
 							}
 						}
@@ -66,7 +66,7 @@ export default function VehiclesPage({ header, body }: { header: Record<string, 
 								}
 								return r;
 							}));
-							firestore.updateDocument(FirestoreCollections.Drivers, newVehicle.documentId, newVehicle);
+							firestore.updateDocument(FirestoreCollections.Drivers, newVehicle.documentId!, newVehicle);
 						} else {
 							setTableData([...tableData, newVehicle]);
 							firestore.addDocument(FirestoreCollections.Drivers, newVehicle);

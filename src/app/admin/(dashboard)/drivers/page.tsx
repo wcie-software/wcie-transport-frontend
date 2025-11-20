@@ -6,8 +6,9 @@ import DriversPage from "./drivers_page";
 
 export default async function RequestsPage() {
 	const header = {
-		"documentId": "Phone Number",
 		"full_name": "Full Name",
+		"phone_number": "Phone Number",
+		"email": "Email",
 		"address": "Address",
 		"driver_license_class": "Driver License Class",
 		"comments": "Comments",

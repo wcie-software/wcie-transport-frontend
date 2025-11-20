@@ -1,6 +1,6 @@
 "use client"
 
-import { Driver, DriverSchema } from "@/app/models/driver";
+import { Driver } from "@/app/models/driver";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import SchemaForm from "@/app/ui/components/schema_form";
@@ -49,10 +49,11 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 				<SchemaForm
 					schema={currentlyEditing !== -1
 						? tableData[currentlyEditing]
-						: {documentId: "", full_name: "", address: "", driver_license_class: "Class 5", comments: ""} as Driver }
+						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: ""} as Driver }
 					labels={{
-						"documentId": "Phone Number",
+						"phone_number": "Phone Number",
 						"full_name": "Full Name",
+						"email": "Email",
 						"address": "Address",
 						"driver_license_class": "Driver License Class",
 						"comments": "Comments"
@@ -70,7 +71,7 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 							firestore.updateDocument(FirestoreCollections.Drivers, newDriver.documentId!, newDriver);
 						} else {
 							setTableData([...tableData, newDriver]);
-							firestore.addDocument(FirestoreCollections.Drivers, newDriver, newDriver.documentId);
+							firestore.addDocument(FirestoreCollections.Drivers, newDriver);
 						}
 						
 						setCurrentlyEditing(-1);

@@ -20,9 +20,9 @@ export async function GET(req: NextRequest) {
 			const plate_number = row["License Plate"];
 			const remarks = row["Remarks"] || "";
 			const fuel_cost = row["Fuel Cost"] ? parseFloat(String(row["Fuel Cost"]).replace("$", "")) : null;
-			const last_fuel_date = row["Fuel Date"] ? new Date(row["Fuel Date"]) : null;
+			const last_fuel_date = row["Fuel Date"] ? new Date(row["Fuel Date"]).toLocaleDateString() : null;
 			const maintenance_type = row["Maintenance Type"] || null;
-			const last_maintenance_date = row["Maintenance Date"] ? new Date(row["Maintenance Date"]) : null;
+			const last_maintenance_date = row["Maintenance Date"] ? new Date(row["Maintenance Date"]).toLocaleDateString() : null;
 			const maintenance_receipt_amount = row["Maintenance Receipt Amount"] ? parseFloat(String(row["Maintenance Receipt Amount"]).replace("$", "")) : null;
 
 			try {

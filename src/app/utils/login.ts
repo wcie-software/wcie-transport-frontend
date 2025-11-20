@@ -1,6 +1,5 @@
 "use server"
 
-import { UserRole, AdminSchema } from "@/app/models/admin";
 import { SESSION_COOKIE_KEY, IS_ADMIN_COOKIE_KEY } from "@/app/utils/constants";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";

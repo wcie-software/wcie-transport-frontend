@@ -31,7 +31,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 							<tr key={index}>
 								{Object.keys(headerMap).map((k) => {
 									const key = k as keyof typeof r;
-									const value = String(r[key]);
+									const value = String(r[key] || "");
 									return (
 										<td key={k+value} className="text-left p-6 pl-0">
 											{fieldFormatter?.(k, value, index) ?? value}

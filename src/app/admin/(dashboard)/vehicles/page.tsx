@@ -6,11 +6,15 @@ import { FirestoreCollections } from "@/app/utils/firestore";
 
 export default async function RequestsPage() {
 	const header = {
-		"documentId": "Phone Number",
-		"full_name": "Full Name",
-		"address": "Address",
-		"driver_license_class": "Driver License Class",
-		"comments": "Comments",
+		"name": "Vehicle Name",
+		"plate_number": "License Plate",
+		"year": "Model",
+		"fuel_cost": "Cost of Fuel ($)",
+		"last_fuel_date": "Last Fueled",
+		"maintenance_type": "Maintenance Type",
+		"maintenance_receipt_amount": "Maintenance Cost ($)",
+		"last_maintenance_date": "Last Maintained",
+		"remarks": "Remarks"
 	};
 
 	const { app, auth, db } = await getFirebaseAdmin();

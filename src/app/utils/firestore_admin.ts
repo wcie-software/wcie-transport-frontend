@@ -11,7 +11,7 @@ export async function getCollection<Type>(
 
 		collection.forEach(doc => {
 			const requestData = doc.data();
-			requestData.id = doc.id;
+			requestData.documentId = doc.id;
 
 			const parsed = schema.safeParse(requestData);
 			if (parsed.success) {
