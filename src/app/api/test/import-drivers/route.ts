@@ -6,6 +6,10 @@ import { FirestoreCollections } from "@/app/utils/firestore";
 import { getPlaceDetails, getPlacePredictions } from "@/app/utils/google_maps";
 
 export async function GET(req: NextRequest) {
+	if (process.env.NODE_ENV !== "development") {
+		return new Response("Not allowed", { status: 403 });
+	}
+
 	const { app, auth, db } = await getFirebaseAdmin();
 	const drivers = db.collection(FirestoreCollections.Drivers);
 	

@@ -5,6 +5,10 @@ import { createReadStream } from "fs";
 import { FirestoreCollections } from "@/app/utils/firestore";
 
 export async function GET(req: NextRequest) {
+	if (process.env.NODE_ENV !== "development") {
+		return new Response("Not allowed", { status: 403 });
+	}
+
 	const { app, auth, db } = await getFirebaseAdmin();
 	const requests = db.collection(FirestoreCollections.Requests);
 	

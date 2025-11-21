@@ -62,23 +62,29 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 						: String(v);
 
 					return (
-						<div key={k} className="py-2 flex flex-row items-center gap-3">
-							<label htmlFor={k}>{labels[k]}</label>
-							{suggestedValues && k in suggestedValues &&
-								<select id={k} name={k} defaultValue={v}>
-									{suggestedValues[k].map((sv) => 
-										<option value={sv} key={sv}>{sv}</option>
-									)}
-								</select>
-							}
-							{(!suggestedValues || !(k in suggestedValues)) &&
-								<input
-									name={k}
-									id={k}
-									type={inferredType}
-									defaultValue={currentValue}
-									className="flex-1 border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
-								/>
+						<div key={k} className="py-2 flex flex-col items-baseline justify-start">
+							<label htmlFor={k} className="text-xs">{labels[k]}</label>
+							{(suggestedValues && k in suggestedValues)
+								?
+									<select
+										id={k}
+										name={k}
+										defaultValue={v}
+										className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
+									>
+										{suggestedValues[k].map((sv) => 
+											<option value={sv} key={sv}>{sv}</option>
+										)}
+									</select>
+								:
+									<input
+										name={k}
+										id={k}
+										placeholder={labels[k]}
+										type={inferredType}
+										defaultValue={currentValue}
+										className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
+									/>
 							}
 						</div>
 					);

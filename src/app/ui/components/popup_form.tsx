@@ -8,7 +8,7 @@ export default function PopupForm({ open, onClose, children }: { open: boolean, 
 			onClose={onClose}
 		>
 			<div className="absolute top-1/2 left-1/2 -translate-1/2 bg-background w-xl p-4 shadow-sm shadow-gray-900 rounded-xl">
-				<div className="flex flex-col gap-2">
+				<div className="flex flex-col">
 					<XMarkIcon
 						className="ml-auto cursor-pointer"
 						width={30}
