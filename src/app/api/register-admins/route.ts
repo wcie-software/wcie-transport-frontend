@@ -11,9 +11,14 @@ export async function GET(request: NextRequest) {
 	} else {
 		for (const admin of admins.docs) {
 			const uid = admin.id;
-			await auth.setCustomUserClaims(uid, { role: "admin" });
+			try {
+				await auth.setCustomUserClaims(uid, { role: "admin" });
+			} catch (error) {
+				return new Response(`Error setting admin claims for user ${uid}: ${error}`, { status: 500 });
+			}
+			console.log(`Set admin claims for user ${uid}`);
 		}
 	}
 
-	return new Response(JSON.stringify({ message: "Admins registered" }), { status: 200 });
+	return new Response("Admins registered", { status: 200 });
 }
