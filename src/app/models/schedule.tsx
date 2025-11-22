@@ -10,3 +10,5 @@ export const ScheduleSchema = BaseDocument.extend({
 	date: z.string(),
 	schedule: z.array(ServiceSchedule),
 });
+
+export type Schedule = z.infer<typeof ScheduleSchema>;
