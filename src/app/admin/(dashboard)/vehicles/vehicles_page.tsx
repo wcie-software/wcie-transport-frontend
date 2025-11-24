@@ -10,7 +10,7 @@ import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
-export default function VehiclesPage({ header, body }: { header: Record<string, string>, body: Vehicle[] }) {
+export default function VehiclesView({ header, body }: { header: Record<string, string>, body: Vehicle[] }) {
 	const firestore = new FirestoreHelper(db);
 
 	const [tableData, setTableData] = useState(body);

@@ -62,7 +62,7 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 						: String(v);
 
 					return (
-						<div key={k} className="py-2 flex flex-col items-baseline justify-start">
+						<div key={k} className="py-2 flex flex-col items-baseline justify-start gap-0.5">
 							<label htmlFor={k} className="text-xs">{labels[k]}</label>
 							{(suggestedValues && k in suggestedValues)
 								?

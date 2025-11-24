@@ -1,10 +1,10 @@
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import * as firestoreAdmin from "@/app/utils/firestore_admin";
-import VehiclesPage from "@/app/admin/(dashboard)/vehicles/vehicles_page";
+import VehiclesView from "@/app/admin/(dashboard)/vehicles/vehicles_page";
 import { Vehicle, VehicleSchema } from "@/app/models/vehicle";
 import { FirestoreCollections } from "@/app/utils/firestore";
 
-export default async function RequestsPage() {
+export default async function VehiclePage() {
 	const header = {
 		"name": "Vehicle Name",
 		"plate_number": "License Plate",
@@ -22,7 +22,7 @@ export default async function RequestsPage() {
 
 	return (
 		<div className="w-full mt-12 mx-4">
-			<VehiclesPage
+			<VehiclesView
 			 	body={body}
 				header={header}
 			/>

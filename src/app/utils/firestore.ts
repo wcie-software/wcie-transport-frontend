@@ -6,7 +6,8 @@ import { ZodObject } from "zod";
 	Requests = "requests",
 	Admins = "admins",
 	Drivers = "drivers",
-	Vehicles = "vehicles"
+	Vehicles = "vehicles",
+	Schedules = "schedules",
 }
 
 export class FirestoreHelper {
