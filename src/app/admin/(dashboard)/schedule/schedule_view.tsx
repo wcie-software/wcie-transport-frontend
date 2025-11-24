@@ -3,6 +3,8 @@
 import { Schedule } from "@/app/models/schedule";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
+import { db } from "@/app/utils/firebase_setup/client";
+import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Checkbox, ListItemText, MenuItem, Select } from "@mui/material";
 import { useState } from "react";
@@ -10,6 +12,9 @@ import { useState } from "react";
 export function ScheduleView({ schedules, driverNames }:
 	{ schedules: Schedule[], driverNames: string[] }
 ) {
+	const numberOfServices = 2;
+	const firestore = new FirestoreHelper(db)
+
 	const nearestSunday = new Date();
 	nearestSunday.setDate(nearestSunday.getDate() + (7 - nearestSunday.getDay()));
 
@@ -18,10 +23,7 @@ export function ScheduleView({ schedules, driverNames }:
 
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [chosenDate, setChosenDate] = useState<Date>(nearestSunday);
-	const [selectedDrivers, setSelectedDrivers] = useState<Record<number, string[]>>({
-		1: [],
-		2: [],
-	});
+	const [selectedDrivers, setSelectedDrivers] = useState<Record<number, string[]>>({});
 
 	const formatDate = (date: Date) => {
 		const year = date.getFullYear();
@@ -39,7 +41,7 @@ export function ScheduleView({ schedules, driverNames }:
 		}
 	}
 
-	function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
+	async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
 		if (!isNaN(chosenDate.getTime())
@@ -54,7 +56,8 @@ export function ScheduleView({ schedules, driverNames }:
 					2: selectedDrivers[2],
 				},
 			};
-			console.log("New Schedule:", newSchedule);
+
+			await firestore.addDocument(FirestoreCollections.Schedules, newSchedule)
 			setPopupOpen(false);
 		}
 	}
@@ -64,6 +67,7 @@ export function ScheduleView({ schedules, driverNames }:
 			<PrimaryButton
 				onClick={() => {
 					setChosenDate(nearestSunday);
+					setSelectedDrivers({});
 					setPopupOpen(true);
 				}}
 			>
@@ -94,7 +98,7 @@ export function ScheduleView({ schedules, driverNames }:
 							}}
 						/>
 					</div>
-					{Array.from({ length: 2 }).map((_, index) => {
+					{Array.from({ length: numberOfServices }).map((_, index) => {
 						const serviceNumber = index + 1;
 						const suffix: Record<number, string> = { 1: "st", 2: "nd", 3: "rd", 4: "th" };
 
@@ -124,7 +128,9 @@ export function ScheduleView({ schedules, driverNames }:
 								>
 									{driverNames.map((name) => (
 										<MenuItem key={name} value={name}>
-											<Checkbox checked={selectedDrivers[serviceNumber].includes(name)} />
+											<Checkbox
+												checked={serviceNumber in selectedDrivers && selectedDrivers[serviceNumber].includes(name)}
+											/>
 											<ListItemText primary={name} />
 										</MenuItem>
 									))}
