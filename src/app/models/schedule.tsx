@@ -3,6 +3,7 @@ import { BaseDocument } from "@/app/models/base";
 
 export const ScheduleSchema = BaseDocument.extend({
 	date: z.string(),
+	timestamp: z.number(),
 	schedule: z.record(z.number(), z.array(z.string())),
 });
 
