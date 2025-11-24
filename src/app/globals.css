@@ -4,7 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #EC1C24;
---tertiary: rgba(234, 191, 99, 0.09);
+  --tertiary: rgba(234, 191, 99, 0.09);
 }
 
 @theme inline {

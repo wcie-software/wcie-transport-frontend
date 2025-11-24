@@ -5,6 +5,7 @@ import { Checkbox, ListItemText, MenuItem, Select } from "@mui/material";
 import { Schedule } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
+import { NUMBER_SUFFIX } from "@/app/utils/constants";
 
 export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}:
 	{ driverOptions: string[], onSubmitted: (schedule: Schedule) => void, numberOfServices?: number}
@@ -43,11 +44,10 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 			&& selectedDrivers[2]?.length > 0
 		) {
 			const schedule: Schedule = {
-				date: formatDate(chosenDate),
 				timestamp: chosenDate.getTime(),
 				schedule: {
-					1: selectedDrivers[1],
-					2: selectedDrivers[2],
+					"1": selectedDrivers[1],
+					"2": selectedDrivers[2],
 				},
 			};
 			onSubmitted(schedule);
@@ -81,12 +81,11 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 			</div>
 			{Array.from({ length: numberOfServices }).map((_, index) => {
 				const serviceNumber = index + 1;
-				const suffix: Record<number, string> = { 1: "st", 2: "nd", 3: "rd", 4: "th" };
 
 				return (
 					<div key={index} className="flex flex-col gap-0.5 py-2 items-baseline justify-start">
 						<label htmlFor={`drivers-${serviceNumber}`} className="text-xs">
-							Select {serviceNumber}{suffix[serviceNumber]} Service Drivers
+							Select {serviceNumber}{NUMBER_SUFFIX[serviceNumber]} Service Drivers
 						</label>
 						<Select
 							className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded p-0 pe-2 outline-0 text-foreground"

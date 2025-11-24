@@ -3,13 +3,17 @@ import { FirestoreCollections } from "./firestore";
 import { ZodObject } from "zod";
 
 export async function getCollection<Type>(
-	db: Firestore, collectionName: FirestoreCollections, schema: ZodObject
+	db: Firestore,
+	collectionName: FirestoreCollections,
+	schema: ZodObject,
+	orderByField?: string,
 ): Promise<Type[]> {
-	const collection = await db.collection(collectionName).get();
-	if (!collection.empty) {
+	const collection = db.collection(collectionName);
+	
+	const results = await (orderByField ? collection.orderBy(orderByField, "desc") : collection).get();
+	if (!results.empty) {
 		const list: Type[] = [];
-
-		collection.forEach(doc => {
+		results.forEach(doc => {
 			const requestData = doc.data();
 			requestData.documentId = doc.id;
 
