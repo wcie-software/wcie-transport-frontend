@@ -41,10 +41,21 @@ export function ScheduleView({ schedules, driverNames }:
 
 	function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		const formData = new FormData(e.target as HTMLFormElement);
 
-		for (const [k, v] of formData.entries()) {
-			console.log(`${k}: ${v}`);
+		if (!isNaN(chosenDate.getTime())
+			&& chosenDate.getDay() === 0
+			&& selectedDrivers[1].length > 0
+			&& selectedDrivers[2].length > 0
+		) {
+			const newSchedule: Schedule = {
+				date: formatDate(chosenDate),
+				schedule: {
+					1: selectedDrivers[1],
+					2: selectedDrivers[2],
+				},
+			};
+			console.log("New Schedule:", newSchedule);
+			setPopupOpen(false);
 		}
 	}
 
@@ -89,14 +100,14 @@ export function ScheduleView({ schedules, driverNames }:
 
 						return (
 							<div key={index} className="flex flex-col gap-0.5 py-2 items-baseline justify-start">
-								<label htmlFor={`${serviceNumber}-drivers`} className="text-xs">
+								<label htmlFor={`drivers-${serviceNumber}`} className="text-xs">
 									Select {serviceNumber}{suffix[serviceNumber]} Service Drivers
 								</label>
 								<Select
 									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded p-0 pe-2 outline-0 text-foreground"
 									sx={{ color: "inherit"}}
-									name={`${serviceNumber}-drivers`}
-									id={`${serviceNumber}-drivers`}
+									name={`drivers-${serviceNumber}`}
+									id={`drivers-${serviceNumber}`}
 									IconComponent={() => <ChevronDownIcon width={20} height={20} />}
 									multiple
 									value={selectedDrivers[serviceNumber] || []}
