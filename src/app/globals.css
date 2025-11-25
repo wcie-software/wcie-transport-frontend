@@ -35,3 +35,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Remove autofill background color */
+/* Chrome, Safari, Edge */
+input.autofill-reset:-webkit-autofill,
+input.autofill-reset:-webkit-autofill:focus,
+input.autofill-reset:-webkit-autofill:hover {
+	-webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+	box-shadow: 0 0 0px 1000px transparent inset !important;
+	-webkit-text-fill-color: var(--foreground) !important;
+	transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Firefox */
+input.autofill-reset:-moz-autofill,
+input.autofill-reset:-moz-autofill:focus,
+input.autofill-reset:-moz-autofill:hover {
+	box-shadow: 0 0 0px 1000px transparent inset !important;
+	-moz-text-fill-color: var(--foreground) !important;
+}

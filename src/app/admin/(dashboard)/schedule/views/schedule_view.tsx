@@ -52,14 +52,16 @@ export function ScheduleView({ schedules, driverNames }:
 											<PencilIcon width={16} height={16}/>
 											<TrashIcon width={16} height={16}/>
 										</h3>
-										{Object.entries(schedule.schedule).map(([service, drivers]) => {
+										{Object.entries(schedule.schedule).map(([service, drivers], i) => {
 											return (
 												<div key={service} className="mb-2 space-y-1">
 													<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
 													<div className="flex flex-wrap gap-2">
 														{drivers.length > 0
 															? drivers.map((driver) => 
-																<Chip className="bg-tertiary" color="warning" key={driver} label={driver} />
+																<p className="bg-tertiary text-white p-2" key={`${driver}-${i}`}>
+																	{driver}
+																</p>
 															)
 															: <span className="text-sm italic text-gray-500">No drivers assigned</span>
 														}
