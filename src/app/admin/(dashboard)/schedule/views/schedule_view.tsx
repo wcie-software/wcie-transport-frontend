@@ -7,30 +7,16 @@ import { db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { useState } from "react";
 import { ScheduleForm } from "./schedule_form";
-import { Chip } from "@mui/material";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-export function ScheduleView({ schedules, driverNames }:
-	{ schedules: Schedule[], driverNames: string[] }
+export function ScheduleView({ scheduleGroups, driverInfo }:
+	{ scheduleGroups: Record<string, Schedule[]>, driverInfo: Record<string, string> }
 ) {
-	const monthGroups = schedules.reduce((acc: Record<string, Schedule[]>, schedule) => {
-		const d = new Date(schedule.timestamp);
-		// e.g. "March 2025"
-		const monthKey = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(d);
-		(acc[monthKey] ??= []).push(schedule);
-
-		return acc;
-	}, {});
-	// const sortedMonthKeys = Object.keys(monthGroups).sort((a, b) => {
-	// 	// sort months descending (newest first) by parsing "Month Year"
-	// 	const toDate = (k: string) => new Date(k);
-	// 	return toDate(b).getTime() - toDate(a).getTime();
-	// });
-
 	const firestore = new FirestoreHelper(db);
 
 	const [popupOpen, setPopupOpen] = useState(false);
+	const [schedules, setSchedules] = useState<Record<string, Schedule[]>>(scheduleGroups);
 
 	return (
 		<div className="w-full mt-12 mx-4">
@@ -38,9 +24,9 @@ export function ScheduleView({ schedules, driverNames }:
 				Add Schedule
 			</PrimaryButton>
 
-			<div className="mt-8">
-				{Object.entries(monthGroups).map(([month, schedules]) => (
-					<div key={month} className="space-y-6">
+			<div className="my-8 space-y-6">
+				{Object.entries(schedules).map(([month, schedules]) => (
+					<div key={month} className="space-y-3">
 						<h2 className="text-xl font-semibold mb-2">{month}</h2>
 						<div className="space-y-4">
 							{schedules.map((schedule) => {
@@ -54,13 +40,13 @@ export function ScheduleView({ schedules, driverNames }:
 										</h3>
 										{Object.entries(schedule.schedule).map(([service, drivers], i) => {
 											return (
-												<div key={service} className="mb-2 space-y-1">
+												<div key={service} className="mb-2 space-y-0.5">
 													<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
 													<div className="flex flex-wrap gap-2">
 														{drivers.length > 0
 															? drivers.map((driver) => 
-																<p className="bg-tertiary text-white p-2" key={`${driver}-${i}`}>
-																	{driver}
+																<p className="bg-tertiary text-white px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
+																	{driverInfo[driver]}
 																</p>
 															)
 															: <span className="text-sm italic text-gray-500">No drivers assigned</span>
@@ -73,16 +59,37 @@ export function ScheduleView({ schedules, driverNames }:
 								);
 							})}
 						</div>
+						<hr className="m-auto text-tertiary"/>
 					</div>
 				))}
 			</div>
 			
 			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
 				<ScheduleForm
-				 	driverOptions={driverNames}
+				 	driverOptions={driverInfo}
 					onSubmitted={async (schedule) => {
-						await firestore.addDocument(FirestoreCollections.Schedules, schedule)
+						const d = new Date(schedule.timestamp);
+
+						const added = await firestore.addDocument(
+							FirestoreCollections.Schedules,
+							schedule,
+							d.toLocaleDateString().replaceAll("/", "-"),
+						);
 						setPopupOpen(false);
+
+						if (added) {
+							const monthKey = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(d);
+							const newMonthSchedules = schedules[monthKey] || [];
+							newMonthSchedules.push(schedule);
+							
+							// TODO: Sort schedules by timestamp
+							setSchedules({
+								...schedules,
+								[monthKey]: newMonthSchedules,
+							});
+						} else {
+							// TDOD: Show error
+						}
 					}
 				}/>
 			</PopupForm>

@@ -15,13 +15,22 @@ export default async function SchedulePage() {
 		"timestamp",
 	);
 
+	const groupedByMonth: Record<string, Schedule[]> = {};
+	schedules.forEach((schedule) => {
+		// e.g. "March 2025"
+		const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+		const monthKey = dateFormatter.format(new Date(schedule.timestamp));
+		(groupedByMonth[monthKey] ??= []).push(schedule);
+	});
+
 	const drivers = await firebaseAdmin.getCollection<Driver>(db, FirestoreCollections.Drivers, DriverSchema);
-	const driverNames: string[] = drivers.map((driver) => driver.full_name);
+	const driverIdsAndNames: Record<string, string> = {};
+	drivers.forEach((driver) => driverIdsAndNames[driver.documentId!] = driver.full_name);
 
 	return (
 		<ScheduleView
-			schedules={schedules}
-			driverNames={driverNames}
+			scheduleGroups={groupedByMonth}
+			driverInfo={driverIdsAndNames}
 		/>
 	);
 }

@@ -21,7 +21,7 @@ export class FirestoreHelper {
 		collectionName: FirestoreCollections,
 		data: Record<string, any>,
 		documentPath?: string,
-	) {
+	): Promise<boolean> {
 		const d = { ... data };
 		if ("documentId" in d) { // See `models/base.tsx`
 			delete d["documentId"];
@@ -34,8 +34,11 @@ export class FirestoreHelper {
 			const snapshot = await getDoc(ref);
 			if (!snapshot.exists()) {
 				await setDoc(ref, d);
-			}
+				return true;
+			} 
 		}
+
+		return false;
 	}
 
 	 async updateDocument(

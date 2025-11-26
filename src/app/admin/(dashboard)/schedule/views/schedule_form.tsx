@@ -8,7 +8,7 @@ import PrimaryButton from "@/app/ui/components/primary_button";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
 
 export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}:
-	{ driverOptions: string[], onSubmitted: (schedule: Schedule) => void, numberOfServices?: number}
+	{ driverOptions: Record<string, string>, onSubmitted: (schedule: Schedule) => void, numberOfServices?: number}
 ) {
 	const nearestSunday = new Date();
 	nearestSunday.setDate(nearestSunday.getDate() + (7 - nearestSunday.getDay()));
@@ -38,6 +38,10 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 	function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
+		const getIdFromName = (name: string) => {
+			return Object.entries(driverOptions).find(([, fullName]) => fullName === name)![0];
+		}
+
 		if (!isNaN(chosenDate.getTime())
 			&& chosenDate.getDay() === 0
 			&& selectedDrivers[1]?.length > 0
@@ -46,8 +50,8 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 			const schedule: Schedule = {
 				timestamp: chosenDate.getTime(),
 				schedule: {
-					"1": selectedDrivers[1],
-					"2": selectedDrivers[2],
+					"1": selectedDrivers[1].map(getIdFromName),
+					"2": selectedDrivers[2].map(getIdFromName),
 				},
 			};
 			onSubmitted(schedule);
@@ -106,7 +110,7 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 							renderValue={(selected) => selected.join(", ") || "No Drivers Selected"}
 							displayEmpty
 						>
-							{driverOptions.map((name) => (
+							{Object.values(driverOptions).map((name) => (
 								<MenuItem key={name} value={name}>
 									<Checkbox
 										checked={serviceNumber in selectedDrivers && selectedDrivers[serviceNumber].includes(name)}
