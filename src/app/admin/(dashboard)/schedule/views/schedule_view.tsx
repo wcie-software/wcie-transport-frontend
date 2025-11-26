@@ -77,8 +77,9 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 			</PrimaryButton>
 
 			<div className="my-8 space-y-6">
-				{Object.entries(scheduleGroups).map(([month, schedules]) => (
+				{Object.entries(scheduleGroups).map(([month, schedules], index) => (
 					<div key={month} className="space-y-3">
+						{index !== 0 && <hr className="mx-auto mt-6 text-tertiary"/>}
 						<h2 className="text-2xl font-semibold mb-6">{month}</h2>
 						<div className="space-y-6">
 							{schedules.map((schedule) => {
@@ -138,7 +139,6 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 								);
 							})}
 						</div>
-						<hr className="mx-auto mt-6 text-tertiary"/>
 					</div>
 				))}
 			</div>
