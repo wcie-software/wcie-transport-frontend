@@ -29,7 +29,7 @@ export default async function SchedulePage() {
 
 	return (
 		<ScheduleView
-			scheduleGroups={groupedByMonth}
+			schedulesByMonth={groupedByMonth}
 			driverInfo={driverIdsAndNames}
 		/>
 	);

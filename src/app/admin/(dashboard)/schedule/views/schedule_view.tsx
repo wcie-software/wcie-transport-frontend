@@ -10,13 +10,64 @@ import { ScheduleForm } from "./schedule_form";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-export function ScheduleView({ scheduleGroups, driverInfo }:
-	{ scheduleGroups: Record<string, Schedule[]>, driverInfo: Record<string, string> }
+export function ScheduleView({ schedulesByMonth, driverInfo }:
+	{ schedulesByMonth: Record<string, Schedule[]>, driverInfo: Record<string, string> }
 ) {
 	const firestore = new FirestoreHelper(db);
 
 	const [popupOpen, setPopupOpen] = useState(false);
-	const [schedules, setSchedules] = useState<Record<string, Schedule[]>>(scheduleGroups);
+	const [scheduleGroups, setSchedules] = useState<Record<string, Schedule[]>>(schedulesByMonth);
+	const [currentSchedule, setCurrentSchedule] = useState<Schedule>();
+
+	const documentKey = (schedule: Schedule) =>
+		new Date(schedule.timestamp).toLocaleDateString().replaceAll("/", "-");
+	const monthKey = (schedule: Schedule) =>
+		new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(new Date(schedule.timestamp));
+
+	async function addNewSchedule(schedule: Schedule) {
+		const mk = monthKey(schedule);
+
+		const added = await firestore.addDocument(
+			FirestoreCollections.Schedules,
+			schedule,
+			documentKey(schedule),
+		);
+
+		if (added) {
+			// TODO: Sort schedules by timestamp
+			setSchedules({
+				...scheduleGroups,
+				[mk]: [...(scheduleGroups[mk] || []), schedule],
+			});
+		} else {
+			// TODO: Show error
+		}
+	}
+
+	async function updateSchedule(schedule: Schedule) {
+		if (!currentSchedule) return;
+
+		// Disallow changing date
+		const updatedSchedule = { ...schedule, timestamp: currentSchedule.timestamp };
+		const mk = monthKey(updatedSchedule);
+
+		const updated = await firestore.updateDocument(
+			FirestoreCollections.Schedules,
+			documentKey(updatedSchedule),
+			updatedSchedule,
+		);
+
+		if (updated) {
+			setSchedules({
+				...scheduleGroups,
+				[mk]: scheduleGroups[mk].map((s) =>
+					s.timestamp === schedule.timestamp ? updatedSchedule : s
+				),
+			})
+		} else {
+			// TODO: Show error
+		}
+	}
 
 	return (
 		<div className="w-full mt-12 mx-4">
@@ -25,18 +76,37 @@ export function ScheduleView({ scheduleGroups, driverInfo }:
 			</PrimaryButton>
 
 			<div className="my-8 space-y-6">
-				{Object.entries(schedules).map(([month, schedules]) => (
+				{Object.entries(scheduleGroups).map(([month, schedules]) => (
 					<div key={month} className="space-y-3">
 						<h2 className="text-xl font-semibold mb-2">{month}</h2>
-						<div className="space-y-4">
+						<div className="space-y-5">
 							{schedules.map((schedule) => {
 								const date = new Date(schedule.timestamp);
 								return (
 									<div key={schedule.timestamp}>
 										<h3 className="text-lg font-medium flex flex-row gap-1.5 items-baseline">
 											<span>{new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date)}</span>
-											<PencilIcon width={16} height={16}/>
-											<TrashIcon width={16} height={16}/>
+											<PencilIcon
+											 	cursor="pointer"
+												width={16}
+												height={16}
+												onClick={() => {
+													setCurrentSchedule(schedule);
+													setPopupOpen(true);
+												}}
+											/>
+											<TrashIcon
+											 	cursor="pointer"
+												width={16}
+												height={16}
+												onClick={() => {
+													firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
+													setSchedules({
+														...scheduleGroups,
+														[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
+													});
+												}}
+											/>
 										</h3>
 										{Object.entries(schedule.schedule).map(([service, drivers], i) => {
 											return (
@@ -66,29 +136,16 @@ export function ScheduleView({ scheduleGroups, driverInfo }:
 			
 			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
 				<ScheduleForm
+					defaultSchedule={currentSchedule}
 				 	driverOptions={driverInfo}
 					onSubmitted={async (schedule) => {
-						const d = new Date(schedule.timestamp);
-
-						const added = await firestore.addDocument(
-							FirestoreCollections.Schedules,
-							schedule,
-							d.toLocaleDateString().replaceAll("/", "-"),
-						);
 						setPopupOpen(false);
 
-						if (added) {
-							const monthKey = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(d);
-							const newMonthSchedules = schedules[monthKey] || [];
-							newMonthSchedules.push(schedule);
-							
-							// TODO: Sort schedules by timestamp
-							setSchedules({
-								...schedules,
-								[monthKey]: newMonthSchedules,
-							});
+						if (!currentSchedule) {
+							addNewSchedule(schedule);
 						} else {
-							// TDOD: Show error
+							updateSchedule(schedule);
+							setCurrentSchedule(undefined);
 						}
 					}
 				}/>

@@ -6,18 +6,22 @@ import { Schedule } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { de } from "zod/locales";
 
-export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}:
-	{ driverOptions: Record<string, string>, onSubmitted: (schedule: Schedule) => void, numberOfServices?: number}
-) {
+export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numberOfServices = 2}: {
+	defaultSchedule?: Schedule,
+	driverOptions: Record<string, string>,
+	onSubmitted: (schedule: Schedule) => void,
+	numberOfServices?: number
+}) {
 	const nearestSunday = new Date();
 	nearestSunday.setDate(nearestSunday.getDate() + (7 - nearestSunday.getDay()));
 
-	const lastSunday = new Date(nearestSunday);
-	lastSunday.setDate(lastSunday.getDate() - 7);
-
-	const [chosenDate, setChosenDate] = useState<Date>(nearestSunday);
-	const [selectedDrivers, setSelectedDrivers] = useState<Record<number, string[]>>({});
+	const [chosenDate, setChosenDate] = useState<Date>(new Date(defaultSchedule?.timestamp ?? nearestSunday));
+	const [selectedDrivers, setSelectedDrivers] = useState<Record<number, string[]>>({
+		1: defaultSchedule?.schedule["1"].map((id) => driverOptions[id]) ?? [],
+		2: defaultSchedule?.schedule["2"].map((id) => driverOptions[id]) ?? [],
+	});
 
 	const formatDate = (date: Date) => {
 		const year = date.getFullYear();
@@ -72,7 +76,6 @@ export function ScheduleForm({ driverOptions, onSubmitted, numberOfServices = 2}
 					type="date"
 					name="date"
 					id="date"
-					min={formatDate(lastSunday)}
 					value={formatDate(chosenDate)}
 					step={7}
 					onChange={(e) => {
