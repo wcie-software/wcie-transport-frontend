@@ -14,6 +14,7 @@ export default async function SchedulePage() {
 		ScheduleSchema,
 		"timestamp",
 	);
+	console.log(`${schedules.length} schedules found.`);
 
 	const groupedByMonth: Record<string, Schedule[]> = {};
 	schedules.forEach((schedule) => {

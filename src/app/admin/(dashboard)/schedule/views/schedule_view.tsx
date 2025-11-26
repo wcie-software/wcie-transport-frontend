@@ -10,9 +10,10 @@ import { ScheduleForm } from "./schedule_form";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-export function ScheduleView({ schedulesByMonth, driverInfo }:
-	{ schedulesByMonth: Record<string, Schedule[]>, driverInfo: Record<string, string> }
-) {
+export function ScheduleView({ schedulesByMonth, driverInfo }: {
+	schedulesByMonth: Record<string, Schedule[]>,
+	driverInfo: Record<string, string>
+}) {
 	const firestore = new FirestoreHelper(db);
 
 	const [popupOpen, setPopupOpen] = useState(false);
