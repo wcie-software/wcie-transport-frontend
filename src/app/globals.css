@@ -4,6 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #EC1C24;
+  --deleteRed: #d3493b;
   --tertiary: rgba(234, 191, 99, 0.09);
 }
 
@@ -12,6 +13,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-tertiary: var(--tertiary);
+  --color-deleteRed: var(--deleteRed);
 }
 
 ::-webkit-calendar-picker-indicator {

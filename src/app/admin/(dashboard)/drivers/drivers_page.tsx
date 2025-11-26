@@ -22,27 +22,48 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 			<PrimaryButton onClick={() => setPopupOpen(true)}>
 				Add Driver
 			</PrimaryButton>
-			<div className="mt-8" >
-				<Table<Driver>
-					headerMap={header}
-					body={tableData}
-					actionButtons={[
-						{
-							icon: <PencilIcon width={20} height={20}/>,
-							onPressed: (i) => {
-								setPopupOpen(true);
-								setCurrentlyEditing(i);
-							}
-						},
-						{
-							icon: <TrashIcon width={20} height={20} />,
-							onPressed: (i) => {
-								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
-								setTableData(tableData.filter((r, index) => index != i));
-							}
-						}
-					]}
-				/>
+			<div className="my-8 bg-tertiary rounded-lg px-4">
+				{tableData.map((driver, i) => (
+					<div
+						key={driver.documentId}
+						className="border-b-[0.2px] last:border-0 border-gray-600 py-8 flex flex-row justify-between items-start gap-12"
+					>
+						<div>
+							<h2 className="font-semibold text-xl mb-4">{driver.full_name}</h2>
+							<div className="flex flex-wrap justify-between gap-6">
+								{Object.entries(header).map(([key, name]) => (
+									<div>
+										<h3 className="text-gray-400">{name}</h3>
+										<p className="max-w-sm">{driver[key as keyof object]}</p>
+									</div>
+								))}
+							</div>
+						</div>
+						<div className="flex flex-row items-center gap-3.5">
+							<div
+								className="cursor-pointer flex flex-row items-center gap-2 border border-tertiary py-2 px-2.5 rounded-md"
+								onClick={() => {
+									setPopupOpen(true);
+									setCurrentlyEditing(i);
+									}
+								}
+							>
+								<PencilIcon width={20} height={20} />
+								<p>Edit</p>
+							</div>
+							<div
+								className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md"
+								onClick={() => {
+									firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
+									setTableData(tableData.filter((r, index) => index != i));
+								}}
+							>
+								<TrashIcon width={20} height={20} />
+								<p>Delete</p>
+							</div>
+						</div>
+					</div>
+				))}
 			</div>
 
 			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
