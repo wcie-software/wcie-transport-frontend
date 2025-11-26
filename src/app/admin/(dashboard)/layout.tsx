@@ -33,8 +33,8 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	};
 
 	return (
-		<div className="h-screen flex flex-col lg:flex-row items-start overflow-y-auto">
-			<nav className="hidden lg:flex w-[265] h-full shrink-0 bg-tertiary rounded-xl flex-col items-start py-3 sticky top-0">
+		<div className="h-screen flex flex-col md:flex-row items-start overflow-y-auto">
+			<nav className="hidden md:flex w-[265] h-full shrink-0 bg-tertiary rounded-xl flex-col items-start py-3 sticky top-0">
 				<Link
 					className="flex flex-row items-center gap-2.5 mt-4 mx-auto"
 					href="/admin">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PrimaryButton from "../ui/components/primary_button";
 
 export default function Home() {
 	return (
@@ -10,7 +11,7 @@ export default function Home() {
 			<div className="mt-5 flex flex-row gap-6 items-center justify-between">
 				<Link
 					href="/request"
-					className="bg-primary px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default">
+					className="bg-primary text-white px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default">
 					Login
 				</Link>
 				{/* <Link href="/admin" className="truncate">Admin Login</Link> */}

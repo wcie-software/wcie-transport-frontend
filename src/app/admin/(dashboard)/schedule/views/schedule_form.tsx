@@ -6,7 +6,6 @@ import { Schedule } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
-import { de } from "zod/locales";
 
 export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numberOfServices = 2}: {
 	defaultSchedule?: Schedule,

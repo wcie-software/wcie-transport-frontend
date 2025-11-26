@@ -69,7 +69,7 @@ export default function AddressPage() {
 						{places.map((p) => 
 							<li
 								key={p.id}
-								className="group cursor-pointer p-2 hover:bg-gray-800 w-full flex flex-row items-center gap-1.5"
+								className="group cursor-pointer p-2 hover:bg-tertiary w-full flex flex-row items-center gap-1.5"
 								onClick={async (_) => {
 									const details = await getPlaceDetails(p.id);
 									const transportUser: TransportUser = {

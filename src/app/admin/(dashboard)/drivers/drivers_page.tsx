@@ -7,11 +7,10 @@ import PrimaryButton from "@/app/ui/components/primary_button";
 import SchemaForm from "@/app/ui/components/schema_form";
 import { db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
-export default function DriversPage({ header, body }: { header: Record<string, string>, body: Driver[] }) {
+export default function DriversPage({ body }: { body: Driver[] }) {
 	const firestore = new FirestoreHelper(db);
 
 	const [data, setData] = useState(body);
@@ -26,7 +25,13 @@ export default function DriversPage({ header, body }: { header: Record<string, s
 
 			<DetailList
 				body={data}
-				header={header}
+				header={{
+					"phone_number": "Phone Number",
+					"email": "Email",
+					"address": "Address",
+					"driver_license_class": "Driver License Class",
+					"comments": "Comments",
+				}}
 				idColumn="documentId"
 				titleColumn="full_name"
 				titleIcon={<UserIcon width={20} height={20}/>}

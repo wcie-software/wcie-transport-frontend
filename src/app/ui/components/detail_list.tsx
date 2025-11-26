@@ -41,7 +41,7 @@ export function DetailList<Type>({ header, body, idColumn, titleIcon, titleColum
 							<p>Edit</p>
 						</div>
 						<div
-							className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md"
+							className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md text-white"
 							onClick={() => onDelete?.(i)}
 						>
 							<TrashIcon width={20} height={20} />

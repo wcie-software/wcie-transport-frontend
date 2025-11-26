@@ -11,10 +11,10 @@ export default function PrimaryButton({ id, type = "button", disabled = false, o
 			disabled={disabled}
 			type={type}
 			className={clsx(
-				"px-8 py-3 rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default",
+				"px-8 py-3 text-white rounded cursor-pointer disabled:bg-gray-500 disabled:cursor-default",
 				{
 					"bg-primary": !outline,
-					"text-white border border-primary": outline
+					"text-foreground border border-primary": outline
 				}
 			)}
 			onClick={(_) => onClick?.()}>

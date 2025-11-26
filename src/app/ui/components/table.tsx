@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 export type ActionButton = {
 	icon: React.ReactNode,
 	onPressed: (index: number) => void
@@ -9,52 +11,62 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 	fieldFormatter?: (fieldName: string, fieldValue: string, index: number) => string,
 	actionButtons?: ActionButton[]
 }) {
-	const noOfHeaders = Object.entries(headerMap).length;
+	// const noOfHeaders = Object.entries(headerMap).length;
 	return (
-		<table className="block w-full border-spacing-0 border-collapse table-fixed">
-			<thead>
-				<tr>
-					{Object.values(headerMap).map((h) =>
-						<th
-							key={h}
-							className={`text-sm font-normal text-gray-300 text-left w-[${100.0 / noOfHeaders}%]`}
-						>
-							{h}
-						</th>
-					)}
-				</tr>
-			</thead>
-			{body.length !== 0 && (
-				<tbody>
-					{body.map((r, index) => {
-						return (
-							<tr key={index}>
-								{Object.keys(headerMap).map((k) => {
-									const key = k as keyof typeof r;
-									const value = String(r[key] || "");
-									return (
-										<td key={k+value} className="text-left p-6 pl-0">
-											{fieldFormatter?.(k, value, index) ?? value}
-										</td>
-									);
-								})}
-								<td key={`Action Buttons`}>
-									<div className="flex flex-row gap-2.5">
-										{actionButtons?.map((btn, i) => 
-											<button
-												key={`Action Button ${i}`}
-												className="cursor-pointer"
-												onClick={() => btn.onPressed(index)}>
-												{btn.icon}
-											</button>
-										)}
-									</div>
-								</td>
-							</tr>
-						);
-					})}
-				</tbody>
-			)}
-		</table>
+		<div className="overflow-x-auto bg-tertiary rounded-xl">
+			<table className="w-full text-left table-fixed text-gray-400">
+				<thead className="border-b border-tertiary">
+					<tr>
+						{[...Object.values(headerMap), ...(actionButtons ? ["Actions"] : [])].map((h) =>
+							<th
+								key={h}
+								className="px-6 py-4 uppercase text-sm font-semibold tracking-wider"
+							>
+								{h}
+							</th>
+						)}
+					</tr>
+				</thead>
+				{body.length !== 0 && (
+					<tbody className="divide-y divide-tertiary">
+						{body.map((r, index) => {
+							return (
+								<tr key={index}>
+									{Object.keys(headerMap).map((k) => {
+										const key = k as keyof typeof r;
+										const value = String(r[key] || "");
+										return (
+											<td
+												key={k+value}
+												className={clsx(
+													"px-6 py-4 whitespace-nowrap",
+													{
+														"text-foreground": k === "full_name"
+													}
+												)}
+											>
+												{fieldFormatter?.(k, value, index) ?? value}
+											</td>
+										);
+									})}
+									<td key={`Action Buttons`} className="px-6 py-4 whitespace-nowrap">
+										<div className="flex flex-row gap-4">
+											{actionButtons?.map((btn, i) => 
+												<button
+													key={`Action Button ${i}`}
+													className="cursor-pointer"
+													onClick={() => btn.onPressed(index)}>
+													{btn.icon}
+												</button>
+											)}
+										</div>
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				)}
+			</table>
+		</div>
 	);
 }

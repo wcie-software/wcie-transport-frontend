@@ -100,7 +100,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }:
 													<p>Edit</p>
 												</div>
 												<div
-													className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md"
+													className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md text-white"
 													onClick={() => {
 														firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
 														setSchedules({

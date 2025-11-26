@@ -1,32 +1,35 @@
 "use client"
 
-import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
+import { TransportRequest } from "@/app/models/request";
 import Table from "@/app/ui/components/table";
-import { MapPinIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import SchemaForm from "@/app/ui/components/schema_form";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { db } from "@/app/utils/firebase_setup/client";
 import PopupForm from "@/app/ui/components/popup_form";
+import { NUMBER_SUFFIX } from "@/app/utils/constants";
 
-export default function RequestTable({ body, header }: { header: Record<string, string>, body: TransportRequest[] }) {
+export default function RequestView({ body }: { body: TransportRequest[] }) {
 	const firestore = new FirestoreHelper(db);
 
 	const [tableData, setTableData] = useState(body);
 	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
 
 	return (
-		<div className="mt-12">
-			<Table<TransportRequest>
-				headerMap={header}
+		<div className="my-8">
+			<Table
+				headerMap={{
+					"timestamp": "Date",
+					"full_name": "Name",
+					"phone_number": "Phone",
+					"service_number": "Service",
+					"no_of_seats": "Seats",
+				}}
 				body={tableData}
 				fieldFormatter={(k, v, i) => {
 					if (k === "service_number") {
-						const suffix: Record<string, string> = {
-							"1": "st", "2": "nd",
-							"3": "rd", "4": "th",
-						};
-						return `${v}${suffix[v]} Service`;
+						return `${v}${NUMBER_SUFFIX[parseInt(v)]} Service`;
 					} else if (k === "timestamp") {
 						return new Date(v).toLocaleDateString();
 					} else if (k === "no_of_seats") {
