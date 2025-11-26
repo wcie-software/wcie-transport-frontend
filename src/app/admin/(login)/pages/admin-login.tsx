@@ -63,7 +63,7 @@ export default function AdminLogin() {
 							name="email"
 							placeholder="name@gmail.com"
 							required
-							className="outline-0 placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold"
+							className="outline-0 text-foreground placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold autofill-reset"
 						/>
 						<PrimaryButton type="submit">Login</PrimaryButton>
 					</form>
