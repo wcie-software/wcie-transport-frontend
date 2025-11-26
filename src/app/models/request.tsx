@@ -10,7 +10,6 @@ export const TransportRequestSchema = BaseDocument.extend({
 	no_of_seats: z.coerce.number(),
 	no_of_children: z.coerce.number().default(0),
 	timestamp: z.string(),
-	timestamp_ms: z.optional(z.coerce.number()),
 });
 
 

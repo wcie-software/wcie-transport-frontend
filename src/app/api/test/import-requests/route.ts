@@ -17,7 +17,13 @@ export async function GET(req: NextRequest) {
 		.on("error", error => {
 			return new Response(String(error), {status: 500})
 		})
-		.on("data", row =>  requests.add(row))
+		.on("data", row => {
+			const d = new Date(row["timestamp"]);
+			const f = new Intl.DateTimeFormat("en-US", { year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"});
+
+			row["timestamp"] = f.format(d).replaceAll(",", "");
+			requests.add(row);
+		})
 		.on("end", (rowCount: number) => `Parsed ${rowCount} rows`);
 		
 	return new Response("Done");
