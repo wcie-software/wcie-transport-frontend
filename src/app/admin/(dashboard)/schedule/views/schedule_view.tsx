@@ -23,7 +23,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 	const documentKey = (schedule: Schedule) =>
 		new Date(schedule.timestamp).toLocaleDateString().replaceAll("/", "-");
 	const monthKey = (schedule: Schedule) =>
-		new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(new Date(schedule.timestamp));
+		new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Edmonton" }).format(new Date(schedule.timestamp));
 
 	async function addNewSchedule(schedule: Schedule) {
 		const mk = monthKey(schedule);
@@ -87,7 +87,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 									<div key={schedule.timestamp} className="flex flex-col gap-6 bg-tertiary rounded-lg p-4">
 										<div className="flex flex-row justify-between gap-1.5 items-baseline">
 											<h3 className="text-xl font-medium">
-												{new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date)}
+												{new Intl.DateTimeFormat("en-US", { dateStyle: "full", timeZone: "America/Edmonton" }).format(date)}
 											</h3>
 											<div className="flex flex-row items-center gap-3.5">
 												<div
