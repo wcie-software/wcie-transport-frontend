@@ -27,7 +27,7 @@ export function DetailList<Type>({ header, body, idColumn, titleIcon, titleColum
 							{Object.entries(header).map(([key, name]) => (
 								<div key={key}>
 									<h3 className="text-gray-400">{name}</h3>
-									<p className="max-w-sm">{item[key as keyof object]}</p>
+									<p className="max-w-sm">{item[key as keyof object] || "(empty)"}</p>
 								</div>
 							))}
 						</div>

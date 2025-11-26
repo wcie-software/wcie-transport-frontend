@@ -70,7 +70,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }:
 	}
 
 	return (
-		<div className="w-full mt-12 mx-4">
+		<div className="w-full mt-12">
 			<PrimaryButton onClick={() => { setPopupOpen(true); }} >
 				Add Schedule
 			</PrimaryButton>
@@ -90,7 +90,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }:
 											</h3>
 											<div className="flex flex-row items-center gap-3.5">
 												<div
-													className="cursor-pointer flex flex-row items-center gap-2 border border-sky-700 py-2 px-2.5 rounded-md"
+													className="cursor-pointer flex flex-row items-center gap-2 border border-tertiary py-2 px-2.5 rounded-md"
 													onClick={() => {
 														setCurrentSchedule(schedule);
 														setPopupOpen(true);
@@ -100,7 +100,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }:
 													<p>Edit</p>
 												</div>
 												<div
-													className="cursor-pointer flex flex-row items-center gap-2 border border-red-500 py-2 px-2.5 rounded-md"
+													className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md"
 													onClick={() => {
 														firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
 														setSchedules({

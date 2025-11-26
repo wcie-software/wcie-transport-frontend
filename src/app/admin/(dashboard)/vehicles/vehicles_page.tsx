@@ -1,16 +1,16 @@
 "use client"
 
 import { Vehicle } from "@/app/models/vehicle";
+import { DetailList } from "@/app/ui/components/detail_list";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import SchemaForm from "@/app/ui/components/schema_form";
-import Table from "@/app/ui/components/table";
 import { db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { TruckIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
-export default function VehiclesView({ header, body }: { header: Record<string, string>, body: Vehicle[] }) {
+export default function VehiclesView({ body }: { body: Vehicle[] }) {
 	const firestore = new FirestoreHelper(db);
 
 	const [tableData, setTableData] = useState(body);
@@ -22,28 +22,31 @@ export default function VehiclesView({ header, body }: { header: Record<string, 
 			<PrimaryButton onClick={() => setPopupOpen(true)}>
 				Add Vehicle
 			</PrimaryButton>
-			<div className="mt-8" >
-				<Table<Vehicle>
-					headerMap={header}
-					body={tableData}
-					actionButtons={[
-						{
-							icon: <PencilIcon width={20} height={20}/>,
-							onPressed: (i) => {
-								setPopupOpen(true);
-								setCurrentlyEditing(i);
-							}
-						},
-						{
-							icon: <TrashIcon width={20} height={20} />,
-							onPressed: (i) => {
-								firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
-								setTableData(tableData.filter((r, index) => index != i));
-							}
-						}
-					]}
-				/>
-			</div>
+
+			<DetailList
+				header={{
+					"plate_number": "License Plate",
+					"year": "Model",
+					"fuel_cost": "Cost of Fuel ($)",
+					"last_fuel_date": "Last Fueled",
+					"maintenance_type": "Maintenance Type",
+					"maintenance_receipt_amount": "Maintenance Cost ($)",
+					"last_maintenance_date": "Last Maintained",
+					"remarks": "Remarks"
+				}}
+				body={tableData}
+				idColumn="documentId"
+				titleColumn="name"
+				titleIcon={<TruckIcon width={20} height={20} />}
+				onEdit={(i) => {
+					setPopupOpen(true);
+					setCurrentlyEditing(i);
+				}}
+				onDelete={(i) => {
+					firestore.deleteDocument(FirestoreCollections.Drivers, tableData[i].documentId!);
+					setTableData(tableData.filter((r, index) => index != i));
+				}}
+			/>
 
 			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
 				<SchemaForm
