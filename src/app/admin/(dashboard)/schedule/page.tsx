@@ -14,12 +14,11 @@ export default async function SchedulePage() {
 		ScheduleSchema,
 		"timestamp",
 	);
-	console.log(`${schedules.length} schedules found.`);
 
 	const groupedByMonth: Record<string, Schedule[]> = {};
 	schedules.forEach((schedule) => {
 		// e.g. "March 2025"
-		const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+		const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Edmonton" });
 		const monthKey = dateFormatter.format(new Date(schedule.timestamp));
 		(groupedByMonth[monthKey] ??= []).push(schedule);
 	});
