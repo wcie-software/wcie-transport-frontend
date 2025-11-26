@@ -39,6 +39,7 @@ body {
 }
 
 /* Remove autofill background color */
+
 /* Chrome, Safari, Edge */
 input.autofill-reset:-webkit-autofill,
 input.autofill-reset:-webkit-autofill:focus,
@@ -55,4 +56,8 @@ input.autofill-reset:-moz-autofill:focus,
 input.autofill-reset:-moz-autofill:hover {
 	box-shadow: 0 0 0px 1000px transparent inset !important;
 	-moz-text-fill-color: var(--foreground) !important;
+}
+
+::-webkit-scrollbar-track {
+  background: red; /* or background: rgba(0, 0, 0, 0); */
 }

@@ -20,7 +20,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 						{[...Object.values(headerMap), ...(actionButtons ? ["Actions"] : [])].map((h) =>
 							<th
 								key={h}
-								className="px-6 py-4 uppercase text-sm font-semibold tracking-wider"
+								className="p-4 uppercase text-sm font-semibold tracking-wider"
 							>
 								{h}
 							</th>
@@ -39,7 +39,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 											<td
 												key={k+value}
 												className={clsx(
-													"px-6 py-4 whitespace-nowrap",
+													"p-4 whitespace-nowrap overflow-x-clip",
 													{
 														"text-foreground": k === "full_name"
 													}
@@ -49,7 +49,11 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 											</td>
 										);
 									})}
-									<td key={`Action Buttons`} className="px-6 py-4 whitespace-nowrap">
+									<td
+										key={`Action Buttons`}
+										className="px-6 py-4 whitespace-nowrap overflow-x-auto"
+										style={{ scrollbarWidth: "thin" }}
+									>
 										<div className="flex flex-row gap-4">
 											{actionButtons?.map((btn, i) => 
 												<button

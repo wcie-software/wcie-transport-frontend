@@ -9,7 +9,7 @@ WCIE Transport allows church members to request rides to church
 
 ## TODO
 - [ ] Allow user to select date of pickup (either this week or the next) after selecting address
-- [ ] Add more information in the first page.
+- [x] Add more information in the first page.
 - [ ] Add animations between pages
 - [ ] Implement error handling (red banner that displays text)
 - [x] Make mobile-friendly.
