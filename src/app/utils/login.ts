@@ -57,16 +57,16 @@ export async function userLogin(idToken: string, expiresIn = 1000 * 60 * 60 * 24
 }
 
 export async function adminLogin(idToken: string): Promise<boolean> {
-	const expiresIn3Days = 1000 * 60 * 60 * 24 * 3;
+	const expiresIn7Days = 1000 * 60 * 60 * 24 * 7;
 	const { app, auth, db } = await getFirebaseAdmin();
 
-	const uid = await userLogin(idToken, expiresIn3Days);
+	const uid = await userLogin(idToken, expiresIn7Days);
 	const isAdmin = await checkIfAdmin(uid, db);
 
 	if (isAdmin) {
 		const c = await cookies();
 		c.set(IS_ADMIN_COOKIE_KEY, "TRUE", {
-			maxAge: expiresIn3Days / 1000,
+			maxAge: expiresIn7Days / 1000,
 			httpOnly: true,
 			secure: true,
 			sameSite: "strict",
