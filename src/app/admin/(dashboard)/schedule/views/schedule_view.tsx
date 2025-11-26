@@ -78,58 +78,66 @@ export function ScheduleView({ schedulesByMonth, driverInfo }:
 			<div className="my-8 space-y-6">
 				{Object.entries(scheduleGroups).map(([month, schedules]) => (
 					<div key={month} className="space-y-3">
-						<h2 className="text-xl font-semibold mb-2">{month}</h2>
-						<div className="space-y-5">
+						<h2 className="text-2xl font-semibold mb-6">{month}</h2>
+						<div className="space-y-6">
 							{schedules.map((schedule) => {
 								const date = new Date(schedule.timestamp);
 								return (
-									<div key={schedule.timestamp}>
-										<h3 className="text-lg font-medium flex flex-row gap-1.5 items-baseline">
-											<span>{new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date)}</span>
-											<PencilIcon
-											 	cursor="pointer"
-												width={16}
-												height={16}
-												onClick={() => {
-													setCurrentSchedule(schedule);
-													setPopupOpen(true);
-												}}
-											/>
-											<TrashIcon
-											 	cursor="pointer"
-												width={16}
-												height={16}
-												onClick={() => {
-													firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
-													setSchedules({
-														...scheduleGroups,
-														[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
-													});
-												}}
-											/>
-										</h3>
-										{Object.entries(schedule.schedule).map(([service, drivers], i) => {
-											return (
-												<div key={service} className="mb-2 space-y-0.5">
-													<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
-													<div className="flex flex-wrap gap-2">
-														{drivers.length > 0
-															? drivers.map((driver) => 
-																<p className="bg-tertiary text-white px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
-																	{driverInfo[driver]}
-																</p>
-															)
-															: <span className="text-sm italic text-gray-500">No drivers assigned</span>
-														}
-													</div>
+									<div key={schedule.timestamp} className="flex flex-col gap-6 bg-tertiary rounded-lg p-4">
+										<div className="flex flex-row justify-between gap-1.5 items-baseline">
+											<h3 className="text-xl font-medium">
+												{new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date)}
+											</h3>
+											<div className="flex flex-row items-center gap-3.5">
+												<div
+													className="cursor-pointer flex flex-row items-center gap-2 border border-sky-700 py-2 px-2.5 rounded-md"
+													onClick={() => {
+														setCurrentSchedule(schedule);
+														setPopupOpen(true);
+													}}
+												>
+													<PencilIcon width={20} height={20} />
+													<p>Edit</p>
 												</div>
-											);
-										})}
+												<div
+													className="cursor-pointer flex flex-row items-center gap-2 border border-red-500 py-2 px-2.5 rounded-md"
+													onClick={() => {
+														firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
+														setSchedules({
+															...scheduleGroups,
+															[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
+														});
+													}}
+												>
+													<TrashIcon width={20} height={20} />
+													<p>Delete</p>
+												</div>
+											</div>
+										</div>
+										<div className="flex flex-row justify-between items-start">
+											{Object.entries(schedule.schedule).map(([service, drivers], i) => {
+												return (
+													<div key={service} className="mb-2 flex flex-col items-baseline gap-2">
+														<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
+														<div className="flex flex-wrap gap-2">
+															{drivers.length > 0
+																? drivers.map((driver) => 
+																	<p className="bg-tertiary text-white px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
+																		{driverInfo[driver]}
+																	</p>
+																)
+																: <span className="text-sm italic text-gray-500">No drivers assigned</span>
+															}
+														</div>
+													</div>
+												);
+											})}
+										</div>
 									</div>
 								);
 							})}
 						</div>
-						<hr className="m-auto text-tertiary"/>
+						<hr className="mx-auto mt-6 text-tertiary"/>
 					</div>
 				))}
 			</div>
