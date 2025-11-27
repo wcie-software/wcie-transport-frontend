@@ -15,26 +15,23 @@ export default async function RequestsPage() {
 
 	const requestsGroupedByWeek: Record<string, TransportRequest[]> = {};
 	requestsList.forEach((r) => {
-		console.log(r);
-
-		const start = new Date(r.timestamp);
-		console.log(r.timestamp);
-		start.setDate(start.getDate() + (7 - start.getDay()));
-		start.setHours(11, 59, 0, 0); // Have a uniform time
+		const end = new Date(r.timestamp);
+		end.setDate(end.getDate() + (7 - end.getDay()));
+		end.setHours(10, 59, 0, 0); // Have a uniform time
 		
-		const end = new Date(start);
-		end.setDate(start.getDate() + 6);
+		const start = new Date(end);
+		start.setDate(end.getDate() - 6);
 
 		const dateFormatter = new Intl.DateTimeFormat(
 			"en-US", { timeZone: "America/Edmonton", dateStyle: "medium" }
 		)
-		const k = `${dateFormatter.format(start)} - ${dateFormatter.format(end)}`;
+		const k = `${dateFormatter.format(start)} – ${dateFormatter.format(end)}`;
 		(requestsGroupedByWeek[k] ??= []).push(r);
 	});
 
 	return (
 		<div className="w-full">
-			<RequestView body={requestsList} groups={requestsGroupedByWeek}/>
+			<RequestView groups={requestsGroupedByWeek}/>
 		</div>
 	);
 }
