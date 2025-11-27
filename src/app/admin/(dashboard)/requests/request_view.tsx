@@ -75,15 +75,11 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 				{currentlyEditing.index !== -1 &&
 					<SchemaForm
 						schema={tableData[currentlyEditing.week][currentlyEditing.index]}
-						labels={{
-							"full_name": "Full Name",
-							"phone_number": "Phone Number",
-							"service_number": "Service Number",
+						customLabels={{
 							"no_of_seats": "Number of Seats",
-							"google_maps_link": "Google Maps Link",
 							"no_of_children": "Number of Children",
-							"address": "Address"
 						}}
+						hiddenColumns={["documentId", "timestamp"]}
 						onSubmitted={(obj) => {
 							const newRequest = obj as TransportRequest;
 							setTableData({

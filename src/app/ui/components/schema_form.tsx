@@ -1,8 +1,11 @@
 import { FormEvent } from "react";
 
-export default function SchemaForm({ schema, labels, suggestedValues, onSubmitted }: {
+export default function SchemaForm({
+	schema, customLabels, hiddenColumns = ["documentId"], suggestedValues, onSubmitted
+}: {
 	schema: object,
-	labels: Record<string, string>,
+	customLabels?: Record<string, string>,
+	hiddenColumns?: string[],
 	suggestedValues?: Record<string, string[]>,
 	onSubmitted?: (newObj: object) => void,
 }) {
@@ -14,7 +17,7 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 	);
 
 	function inferType(name: string, type: string) {
-		if (name.includes("phone") || labels[name].toLowerCase().includes("phone")) {
+		if (name.includes("phone")) {
 			return "tel";
 		} else if (name.includes("mail")) {
 			return "email";
@@ -22,7 +25,7 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 			return "datetime-local";
 		} else if (name.includes("link")) {
 			return "url";
-		} else if (type.includes("number")) {
+		} else if (type.includes("number") || name.includes("amount") || name.includes("cost")) {
 			return "number";
 		}
 
@@ -49,12 +52,15 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 		<form className="flex flex-col gap-2" onSubmit={formSubmitted}>
 			<div>
 				{zipped.map(([k, t]) => {
-					if (!(k in labels)) {
+					if (hiddenColumns.includes(k)) {
 						return null;
 					}
 
 					const inferredType = inferType(k, t);
 					const key = k as keyof object;
+					const generatedLabel = k.split("_").map((element) =>
+						`${element[0].toUpperCase()}${element.slice(1)}`
+					).join(" ");
 
 					const v = schema[key];
 					const currentValue = (inferredType === "datetime-local")
@@ -63,7 +69,9 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 
 					return (
 						<div key={k} className="py-2 flex flex-col items-baseline justify-start gap-0.5">
-							<label htmlFor={k} className="text-xs">{labels[k]}</label>
+							<label htmlFor={k} className="text-xs">
+								{((customLabels && k in customLabels) ? customLabels[k] : generatedLabel)}
+							</label>
 							{(suggestedValues && k in suggestedValues)
 								?
 									<select
@@ -80,7 +88,7 @@ export default function SchemaForm({ schema, labels, suggestedValues, onSubmitte
 									<input
 										name={k}
 										id={k}
-										placeholder={labels[k]}
+										placeholder={(customLabels && k in customLabels) ? customLabels[k] : generatedLabel}
 										type={inferredType}
 										defaultValue={currentValue}
 										className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"

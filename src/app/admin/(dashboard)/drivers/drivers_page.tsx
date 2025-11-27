@@ -45,19 +45,12 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 				}}
 			/>
 
-			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
+			<PopupForm open={popupOpen} onClose={() => {setPopupOpen(false); setCurrentlyEditing(-1);}}>
 				<SchemaForm
 					schema={currentlyEditing !== -1
 						? data[currentlyEditing]
 						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: ""} as Driver }
-					labels={{
-						"phone_number": "Phone Number",
-						"full_name": "Full Name",
-						"email": "Email",
-						"address": "Address",
-						"driver_license_class": "Driver License Class",
-						"comments": "Comments"
-					}}
+					hiddenColumns={["documentId", "location"]}
 					suggestedValues={{ "driver_license_class": Array.from({length: 7}).map((v, i) => `Class ${i+1}`), }}
 					onSubmitted={(obj) => {
 						const newDriver = obj as Driver;
