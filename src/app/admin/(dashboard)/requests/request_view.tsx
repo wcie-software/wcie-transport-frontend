@@ -14,7 +14,7 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 	const firestore = new FirestoreHelper(db);
 
 	const [tableData, setTableData] = useState(groups);
-	const [currentlyEditing, setCurrentlyEditing] = useState({week: "", index: -1});
+	const [currentlyEditing, setCurrentlyEditing] = useState({ week: "", index: -1 });
 
 	return (
 		<div className="my-8 space-y-8">
@@ -45,17 +45,17 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 						}}
 						actionButtons={[
 							{
-								icon: <MapPinIcon width={20} height={20}/>,
+								icon: <MapPinIcon width={20} height={20} />,
 								onPressed: (i) => {
 									window.open(requests[i].google_maps_link, "_blank", "noopener,noreferrer");
 								}
 							},
 							{
-								icon: <PencilIcon width={20} height={20}/>,
-								onPressed: (i) => setCurrentlyEditing({week: week, index: i})
+								icon: <PencilIcon width={20} height={20} />,
+								onPressed: (i) => setCurrentlyEditing({ week: week, index: i })
 							},
 							{
-								icon: <TrashIcon width={20} height={20}/>,
+								icon: <TrashIcon width={20} height={20} />,
 								onPressed: (i) => {
 									firestore.deleteDocument(FirestoreCollections.Requests, requests[i].documentId!);
 									setTableData({
@@ -64,13 +64,13 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 									});
 								}
 							}
-						]}/>
-					</div>
+						]} />
+				</div>
 			))}
-   
+
 			<PopupForm
 				open={currentlyEditing.index !== -1}
-				onClose={() => setCurrentlyEditing({week: "", index: -1})}
+				onClose={() => setCurrentlyEditing({ week: "", index: -1 })}
 			>
 				{currentlyEditing.index !== -1 &&
 					<SchemaForm
@@ -79,7 +79,7 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 							"no_of_seats": "Number of Seats",
 							"no_of_children": "Number of Children",
 						}}
-						hiddenColumns={["documentId", "timestamp"]}
+						hiddenColumns={["documentId", "timestamp", "coordinates", "address", "google_maps_link"]}
 						onSubmitted={(obj) => {
 							const newRequest = obj as TransportRequest;
 							setTableData({
@@ -93,8 +93,8 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 								})
 							});
 							firestore.updateDocument(FirestoreCollections.Requests, newRequest.documentId!, newRequest);
-							
-							setCurrentlyEditing({week: "", index: -1});
+
+							setCurrentlyEditing({ week: "", index: -1 });
 						}}
 					/>
 				}
