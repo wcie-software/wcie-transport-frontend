@@ -5,13 +5,12 @@ export type ActionButton = {
 	onPressed: (index: number) => void
 };
 
-export default function Table<Type>({ headerMap, body, fieldFormatter, actionButtons }: { 
+export default function Table<Type>({ headerMap, body, fieldFormatter, actionButtons }: {
 	headerMap: Record<string, string>,
 	body: Type[],
 	fieldFormatter?: (fieldName: string, fieldValue: string, index: number) => string,
 	actionButtons?: ActionButton[]
 }) {
-	// const noOfHeaders = Object.entries(headerMap).length;
 	return (
 		<div className="overflow-x-auto bg-tertiary rounded-xl">
 			<table className="w-full text-left table-fixed text-gray-400">
@@ -37,7 +36,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 										const value = String(r[key] || "");
 										return (
 											<td
-												key={k+value}
+												key={k + value}
 												className={clsx(
 													"p-4 whitespace-nowrap overflow-x-clip",
 													{
@@ -51,11 +50,10 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 									})}
 									<td
 										key={`Action Buttons`}
-										className="px-6 py-4 whitespace-nowrap overflow-x-auto"
-										style={{ scrollbarWidth: "thin" }}
+										className="px-6 py-4 whitespace-nowrap"
 									>
 										<div className="flex flex-row gap-4">
-											{actionButtons?.map((btn, i) => 
+											{actionButtons?.map((btn, i) =>
 												<button
 													key={`Action Button ${i}`}
 													className="cursor-pointer"
