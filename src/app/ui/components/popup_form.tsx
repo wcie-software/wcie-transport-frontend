@@ -7,7 +7,7 @@ export default function PopupForm({ open, onClose, children }: { open: boolean, 
 			open={open}
 			onClose={onClose}
 		>
-			<div className="max-h-[85%] overflow-y-auto absolute top-1/2 left-1/2 -translate-1/2 bg-background w-xl p-4 shadow-sm shadow-gray-900 rounded-xl">
+			<div className="outline-0 max-h-[85%] overflow-y-auto absolute top-1/2 left-1/2 -translate-1/2 bg-background w-xl p-4 shadow-sm shadow-gray-900 rounded-xl">
 				<div className="flex flex-col">
 					<XMarkIcon
 						className="ml-auto cursor-pointer"
