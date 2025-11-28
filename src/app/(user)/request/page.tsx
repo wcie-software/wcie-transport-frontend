@@ -10,6 +10,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { redirect, RedirectType } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { toast } from "sonner";
 
 export default function AddressPage() {
 	const [places, setPlaces] = useState<Place[]>([]);
@@ -17,9 +18,13 @@ export default function AddressPage() {
 	const [defaultAddress, setDefaultAddress] = useState<string | null>(null);
 
 	const search = useDebouncedCallback(async (q: string) => {
-		// TODO: Error handling
-		const places = await getPlacePredictions(q);
-		setPlaces(places);
+		try {
+			const places = await getPlacePredictions(q);
+			setPlaces(places);
+		} catch (e) {
+			toast.error("Failed to load locations. Ensure you're connected to the internet.");
+			console.error(e);
+		}
 	}, 400);
 
 	useEffect(() => {
@@ -36,7 +41,7 @@ export default function AddressPage() {
 				}
 			});
 		}
-	}, [user, defaultAddress]);	
+	}, [user, defaultAddress]);
 
 	onAuthStateChanged(auth, (user) => {
 		if (user) {
@@ -63,10 +68,10 @@ export default function AddressPage() {
 								} else {
 									setPlaces([]);
 								}
-							}}/>
+							}} />
 					</div>
 					<ul className="w-full">
-						{places.map((p) => 
+						{places.map((p) =>
 							<li
 								key={p.id}
 								className="group cursor-pointer p-2 hover:bg-tertiary w-full flex flex-row items-center gap-1.5"
@@ -93,21 +98,21 @@ export default function AddressPage() {
 									const params = `?phone_number=${encodedPhone}&auth_token=${encodedToken}&name=${encodedName}`;
 
 									redirect(formURL + params, RedirectType.replace);
-							}}>
-								<MapPinIcon width={24} height={24} className="shrink-0"/>
+								}}>
+								<MapPinIcon width={24} height={24} className="shrink-0" />
 								<p className="text-lg truncate">{p.text}</p>
 								<ArrowRightIcon
 									className="ml-auto outline-none hidden group-hover:block"
 									width={24}
-									height={24}/>
+									height={24} />
 							</li>
 						)}
 					</ul>
-			</>
-			:
-			<div>
-				Loading...
-			</div>
+				</>
+				:
+				<div>
+					Loading...
+				</div>
 			}
 		</div>
 	);

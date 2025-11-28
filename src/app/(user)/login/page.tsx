@@ -7,6 +7,7 @@ import OTPPage from "@/app/(user)/login/pages/otp";
 import { ConfirmationResult } from "firebase/auth";
 import { userLogin } from "@/app/utils/login";
 import { FirebaseError } from "firebase/app";
+import { toast } from "sonner";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -18,7 +19,7 @@ export default function LoginPage() {
 	return (
 		<div className="max-w-2xl w-full">
 			{status === "login" &&
-				 <PhonePage 
+				<PhonePage
 					onCodeSent={(phone, result) => {
 						setPhone(phone);
 						setStatus("code-sent");
@@ -46,12 +47,12 @@ export default function LoginPage() {
 										throw e;
 									} else {
 										console.log(e);
-										// TODO: Handle errors
-										// router.refresh();
+										toast.error("Login failed. Please try again.");
+										setStatus("login");
 									}
 								}
 							}).catch((error) => {
-								console.error(error);
+								toast.error("Incorrect code. Please try again.");
 							});
 						}
 					}}

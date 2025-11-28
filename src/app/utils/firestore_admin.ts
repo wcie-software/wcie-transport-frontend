@@ -7,10 +7,11 @@ export async function getCollection<Type>(
 	collectionName: FirestoreCollections,
 	schema: ZodObject,
 	orderByField?: string,
+	orderByDirection: "asc" | "desc" = "desc",
 ): Promise<Type[]> {
 	const collection = db.collection(collectionName);
-	
-	const results = await (orderByField ? collection.orderBy(orderByField, "desc") : collection).get();
+
+	const results = await (orderByField ? collection.orderBy(orderByField, orderByDirection) : collection).get();
 	if (!results.empty) {
 		const list: Type[] = [];
 		results.forEach(doc => {

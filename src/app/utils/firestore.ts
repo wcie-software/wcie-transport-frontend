@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc, Firestore } from "firebase/firestore";
 import { ZodObject } from "zod";
 
- export enum FirestoreCollections {
+export enum FirestoreCollections {
 	Users = "users",
 	Requests = "requests",
 	Admins = "admins",
@@ -17,38 +17,39 @@ export class FirestoreHelper {
 		this._db = db;
 	}
 
-	 async addDocument(
+	async addDocument(
 		collectionName: FirestoreCollections,
 		data: Record<string, any>,
 		documentPath?: string,
 	): Promise<boolean> {
-		const d = { ... data };
+		const d = { ...data };
 		if ("documentId" in d) { // See `models/base.tsx`
 			delete d["documentId"];
 		}
 
 		if (!documentPath) {
 			await addDoc(collection(this._db, collectionName), d);
+			return true;
 		} else {
 			const ref = doc(this._db, collectionName, documentPath);
 			const snapshot = await getDoc(ref);
 			if (!snapshot.exists()) {
 				await setDoc(ref, d);
 				return true;
-			} 
+			}
 		}
 
 		return false;
 	}
 
-	 async updateDocument(
+	async updateDocument(
 		collectionName: FirestoreCollections,
 		documentPath: string,
 		data: Record<string, any>
 	): Promise<boolean> {
 		const ref = doc(this._db, collectionName, documentPath);
 		try {
-			const d = { ... data };
+			const d = { ...data };
 			if ("documentId" in d) { // See `models/base.tsx`
 				delete d["documentId"];
 			}
@@ -60,7 +61,7 @@ export class FirestoreHelper {
 		}
 	}
 
-	 async getDocument<Type>(
+	async getDocument<Type>(
 		collectionName: FirestoreCollections,
 		documentPath: string,
 		schema: ZodObject,
@@ -83,7 +84,7 @@ export class FirestoreHelper {
 		return null;
 	}
 
-	 async getCollection<Type>(
+	async getCollection<Type>(
 		collectionName: FirestoreCollections,
 		schema: ZodObject
 	): Promise<Type[]> {
@@ -106,10 +107,16 @@ export class FirestoreHelper {
 		return docs;
 	}
 
-	 async deleteDocument(
+	async deleteDocument(
 		collectionName: FirestoreCollections,
 		documentPath: string
-	) {
-		await deleteDoc(doc(this._db, collectionName, documentPath));
+	): Promise<boolean> {
+		try {
+			await deleteDoc(doc(this._db, collectionName, documentPath));
+			return true;
+		} catch (e) {
+			console.error(e);
+			return false;
+		}
 	}
 }

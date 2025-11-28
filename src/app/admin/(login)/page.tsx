@@ -9,6 +9,7 @@ import AdminLogin from "@/app/admin/(login)/pages/admin-login";
 import NotAnAdminPage from "@/app/admin/(login)/pages/not-an-admin";
 import { FirebaseError } from "firebase/app";
 import { adminLogin, isAdmin } from "@/app/utils/login";
+import { toast } from "sonner";
 
 export default function AdminPage() {
 	const router = useRouter();
@@ -48,8 +49,8 @@ export default function AdminPage() {
 					}
 				}
 			} catch (e) {
-				console.error("Some error occurred: " + e);
-				// TODO: Handle bad email and expired link
+				console.log("Some error occurred: " + e);
+				toast.error("Invalid or expired login link.");
 			}
 		} else if (user && await isAdmin()) {
 			router.replace("/admin/requests");

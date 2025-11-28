@@ -9,6 +9,7 @@ import { db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function DriversPage({ body }: { body: Driver[] }) {
 	const firestore = new FirestoreHelper(db);
@@ -34,39 +35,57 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 				}}
 				idColumn="documentId"
 				titleColumn="full_name"
-				titleIcon={<UserIcon width={20} height={20}/>}
+				titleIcon={<UserIcon width={20} height={20} />}
 				onEdit={(i) => {
 					setPopupOpen(true);
 					setCurrentlyEditing(i);
 				}}
-				onDelete={(i) => {
-					firestore.deleteDocument(FirestoreCollections.Drivers, data[i].documentId!);
-					setData(data.filter((r, index) => index != i));
+				onDelete={async (i) => {
+					const success = await firestore.deleteDocument(FirestoreCollections.Drivers, data[i].documentId!);
+					const driverName = data[i].full_name;
+					if (success) {
+						setData(data.filter((r, index) => index != i));
+						toast.success(`Removed '${driverName}'.`);
+					} else {
+						toast.error(`Failed to remove '${driverName}'.`);
+					}
 				}}
 			/>
 
-			<PopupForm open={popupOpen} onClose={() => {setPopupOpen(false); setCurrentlyEditing(-1);}}>
+			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
 					schema={currentlyEditing !== -1
 						? data[currentlyEditing]
-						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: ""} as Driver }
+						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: "" } as Driver}
 					hiddenColumns={["documentId", "location"]}
-					suggestedValues={{ "driver_license_class": Array.from({length: 7}).map((v, i) => `Class ${i+1}`), }}
-					onSubmitted={(obj) => {
+					suggestedValues={{ "driver_license_class": Array.from({ length: 7 }).map((v, i) => `Class ${i + 1}`), }}
+					onSubmitted={async (obj) => {
 						const newDriver = obj as Driver;
 						if (currentlyEditing !== -1) {
-							setData(data.map((r, i) => {
-								if (i === currentlyEditing) {
-									return { ...r, ...newDriver };
-								}
-								return r;
-							}));
-							firestore.updateDocument(FirestoreCollections.Drivers, newDriver.documentId!, newDriver);
+							const success = await firestore.updateDocument(FirestoreCollections.Drivers, newDriver.documentId!, newDriver);
+							const driverName = data[currentlyEditing].full_name;
+							if (success) {
+								setData(data.map((r, i) => {
+									if (i === currentlyEditing) {
+										return { ...r, ...newDriver };
+									}
+									return r;
+								}));
+								toast.success(`Updated '${driverName}'.`);
+							} else {
+								toast.error(`Failed to update '${driverName}'. Try again.`);
+							}
 						} else {
-							setData([...data, newDriver]);
-							firestore.addDocument(FirestoreCollections.Drivers, newDriver);
+							const success = await firestore.addDocument(FirestoreCollections.Drivers, newDriver);
+							const driverName = newDriver.full_name;
+							if (success) {
+								setData([...data, newDriver]);
+								toast.success(`Added '${driverName}'.`);
+							} else {
+								toast.error(`Failed to add '${driverName}'. Try again.`);
+							}
 						}
-						
+
 						setCurrentlyEditing(-1);
 						setPopupOpen(false);
 					}}

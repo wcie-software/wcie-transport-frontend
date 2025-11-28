@@ -15,19 +15,19 @@ export function DetailList<Type>({ header, body, idColumn, titleIcon, titleColum
 		<div className="my-8 bg-tertiary rounded-lg px-4">
 			{body.map((item, i) => (
 				<div
-					key={item[idColumn as keyof object]}
-					className="border-b-[0.2px] last:border-0 border-gray-600 py-8 flex flex-row justify-between items-start gap-12"
+					key={item[idColumn as keyof object] || i}
+					className="border-b-[0.2px] last:border-0 border-gray-600 py-8 flex flex-row justify-between items-start gap-6"
 				>
 					<div>
 						<h2 className="font-semibold text-xl mb-4 flex flex-row gap-1 items-center">
 							{item[titleColumn as keyof object]}
 							{titleIcon}
 						</h2>
-						<div className="flex flex-wrap justify-between gap-6">
+						<div className="grid grid-cols-3 gap-6">
 							{Object.entries(header).map(([key, name]) => (
 								<div key={key}>
 									<h3 className="text-gray-400">{name}</h3>
-									<p className="max-w-sm">{item[key as keyof object] || "(empty)"}</p>
+									<p className="break-words">{item[key as keyof object] || "(empty)"}</p>
 								</div>
 							))}
 						</div>

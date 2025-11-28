@@ -9,6 +9,7 @@ import { useState } from "react";
 import { ScheduleForm } from "./schedule_form";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { toast } from "sonner";
 
 export function ScheduleView({ schedulesByMonth, driverInfo }: {
 	schedulesByMonth: Record<string, Schedule[]>,
@@ -24,6 +25,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 		new Date(schedule.timestamp).toLocaleDateString().replaceAll("/", "-");
 	const monthKey = (schedule: Schedule) =>
 		new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Edmonton" }).format(new Date(schedule.timestamp));
+	const dateKey = (schedule: Schedule) => new Date(schedule.timestamp).toLocaleDateString();
 
 	async function addNewSchedule(schedule: Schedule) {
 		const mk = monthKey(schedule);
@@ -40,8 +42,9 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 				...scheduleGroups,
 				[mk]: [...(scheduleGroups[mk] || []), schedule],
 			});
+			toast.success(`Schedule for ${dateKey(schedule)} added successfully.`);
 		} else {
-			// TODO: Show error
+			toast.error("Failed to add schedule. Schedule already exists for this date.");
 		}
 	}
 
@@ -65,8 +68,9 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 					s.timestamp === schedule.timestamp ? updatedSchedule : s
 				),
 			})
+			toast.success(`Schedule for ${dateKey(schedule)} updated successfully.`);
 		} else {
-			// TODO: Show error
+			toast.error("Failed to update schedule. Try again.");
 		}
 	}
 
@@ -79,7 +83,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 			<div className="my-8 space-y-6">
 				{Object.entries(scheduleGroups).map(([month, schedules], index) => (
 					<div key={month} className="space-y-3">
-						{index !== 0 && <hr className="mx-auto mt-6 text-tertiary"/>}
+						{index !== 0 && <hr className="mx-auto mt-6 text-tertiary" />}
 						<h2 className="text-2xl font-semibold mb-6">{month}</h2>
 						<div className="space-y-6">
 							{schedules.map((schedule) => {
@@ -103,12 +107,17 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 												</div>
 												<div
 													className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md text-white"
-													onClick={() => {
-														firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
+													onClick={async () => {
+														const deleted = await firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
 														setSchedules({
 															...scheduleGroups,
 															[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
 														});
+														if (deleted) {
+															toast.success(`Schedule for ${dateKey(schedule)} deleted successfully.`);
+														} else {
+															toast.error(`Failed to delete schedule for ${dateKey(schedule)}.`);
+														}
 													}}
 												>
 													<TrashIcon width={20} height={20} />
@@ -123,7 +132,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 														<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
 														<div className="flex flex-wrap gap-2">
 															{drivers.length > 0
-																? drivers.map((driver) => 
+																? drivers.map((driver) =>
 																	<p className="bg-tertiary text-white px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
 																		{driverInfo[driver]}
 																	</p>
@@ -142,11 +151,11 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 					</div>
 				))}
 			</div>
-			
+
 			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
 				<ScheduleForm
 					defaultSchedule={currentSchedule}
-				 	driverOptions={driverInfo}
+					driverOptions={driverInfo}
 					onSubmitted={async (schedule) => {
 						setPopupOpen(false);
 
@@ -156,8 +165,8 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 							updateSchedule(schedule);
 							setCurrentSchedule(undefined);
 						}
-					}
-				}/>
+					}}
+				/>
 			</PopupForm>
 		</div>
 	);

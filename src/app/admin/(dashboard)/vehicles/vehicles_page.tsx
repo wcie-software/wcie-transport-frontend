@@ -9,6 +9,7 @@ import { db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { TruckIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function VehiclesView({ body }: { body: Vehicle[] }) {
 	const firestore = new FirestoreHelper(db);
@@ -45,33 +46,51 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 					setPopupOpen(true);
 					setCurrentlyEditing(i);
 				}}
-				onDelete={(i) => {
-					firestore.deleteDocument(FirestoreCollections.Vehicles, tableData[i].documentId!);
-					setTableData(tableData.filter((r, index) => index != i));
+				onDelete={async (i) => {
+					const success = await firestore.deleteDocument(FirestoreCollections.Vehicles, tableData[i].documentId!);
+					const vehicleName = tableData[i].name;
+					if (success) {
+						setTableData(tableData.filter((r, index) => index != i));
+						toast.success(`Vehicle '${vehicleName}' deleted successfully.`);
+					} else {
+						toast.error(`Failed to delete vehicle '${vehicleName}'. Try again.`);
+					}
 				}}
 			/>
 
-			<PopupForm open={popupOpen} onClose={() => {setPopupOpen(false); setCurrentlyEditing(-1); }}>
+			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
 					schema={currentlyEditing !== -1
 						? tableData[currentlyEditing]
-						: { documentId: "", name: "", plate_number: "", year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle }
-					customLabels={{"name": "Vehicle Name"}}
-					onSubmitted={(obj) => {
+						: { documentId: "", name: "", plate_number: "", year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle}
+					customLabels={{ "name": "Vehicle Name" }}
+					onSubmitted={async (obj) => {
 						const newVehicle = VehicleSchema.parse(obj);
 						if (currentlyEditing !== -1) {
-							setTableData(tableData.map((r, i) => {
-								if (i === currentlyEditing) {
-									return { ...r, ...newVehicle };
-								}
-								return r;
-							}));
-							firestore.updateDocument(FirestoreCollections.Vehicles, newVehicle.documentId!, newVehicle);
+							const success = await firestore.updateDocument(FirestoreCollections.Vehicles, newVehicle.documentId!, newVehicle);
+							const vehicleName = tableData[currentlyEditing].name;
+							if (success) {
+								setTableData(tableData.map((r, i) => {
+									if (i === currentlyEditing) {
+										return { ...r, ...newVehicle };
+									}
+									return r;
+								}));
+								toast.success(`Vehicle '${vehicleName}' updated successfully.`);
+							} else {
+								toast.error(`Failed to update vehicle '${vehicleName}'. Try again.`);
+							}
 						} else {
-							setTableData([...tableData, newVehicle]);
-							firestore.addDocument(FirestoreCollections.Vehicles, newVehicle);
+							const success = await firestore.addDocument(FirestoreCollections.Vehicles, newVehicle);
+							const vehicleName = newVehicle.name;
+							if (success) {
+								setTableData([...tableData, newVehicle]);
+								toast.success(`Vehicle '${vehicleName}' added successfully.`);
+							} else {
+								toast.error(`Failed to add vehicle '${vehicleName}'. Try again.`);
+							}
 						}
-						
+
 						setCurrentlyEditing(-1);
 						setPopupOpen(false);
 					}}
