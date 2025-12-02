@@ -1,16 +1,20 @@
 import { FormEvent } from "react";
+import { toast } from "sonner";
+import { ZodObject } from "zod";
 
 export default function SchemaForm({
-	schema, customLabels, hiddenColumns = ["documentId"], suggestedValues, onSubmitted
+	obj, schema, customLabels, hiddenColumns = ["documentId"], readonlyColumns, suggestedValues, onSubmitted
 }: {
-	schema: object,
+	obj: object,
+	schema: ZodObject,
 	customLabels?: Record<string, string>,
 	hiddenColumns?: string[],
+	readonlyColumns?: string[],
 	suggestedValues?: Record<string, string[]>,
 	onSubmitted?: (newObj: object) => void,
 }) {
-	const keys = Object.keys(schema);
-	const types = Object.values(schema).map((v) => typeof v);
+	const keys = Object.keys(obj);
+	const types = Object.values(obj).map((v) => typeof v);
 	const zipped = Array.from(
 		{ length: keys.length },
 		(_, i) => [keys[i], types[i]]
@@ -41,11 +45,18 @@ export default function SchemaForm({
 			newObj.set(k, String(v));
 		}
 
-		if ("documentId" in schema && !newObj.has("documentId")) {
-			newObj.set("documentId", schema["documentId" as keyof object])
+		if ("documentId" in obj && !newObj.has("documentId")) {
+			newObj.set("documentId", obj["documentId" as keyof object])
 		}
 
-		onSubmitted?.(Object.fromEntries(newObj.entries()));
+		const validObj = schema.safeParse(Object.fromEntries(newObj.entries()));
+		if (validObj.success) {
+			onSubmitted?.(validObj.data);
+		} else {
+			const errorObj = JSON.parse(validObj.error.message);
+			toast.error(`The data you typed in is not valid: '${errorObj[0]["message"]}'.`);
+			// console.log(validObj.error);
+		}
 	}
 
 	return (
@@ -62,7 +73,7 @@ export default function SchemaForm({
 						`${element[0].toUpperCase()}${element.slice(1)}`
 					).join(" ");
 
-					const v = schema[key];
+					const v = obj[key];
 					let currentValue = String(v);
 					if (inferredType === "datetime-local") {
 						try {
@@ -94,7 +105,8 @@ export default function SchemaForm({
 									placeholder={(customLabels && k in customLabels) ? customLabels[k] : generatedLabel}
 									type={inferredType}
 									defaultValue={currentValue}
-									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
+									readOnly={readonlyColumns?.includes(k)}
+									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground read-only:text-gray-400"
 								/>
 							}
 						</div>

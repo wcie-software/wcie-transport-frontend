@@ -2,10 +2,11 @@
 
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Checkbox, ListItemText, MenuItem, Select } from "@mui/material";
-import { Schedule } from "@/app/models/schedule";
+import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { toast } from "sonner";
 
 export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numberOfServices = 2}: {
 	defaultSchedule?: Schedule,
@@ -50,19 +51,28 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 			&& selectedDrivers[1]?.length > 0
 			&& selectedDrivers[2]?.length > 0
 		) {
-			const schedule: Schedule = {
+			const validSchedule = ScheduleSchema.safeParse({
 				timestamp: chosenDate.getTime(),
 				schedule: {
 					"1": selectedDrivers[1].map(getIdFromName),
 					"2": selectedDrivers[2].map(getIdFromName),
 				},
-			};
-			onSubmitted(schedule);
+			});
 
-			// Reset form data
-			setChosenDate(nearestSunday);
-			setSelectedDrivers({});
-		};
+			if (validSchedule.success) {
+				onSubmitted(validSchedule.data);
+
+				// Reset form data
+				setChosenDate(nearestSunday);
+				setSelectedDrivers({});
+
+				return;
+			}
+			console.log(chosenDate);
+			console.log(validSchedule.error);
+		}
+
+		toast.error("Invalid schedule.");
 	}
 
 

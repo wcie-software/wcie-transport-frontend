@@ -1,6 +1,6 @@
 "use client"
 
-import { TransportRequest } from "@/app/models/request";
+import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import Table from "@/app/ui/components/table";
 import { MapPinIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { db } from "@/app/utils/firebase_setup/client";
 import PopupForm from "@/app/ui/components/popup_form";
 import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { toast } from "sonner";
 
 export default function RequestView({ groups }: { groups: Record<string, TransportRequest[]> }) {
 	const firestore = new FirestoreHelper(db);
@@ -56,12 +57,21 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 							},
 							{
 								icon: <TrashIcon width={20} height={20} />,
-								onPressed: (i) => {
-									firestore.deleteDocument(FirestoreCollections.Requests, requests[i].documentId!);
-									setTableData({
-										...tableData,
-										[week]: tableData[week].filter((r, index) => index != i)
-									});
+								onPressed: async (i) => {
+									const requestId = requests[i].documentId!;
+									const success = await firestore.deleteDocument(
+										FirestoreCollections.Requests, requestId
+									);
+
+									if (success) {
+										setTableData({
+											...tableData,
+											[week]: tableData[week].filter((r, index) => index != i)
+										});
+										toast.success(`Deleted request '${requestId}'`);
+									} else {
+										toast.error("Failed to delete request. Try again.")
+									}
 								}
 							}
 						]} />
@@ -74,25 +84,39 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 			>
 				{currentlyEditing.index !== -1 &&
 					<SchemaForm
-						schema={tableData[currentlyEditing.week][currentlyEditing.index]}
+						schema={TransportRequestSchema}
+						obj={tableData[currentlyEditing.week][currentlyEditing.index]}
 						customLabels={{
 							"no_of_seats": "Number of Seats",
 							"no_of_children": "Number of Children",
 						}}
-						hiddenColumns={["documentId", "timestamp", "coordinates", "address", "google_maps_link"]}
-						onSubmitted={(obj) => {
+						hiddenColumns={["documentId"]}
+						readonlyColumns={["timestamp", "coordinates", "address", "google_maps_link"]}
+						onSubmitted={async (obj) => {
 							const newRequest = obj as TransportRequest;
-							setTableData({
-								...tableData,
-								[currentlyEditing.week]: tableData[currentlyEditing.week].map((row, i) => {
-									// Update only that row
-									if (i === currentlyEditing.index) {
-										return { ...row, ...newRequest };
-									}
-									return row;
-								})
-							});
-							firestore.updateDocument(FirestoreCollections.Requests, newRequest.documentId!, newRequest);
+							// Timestamp must not be changed
+							newRequest.timestamp = tableData[currentlyEditing.week][currentlyEditing.index].timestamp;
+
+							const success = await firestore.updateDocument(
+								FirestoreCollections.Requests, newRequest.documentId!, newRequest
+							);
+							
+							if (success) {
+								setTableData({
+									...tableData,
+									[currentlyEditing.week]: tableData[currentlyEditing.week].map((row, i) => {
+										// Update only that row
+										if (i === currentlyEditing.index) {
+											return { ...row, ...newRequest };
+										}
+										return row;
+									})
+								});
+								toast.success("Request updated successfully.");
+							} else {
+								toast.error("Failed to update request. Try again.")
+							}
+
 
 							setCurrentlyEditing({ week: "", index: -1 });
 						}}
