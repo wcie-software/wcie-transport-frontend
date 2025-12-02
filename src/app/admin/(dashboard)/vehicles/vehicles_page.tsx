@@ -60,10 +60,14 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
-					schema={currentlyEditing !== -1
+				 	schema={VehicleSchema}
+					obj={currentlyEditing !== -1
 						? tableData[currentlyEditing]
-						: { documentId: "", name: "", plate_number: "", year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle}
+						: { documentId: "", name: "", plate_number: "", active: true, year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle}
 					customLabels={{ "name": "Vehicle Name" }}
+					suggestedValues={{
+						"active": ["Yes", "No"]
+					}}
 					onSubmitted={async (obj) => {
 						const newVehicle = VehicleSchema.parse(obj);
 						if (currentlyEditing !== -1) {

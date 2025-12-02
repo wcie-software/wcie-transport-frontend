@@ -1,6 +1,6 @@
 "use client"
 
-import { Driver } from "@/app/models/driver";
+import { Driver, DriverSchema } from "@/app/models/driver";
 import { DetailList } from "@/app/ui/components/detail_list";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
@@ -54,7 +54,8 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
-					schema={currentlyEditing !== -1
+				 	schema={DriverSchema}
+					obj={currentlyEditing !== -1
 						? data[currentlyEditing]
 						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: "" } as Driver}
 					hiddenColumns={["documentId", "location"]}
