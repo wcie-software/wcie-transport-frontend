@@ -90,8 +90,8 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 							"no_of_seats": "Number of Seats",
 							"no_of_children": "Number of Children",
 						}}
-						hiddenColumns={["documentId"]}
-						readonlyColumns={["timestamp", "coordinates", "address", "google_maps_link"]}
+						hiddenColumns={["documentId", "coordinates"]}
+						readonlyColumns={["timestamp", "address", "google_maps_link"]}
 						onSubmitted={async (obj) => {
 							const newRequest = obj as TransportRequest;
 							// Timestamp must not be changed
