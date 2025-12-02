@@ -3,12 +3,13 @@ import { toast } from "sonner";
 import { ZodObject } from "zod";
 
 export default function SchemaForm({
-	obj, schema, customLabels, hiddenColumns = ["documentId"], suggestedValues, onSubmitted
+	obj, schema, customLabels, hiddenColumns = ["documentId"], readonlyColumns, suggestedValues, onSubmitted
 }: {
 	obj: object,
 	schema: ZodObject,
 	customLabels?: Record<string, string>,
 	hiddenColumns?: string[],
+	readonlyColumns?: string[],
 	suggestedValues?: Record<string, string[]>,
 	onSubmitted?: (newObj: object) => void,
 }) {
@@ -104,7 +105,8 @@ export default function SchemaForm({
 									placeholder={(customLabels && k in customLabels) ? customLabels[k] : generatedLabel}
 									type={inferredType}
 									defaultValue={currentValue}
-									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
+									readOnly={readonlyColumns?.includes(k)}
+									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground read-only:text-gray-400"
 								/>
 							}
 						</div>
