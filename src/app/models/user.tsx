@@ -9,7 +9,7 @@ export const LocationDetails = z.object({
 
 export const TransportUserSchema = BaseDocument.extend({
 	address: z.string(),
-	phone_number: z.string(),
+	phone_number: z.string().startsWith("+1").length(12),
 	location_details: LocationDetails
 });
 
