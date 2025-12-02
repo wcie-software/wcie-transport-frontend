@@ -10,8 +10,11 @@ export const TransportRequestSchema = BaseDocument.extend({
 	coordinates: z.optional(Location),
 	service_number: z.coerce.number().min(1),
 	no_of_seats: z.coerce.number().min(1),
-	no_of_children: z.coerce.number().default(0),
-	timestamp: z.string().regex(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/), // mm/dd/yyyy hh:mm:ss
+	no_of_children: z.coerce.number().min(0).default(0),
+	timestamp: z.string()
+}).refine((data) => data.no_of_children < data.no_of_seats, {
+	error: "Not enough seats to accommodate number of children",
+	path: ["no_of_children"]
 });
 
 
