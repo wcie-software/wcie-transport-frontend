@@ -79,6 +79,8 @@ export default function SchemaForm({
 						try {
 							currentValue = (new Date(v)).toISOString().replace("Z", "");
 						} catch (e) { }
+					} else if (["true", "false"].includes(currentValue)) {
+						currentValue = (currentValue === "true") ? "Yes" : "No";
 					}
 
 					return (
@@ -91,7 +93,7 @@ export default function SchemaForm({
 								<select
 									id={k}
 									name={k}
-									defaultValue={v}
+									defaultValue={currentValue}
 									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
 								>
 									{suggestedValues[k].map((sv) =>

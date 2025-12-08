@@ -9,7 +9,7 @@ export const VehicleSchema = BaseDocument.extend({
 		const v = String(val).toLowerCase();
 		return ["true", "yes", "y"].includes(v);
 	}),
-	seating_capacity: z.coerce.number().default(4),
+	seating_capacity: z.coerce.number().min(2).default(4),
 	remarks: z.string().default(""),
 	fuel_cost: z.nullable(z.coerce.number().min(0)),
 	last_fuel_date: z.nullable(z.string()),
