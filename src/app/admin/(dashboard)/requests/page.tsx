@@ -7,7 +7,7 @@ import RequestView from "@/app/admin/(dashboard)/requests/request_view";
 export const dynamic = "force-dynamic";
 
 export default async function RequestsPage() {
-	const { app, auth, db } = await getFirebaseAdmin();
+	const { db } = await getFirebaseAdmin();
 	const requestsList = await firestoreAdmin.getCollection<TransportRequest>(
 		db,
 		FirestoreCollections.Requests,
