@@ -28,9 +28,11 @@ export default async function SchedulePage() {
 	drivers.forEach((driver) => driverIdsAndNames[driver.documentId!] = driver.full_name);
 
 	return (
-		<ScheduleView
-			schedulesByMonth={groupedByMonth}
-			driverInfo={driverIdsAndNames}
-		/>
+		<div className="mx-8">
+			<ScheduleView
+				schedulesByMonth={groupedByMonth}
+				driverInfo={driverIdsAndNames}
+			/>
+		</div>
 	);
 }

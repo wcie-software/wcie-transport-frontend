@@ -43,7 +43,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 							alt="WCIE Logo"
 							width={40}
 							height={40}/>
-						<p className="text-2xl truncate font-[family-name:var(--font-pt-serif)]">WCIE Transport</p>
+						<p className="text-2xl truncate font-(family-name:--font-pt-serif)">WCIE Transport</p>
 				</Link>
 				<ul className="flex-1 flex flex-col mt-12 w-full">
 					{Object.entries(pages).map(([k, v]) => {
@@ -63,7 +63,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 				</ul>
 				{/* <p className="text-lg">Sign Out</p> */}
 			</nav>
-			<main className="flex-1 mx-8">
+			<main className="flex-1">
 				{children}
 			</main>
 		</div>
