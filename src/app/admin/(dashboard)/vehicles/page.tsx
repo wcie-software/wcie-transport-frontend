@@ -11,7 +11,7 @@ export default async function VehiclePage() {
 	const body = await firestoreAdmin.getCollection<Vehicle>(db, FirestoreCollections.Vehicles, VehicleSchema);
 
 	return (
-		<div className="w-full mt-12">
+		<div className="w-full mt-12 mx-8">
 			<VehiclesView body={body} />
 		</div>
 	);

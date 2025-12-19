@@ -1,19 +1,22 @@
 import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
+import { Location } from "@/app/models/location";
 
-const RouteBatch = z.object({
-	batch_no: z.coerce.number().min(0),
-	rider_request_ids: z.array(z.string()),
+const RequestPoint = z.object({
+  id: z.string(),
+  position: Location,
 });
 
-const Route = z.object({
-	assigned_driver_id: z.string(),
-	batches: z.array(RouteBatch)
+const DriverRouteSchema = z.object({
+  driver_id: z.string(),
+  assigned_vehicle_id: z.string(),
+  route: z.array(RequestPoint),
 });
 
-export const FleetRouteSchema = BaseDocument.extend({
-	timestamp: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/), // mm/dd/yyyy
-	routes: z.array(Route)
+export const DriverRoutesSchema = BaseDocument.extend({
+  timestamp: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/), // mm/dd/yyyy
+  routes: z.record(z.string(), z.array(DriverRouteSchema)),
 });
 
-export type FleetRoute = z.infer<typeof FleetRouteSchema>;
+export type DriverRoutes = z.infer<typeof DriverRoutesSchema>;
+export type DriverRoute = z.infer<typeof DriverRouteSchema>;

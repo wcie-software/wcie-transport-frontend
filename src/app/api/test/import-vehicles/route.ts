@@ -1,52 +1,35 @@
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { NextRequest } from "next/server";
-import { parse } from "@fast-csv/parse";
-import { createReadStream } from "fs";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { Vehicle } from "@/app/models/vehicle";
+
+const vehiclesData: Vehicle[] = [
+	{ documentId: '1AHEOWH0c58J1mDdc5J4', name: 'Sienna W', plate_number: 'WCIE 2', seating_capacity: 6, year: 2020, active: false, remarks: "" },
+	{ documentId: 'GCeUkavrmXxE52JPAEaK', name: 'Ford Van', plate_number: 'WCIE 1', seating_capacity: 11, year: 2022, active: false, remarks: "" },
+	{ documentId: 'ICZI7QOAQk3vak9ibTtY', name: 'Chevrolet Van', plate_number: 'CFJ-4140', seating_capacity: 13, year: 2008, active: false, remarks: "" },
+	{ documentId: 'UAJGnZ8rNa6wDVfWmwkW', name: 'Toyota Sienna', plate_number: 'BSG-9052', seating_capacity: 7, year: 2005, active: false, remarks: "" },
+	{ documentId: 'qRGGi0m6LYYqmnkzYtsh', active: false, name: 'Ford Flex', plate_number: 'CLM-4052', seating_capacity: 6, year: 2011, remarks: "" },
+];
 
 export async function GET(req: NextRequest) {
 	if (process.env.NODE_ENV !== "development") {
 		return new Response("Not allowed", { status: 403 });
 	}
 
-	const { app, auth, db } = await getFirebaseAdmin();
+	const { db } = await getFirebaseAdmin();
 	const vehicles = db.collection(FirestoreCollections.Vehicles);
 	
-	createReadStream(process.cwd() + "/src/test/data/vehicles.csv")
-		.pipe(parse({ headers: true, delimiter: "," }))
-		.on("error", error => {
-			console.error(error);
-		})
-		.on("data", async row => {
-			const name = row["Vehicle Name"];
-			const year = parseInt(row["Model"]);
-			const plate_number = row["License Plate"];
-			const remarks = row["Remarks"] || "";
-			const fuel_cost = row["Fuel Cost"] ? parseFloat(String(row["Fuel Cost"]).replace("$", "")) : null;
-			const last_fuel_date = row["Fuel Date"] ? new Date(row["Fuel Date"]).toLocaleDateString() : null;
-			const maintenance_type = row["Maintenance Type"] || null;
-			const last_maintenance_date = row["Maintenance Date"] ? new Date(row["Maintenance Date"]).toLocaleDateString() : null;
-			const maintenance_receipt_amount = row["Maintenance Receipt Amount"] ? parseFloat(String(row["Maintenance Receipt Amount"]).replace("$", "")) : null;
+	for (const vehicle of vehiclesData) {
+		try {
+			const id = vehicle.documentId!;
 
-			try {
-				await vehicles.add({
-					name: name,
-					year: year,
-					plate_number: plate_number,
-					remarks: remarks,
-					fuel_cost: fuel_cost,
-					last_fuel_date: last_fuel_date,
-					maintenance_type: maintenance_type,
-					last_maintenance_date: last_maintenance_date,
-					maintenance_receipt_amount: maintenance_receipt_amount,
-				} as Vehicle);
-				console.log(`Imported vehicle: ${name}`);
-			} catch (e) {
-				console.error(`Error importing vehicle ${name}: ${e}`);
-			}
-		})
-		.on("end", (rowCount: number) => `Parsed ${rowCount} rows`);
+			delete vehicle.documentId;
+			await vehicles.doc(id).set(vehicle);
+			console.log(`Imported vehicle: ${vehicle.name}`);
+		} catch (e) {
+			console.error(`Error importing vehicle ${vehicle.name}: ${e}`);
+		}
+	}
 		
 	return new Response("Done");
 }
