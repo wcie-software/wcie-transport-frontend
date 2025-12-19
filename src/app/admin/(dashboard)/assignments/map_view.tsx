@@ -4,20 +4,20 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip } from 'react
 import L, { LatLngExpression } from "leaflet";
 import { TransportRequest } from '@/app/models/request';
 import { Driver } from '@/app/models/driver';
-import { DriverRoutes } from '@/app/models/fleet_route';
+import { DriverRoute } from '@/app/models/fleet_route';
 
 export default function MapView({ requestPoints, driverPoints, routes }: {
 	requestPoints: TransportRequest[],
 	driverPoints?: Driver[],
-	routes?: DriverRoutes
+	routes?: DriverRoute[]
 }) {
 	const churchPosition: LatLngExpression = { lat: 53.5461888, lng: -113.4886912 };
 	const markerIcon = L.icon({
 		iconUrl: "/icons/marker.png",
 		iconRetinaUrl: "/icons/marker@2x.png",
-		iconSize: [32, 32],
-		iconAnchor: [16, 32],
-		popupAnchor: [0, -28]
+		iconSize: [20, 20],
+		iconAnchor: [10, 20],
+		popupAnchor: [0, -16]
 	});
 	const churchIcon = L.icon({
 		iconUrl: "/icons/church-marker.png",
@@ -40,17 +40,30 @@ export default function MapView({ requestPoints, driverPoints, routes }: {
 		}
 
 		const polylines = [];
-		for (const r of routes.routes) {
+		
+		const colours = ["red", "yellow", "purple", "blue", "orange", "black", "green"];
+		let c = 0;
+		for (const r of routes) {
 			const route = r.route;
-			for (let i = 0; i < route.length; i += 1) {
+			for (let i = 0; i < route.length-1; i += 1) {
 				polylines.push(
 					<Polyline
+						color={colours[c]}
+						opacity={(route.length - i) / (route.length)}
 						positions={[
-							{lat: route[i].point.latitude, lng: route[i].point.longitude},
-							{lat: route[i+1].point.latitude, lng: route[i+1].point.longitude},
+							{lat: route[i].position.latitude, lng: route[i].position.longitude},
+							{lat: route[i+1].position.latitude, lng: route[i+1].position.longitude},
 						]}
-					/>
+					>
+						{i === 0 && <Tooltip permanent opacity={0.4}>Start</Tooltip>}
+						{(i === route.length-2) && <Tooltip permanent opacity={0.4}>End</Tooltip>}
+					</Polyline>
 				);
+			}
+
+			c++;
+			if (c >= colours.length) {
+				c = 0;
 			}
 		}
 

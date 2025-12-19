@@ -17,13 +17,14 @@ export default async function AssignmentsPage({ searchParams }: {
 		? new Date(params?.timestamp)
 		: new Date();
 	// Ensure it falls on a Sunday
-	endDate.setDate(endDate.getDate() + (7 - endDate.getDay()));
+	if (endDate.getDay() !== 0) {
+		endDate.setDate(endDate.getDate() + (7 - endDate.getDay()));
+	}
 
 	const startDate = new Date(endDate);
 	startDate.setDate(endDate.getDate() - 7);
 
-	const dateString = TIMESTAMP_FORMATTER.format(startDate);
-	const documentDateString = startDate.toLocaleDateString("en-US").replaceAll("/", "-");
+	const documentDateString = endDate.toLocaleDateString("en-US").replaceAll("/", "-");
 
 	const v = parseInt(params?.service_number ?? "1");
 	const service_number = isNaN(v) ? 1 : v;
@@ -35,26 +36,30 @@ export default async function AssignmentsPage({ searchParams }: {
 		TransportRequestSchema,
 		[
 			{ field: "service_number", operator: "==", value: service_number },
-			{ field: "timestamp", operator: ">", value: dateString },
+			{ field: "timestamp", operator: ">", value: TIMESTAMP_FORMATTER.format(startDate) },
 			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER.format(endDate) },
 		],
 		"timestamp"
 	);
 
 	let driverList: Driver[] = [];
-	const schedule = await firestoreAdmin.getDocument<Schedule>(
-		db, FirestoreCollections.Schedules, ScheduleSchema,
-		documentDateString
-	);
-
-	const service_number_str = String(service_number);
-	if (schedule && service_number_str in schedule.schedule) {
-		driverList = await firestoreAdmin.getDocuments<Driver>(
-			db,
-			FirestoreCollections.Drivers,
-			DriverSchema,
-			schedule.schedule[service_number_str]
+	// No need to show driver points in other services,
+	// since they all start at starting point
+	if (service_number === 1) {
+		const schedule = await firestoreAdmin.getDocument<Schedule>(
+			db, FirestoreCollections.Schedules, ScheduleSchema,
+			documentDateString
 		);
+
+		const service_number_str = String(service_number);
+		if (schedule && service_number_str in schedule.schedule) {
+			driverList = await firestoreAdmin.getDocuments<Driver>(
+				db,
+				FirestoreCollections.Drivers,
+				DriverSchema,
+				schedule.schedule[service_number_str]
+			);
+		}
 	}
 
 	const routes = await firestoreAdmin.getDocument<DriverRoutes>(
@@ -67,7 +72,7 @@ export default async function AssignmentsPage({ searchParams }: {
 			<MapView
 				requestPoints={requestsList}
 				driverPoints={driverList}
-				routes={routes}
+				routes={routes?.routes[service_number]}
 			/>
 		</div>
 	);

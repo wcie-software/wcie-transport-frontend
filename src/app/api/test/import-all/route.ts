@@ -5,6 +5,8 @@ export function GET(req: NextRequest) {
 		"/api/test/import-drivers",
 		"/api/test/import-vehicles",
 		"/api/test/import-requests",
+		"/api/test/import-schedules",
+		"/api/test/import-assignments",
 	];
 
 	importUrls.forEach(async (url) => {
