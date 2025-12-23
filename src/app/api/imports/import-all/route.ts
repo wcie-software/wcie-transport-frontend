@@ -1,24 +1,31 @@
 import { NextRequest } from "next/server";
 
 export function GET(req: NextRequest) {
-	const importUrls = [
-		"/api/test/import-drivers",
-		"/api/test/import-vehicles",
-		"/api/test/import-requests",
-		"/api/test/import-schedules",
-		"/api/test/import-assignments",
-	];
+  if (process.env.NODE_ENV !== "development") {
+    return new Response("Not allowed", { status: 403 });
+  }
 
-	importUrls.forEach(async (url) => {
-		try {
-			await fetch(`${req.nextUrl.origin}${url}`, {
-				method: "GET",
-			});
-			console.log(`Called import route: ${url}`);
-		} catch (e) {
-			return new Response(`Error calling import route ${url}: ${e}`, { status: 500 });
-		}
-	});
+  const importUrls = [
+    "/api/imports/import-drivers",
+    "/api/imports/import-vehicles",
+    "/api/imports/import-requests",
+    "/api/imports/import-schedules",
+    "/api/imports/import-assignments",
+    "/api/imports/import-admin",
+  ];
 
-	return new Response("Imports completed.");
+  importUrls.forEach(async (url) => {
+    try {
+      await fetch(`${req.nextUrl.origin}${url}`, {
+        method: "GET",
+      });
+      console.log(`Called import route: ${url}`);
+    } catch (e) {
+      return new Response(`Error calling import route ${url}: ${e}`, {
+        status: 500,
+      });
+    }
+  });
+
+  return new Response("Imports completed.");
 }
