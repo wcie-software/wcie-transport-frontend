@@ -5,18 +5,24 @@ import { Admin } from "@/app/models/admin";
 export async function GET() {
   const { auth, db } = await getFirebaseAdmin();
 
-  // Create user
-  const admin = await auth.createUser({
-    email: "obaloluwa.odelana@gmail.com",
-    emailVerified: true,
-    displayName: "Obaloluwa Odelana",
-  });
-  // Make admin
-  await auth.setCustomUserClaims(admin.uid, { role: "admin" });
+  try {
+    // Create user
+    const admin = await auth.createUser({
+      email: "obaloluwa.odelana@gmail.com",
+      emailVerified: true,
+      displayName: "Obaloluwa Odelana",
+    });
+    // Make admin
+    await auth.setCustomUserClaims(admin.uid, { role: "admin" });
 
-  // Add to admin db
-  await db
-    .collection(FirestoreCollections.Admins)
-    .doc(admin.uid)
-    .set({ email: admin.email } as Admin);
+    // Add to admin db
+    await db
+      .collection(FirestoreCollections.Admins)
+      .doc(admin.uid)
+      .set({ email: admin.email } as Admin);
+
+    return new Response("Done");
+  } catch (e) {
+    return new Response("Failed to create admin", { status: 500 });
+  }
 }
