@@ -81,17 +81,11 @@ export async function getDocument<Type>(
 	}
 }
 
-export interface WhereClause {
-	field: string;
-	operator: WhereFilterOp;
-	value: any;
-}
-
 export async function queryCollection<Type>(
 	db: Firestore,
 	collectionName: FirestoreCollections,
 	schema: ZodObject<any>,
-	whereClauses: WhereClause[] = [],
+	whereClauses: { field: string, operator: WhereFilterOp, value: any }[] = [],
 	orderByField?: string,
 	orderByDirection: "asc" | "desc" = "desc",
 ): Promise<Type[]> {

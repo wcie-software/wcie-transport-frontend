@@ -1,4 +1,3 @@
-import MapView from "@/app/admin/(dashboard)/assignments/map_view";
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import { Driver, DriverSchema } from "@/app/models/driver";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
@@ -7,6 +6,7 @@ import * as firestoreAdmin from "@/app/utils/firestore_admin";
 import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
+import AssignmentsView from "@/app/admin/(dashboard)/assignments/assignments_view";
 
 export default async function AssignmentsPage({ searchParams }: {
 	searchParams: Promise<{ timestamp?: string, service_number?: string }>
@@ -38,6 +38,7 @@ export default async function AssignmentsPage({ searchParams }: {
 			{ field: "service_number", operator: "==", value: service_number },
 			{ field: "timestamp", operator: ">", value: TIMESTAMP_FORMATTER.format(startDate) },
 			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER.format(endDate) },
+			// { field: "status", operator: "==", value: "normal" },
 		],
 		"timestamp"
 	);
@@ -69,9 +70,9 @@ export default async function AssignmentsPage({ searchParams }: {
 
 	return (
 		<div className="w-full h-screen">
-			<MapView
-				requestPoints={requestsList}
-				driverPoints={driverList}
+			<AssignmentsView
+				driversList={driverList}
+				requestsList={requestsList}
 				routes={routes?.routes[service_number]}
 			/>
 		</div>
