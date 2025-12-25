@@ -88,6 +88,7 @@ export default function AddressPage() {
 										FirestoreCollections.Users,
 										transportUser,
 										user!.uid,
+										true
 									);
 
 									const formURL = "https://wcie.fillout.com/transport";
