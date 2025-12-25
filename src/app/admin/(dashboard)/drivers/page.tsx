@@ -11,7 +11,7 @@ export default async function RequestsPage() {
 	const body = await firebaseAdmin.getCollection<Driver>(db, FirestoreCollections.Drivers, DriverSchema, "full_name", "asc");
 
 	return (
-		<div className="w-full mt-12 mx-8">
+		<div className="w-full mt-12 px-8">
 			<DriversPage body={body} />
 		</div>
 	);
