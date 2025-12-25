@@ -1,14 +1,15 @@
 import clsx from "clsx";
 
 export type ActionButton = {
-	icon: React.ReactNode,
+	icon: (index: number) => React.ReactNode,
 	onPressed: (index: number) => void
 };
 
-export default function Table<Type>({ headerMap, body, fieldFormatter, actionButtons }: {
+export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyle, actionButtons }: {
 	headerMap: Record<string, string>,
 	body: Type[],
 	fieldFormatter?: (fieldName: string, fieldValue: string, index: number) => string,
+	fieldStyle?: (fieldName: string, fieldValue: string, index: number) => string | undefined,
 	actionButtons?: ActionButton[]
 }) {
 	return (
@@ -37,12 +38,10 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 										return (
 											<td
 												key={k + value}
-												className={clsx(
-													"p-4 whitespace-nowrap overflow-x-clip",
-													{
-														"text-foreground": k === "full_name"
-													}
-												)}
+												className={
+													"p-4 whitespace-nowrap " + 
+														(fieldStyle?.(k, value, index) ?? "")
+												}
 											>
 												{fieldFormatter?.(k, value, index) ?? value}
 											</td>
@@ -58,7 +57,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, actionBut
 													key={`Action Button ${i}`}
 													className="cursor-pointer"
 													onClick={() => btn.onPressed(index)}>
-													{btn.icon}
+													{btn.icon(index)}
 												</button>
 											)}
 										</div>

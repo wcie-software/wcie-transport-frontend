@@ -32,7 +32,7 @@ export default async function RequestsPage() {
 	});
 
 	return (
-		<div className="w-full mx-8">
+		<div className="w-full px-8">
 			<RequestView groups={requestsGroupedByWeek} />
 		</div>
 	);
