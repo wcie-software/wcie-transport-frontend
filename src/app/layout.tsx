@@ -34,6 +34,7 @@ export default function RootLayout({
         <Toaster
           position="bottom-right"
           toastOptions={{
+						duration: 5500,
             classNames: {
               error: "!bg-deleteRed !text-white !border-deleteRed",
               success: "!bg-green-600 !text-white !border-green-600",

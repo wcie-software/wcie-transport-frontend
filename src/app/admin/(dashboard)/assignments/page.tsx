@@ -1,12 +1,14 @@
-import MapView from "@/app/admin/(dashboard)/assignments/map_view";
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import { Driver, DriverSchema } from "@/app/models/driver";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import * as firestoreAdmin from "@/app/utils/firestore_admin";
-import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
+import { ADMIN_ID_TOKEN_COOKIE_KEY, TIMESTAMP_FORMATTER } from "@/app/utils/constants";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
+import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignments_view";
+import { cookies } from "next/headers";
+import { redirect, RedirectType } from "next/navigation";
 
 export default async function AssignmentsPage({ searchParams }: {
 	searchParams: Promise<{ timestamp?: string, service_number?: string }>
@@ -24,13 +26,13 @@ export default async function AssignmentsPage({ searchParams }: {
 	const startDate = new Date(endDate);
 	startDate.setDate(endDate.getDate() - 7);
 
-	const documentDateString = endDate.toLocaleDateString("en-US").replaceAll("/", "-");
+	const timestamp = endDate.toLocaleDateString("en-US").replaceAll("/", "-");
 
 	const v = parseInt(params?.service_number ?? "1");
 	const service_number = isNaN(v) ? 1 : v;
 
 	const { db } = await getFirebaseAdmin();
-	const requestsList = await firestoreAdmin.queryCollection<TransportRequest>(
+	const requestsList = (await firestoreAdmin.queryCollection<TransportRequest>(
 		db,
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
@@ -40,7 +42,7 @@ export default async function AssignmentsPage({ searchParams }: {
 			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER.format(endDate) },
 		],
 		"timestamp"
-	);
+	)).filter((t) => t.status != "cancelled");
 
 	let driverList: Driver[] = [];
 	// No need to show driver points in other services,
@@ -48,7 +50,7 @@ export default async function AssignmentsPage({ searchParams }: {
 	if (service_number === 1) {
 		const schedule = await firestoreAdmin.getDocument<Schedule>(
 			db, FirestoreCollections.Schedules, ScheduleSchema,
-			documentDateString
+			timestamp
 		);
 
 		const service_number_str = String(service_number);
@@ -62,17 +64,27 @@ export default async function AssignmentsPage({ searchParams }: {
 		}
 	}
 
-	const routes = await firestoreAdmin.getDocument<DriverRoutes>(
+	const driverRoutes = await firestoreAdmin.getDocument<DriverRoutes>(
 		db, FirestoreCollections.Assignments, DriverRoutesSchema,
-		documentDateString
+		timestamp
 	);
+	// Get only routes for the particular service
+	const routes = driverRoutes?.routes.filter((r) => r.service_number == service_number);
+
+	const adminIdToken = (await cookies()).get(ADMIN_ID_TOKEN_COOKIE_KEY);
+	if (!adminIdToken) {
+		console.error("No id token cookie stored in user's browser! Check that `login.tsx` is functioning properly.")
+		// Ask the user to re-login
+		redirect("/admin", RedirectType.replace);
+	}
 
 	return (
 		<div className="w-full h-screen">
-			<MapView
-				requestPoints={requestsList}
-				driverPoints={driverList}
-				routes={routes?.routes[service_number]}
+			<AssignmentsView
+				timestamp={timestamp}
+				driversList={driverList}
+				requestsList={requestsList}
+				routes={routes}
 			/>
 		</div>
 	);
