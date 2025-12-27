@@ -1,12 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import {
-  collection,
-  connectFirestoreEmulator,
-  getDocs,
-  getFirestore,
-} from "firebase/firestore";
-import { FirestoreCollections } from "../firestore";
+import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
 export const app = initializeApp();
 export const auth = getAuth(app);
