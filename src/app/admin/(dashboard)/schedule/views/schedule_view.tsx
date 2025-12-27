@@ -133,7 +133,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 														<div className="flex flex-wrap gap-2">
 															{drivers.length > 0
 																? drivers.map((driver) =>
-																	<p className="bg-tertiary text-white px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
+																	<p className="bg-tertiary text-foreground px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
 																		{driverInfo[driver]}
 																	</p>
 																)
@@ -152,7 +152,11 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 				))}
 			</div>
 
-			<PopupForm open={popupOpen} onClose={() => setPopupOpen(false)}>
+			<PopupForm open={popupOpen} onClose={() => {
+				setPopupOpen(false);
+				// In case the user started editing, but exited
+				setCurrentSchedule(undefined);
+			}}>
 				<ScheduleForm
 					defaultSchedule={currentSchedule}
 					driverOptions={driverInfo}

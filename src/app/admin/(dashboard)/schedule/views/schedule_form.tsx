@@ -1,11 +1,11 @@
 "use client";
 
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { Checkbox, ListItemText, MenuItem, Select } from "@mui/material";
+import { Checkbox, ListItemText, MenuItem, Select, ThemeProvider } from "@mui/material";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
-import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { MUITheme, NUMBER_SUFFIX } from "@/app/utils/constants";
 import { toast } from "sonner";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
@@ -75,33 +75,35 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 						<label htmlFor={`drivers-${serviceNumber}`} className="text-xs">
 							Select {serviceNumber}{NUMBER_SUFFIX[serviceNumber]} Service Drivers
 						</label>
-						<Select
-							className="w-full border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0 text-foreground"
-							name={`drivers-${serviceNumber}`}
-							id={`drivers-${serviceNumber}`}
-							IconComponent={() => <ChevronDownIcon width={20} height={20} />}
-							multiple
-							value={selectedDrivers[serviceNumber] || []}
-							onChange={(e) => {
-								const value = e.target.value;
-								setSelectedDrivers({
-									...selectedDrivers,
-									[serviceNumber]: typeof value === 'string' ? value.split(',') : value,
-								});
-							}}
-							MenuProps={{ PaperProps: { style: { maxHeight: 48 * 4.5 + 8 } } }}
-							renderValue={(selected) => selected.join(", ") || "No Drivers Selected"}
-							displayEmpty
-						>
-							{Object.values(driverOptions).map((name) => (
-								<MenuItem key={name} value={name}>
-									<Checkbox
-										checked={serviceNumber in selectedDrivers && selectedDrivers[serviceNumber].includes(name)}
-									/>
-									<ListItemText primary={name} />
-								</MenuItem>
-							))}
-						</Select>
+						<ThemeProvider theme={MUITheme}>
+							<Select
+								className="w-full border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0 text-foreground"
+								name={`drivers-${serviceNumber}`}
+								id={`drivers-${serviceNumber}`}
+								IconComponent={() => <ChevronDownIcon width={20} height={20} />}
+								multiple
+								value={selectedDrivers[serviceNumber] || []}
+								onChange={(e) => {
+									const value = e.target.value;
+									setSelectedDrivers({
+										...selectedDrivers,
+										[serviceNumber]: typeof value === 'string' ? value.split(',') : value,
+									});
+								}}
+								MenuProps={{ PaperProps: { style: { maxHeight: 48 * 4.5 + 8 } } }}
+								renderValue={(selected) => selected.join(", ") || "No Drivers Selected"}
+								displayEmpty
+							>
+								{Object.values(driverOptions).map((name) => (
+									<MenuItem key={name} value={name}>
+										<Checkbox
+											checked={serviceNumber in selectedDrivers && selectedDrivers[serviceNumber].includes(name)}
+										/>
+										<ListItemText primary={name} />
+									</MenuItem>
+								))}
+							</Select>
+						</ThemeProvider>
 					</div>
 				);
 			})}

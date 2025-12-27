@@ -46,3 +46,4 @@ wcie-transport-backend-firebase-adminsdk-fbsvc-f9562c3374.json
 
 # Test data
 /src/test/data/*
+/src/app/api/imports/*

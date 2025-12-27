@@ -10,12 +10,14 @@ const RequestPoint = z.object({
 const DriverRouteSchema = z.object({
   driver_id: z.string(),
   assigned_vehicle_id: z.string(),
+  service_number: z.coerce.number().min(1),
   route: z.array(RequestPoint),
+  estimated_route_time: z.coerce.number().min(0).default(0),
 });
 
 export const DriverRoutesSchema = BaseDocument.extend({
   timestamp: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/), // mm/dd/yyyy
-  routes: z.record(z.string(), z.array(DriverRouteSchema)),
+  routes: z.array(DriverRouteSchema),
 });
 
 export type DriverRoutes = z.infer<typeof DriverRoutesSchema>;

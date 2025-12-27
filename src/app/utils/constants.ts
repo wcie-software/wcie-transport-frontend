@@ -21,15 +21,24 @@ export const TIMESTAMP_FORMATTER = Intl.DateTimeFormat("en-US", {
 
 export const MUITheme = createTheme({
   components: {
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          "&.Mui-checked": {
+            color: "var(--primary)",
+          },
+        },
+      },
+    },
     MuiInputLabel: {
       styleOverrides: {
         root: {
           color: "inherit",
           "&.Mui-focused": {
-            "color": "var(--primary)"
-          }
+            color: "var(--primary)",
+          },
         },
-      }
+      },
     },
     MuiSelect: {
       styleOverrides: {
@@ -37,16 +46,16 @@ export const MUITheme = createTheme({
           color: "inherit",
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
             borderColor: "var(--primary)",
-            borderWidth: "1px"
+            borderWidth: "1px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "var(--primary)"
+            borderColor: "var(--primary)",
           },
           ".MuiOutlinedInput-notchedOutline": {
-            borderColor: "inherit"
-          }
+            borderColor: "inherit",
+          },
         },
-      }
-    }
-  }
+      },
+    },
+  },
 });
