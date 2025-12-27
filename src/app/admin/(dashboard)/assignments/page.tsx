@@ -3,10 +3,12 @@ import { Driver, DriverSchema } from "@/app/models/driver";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import * as firestoreAdmin from "@/app/utils/firestore_admin";
-import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
+import { ADMIN_ID_TOKEN_COOKIE_KEY, TIMESTAMP_FORMATTER } from "@/app/utils/constants";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
 import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignments_view";
+import { cookies } from "next/headers";
+import { redirect, RedirectType } from "next/navigation";
 
 export default async function AssignmentsPage({ searchParams }: {
 	searchParams: Promise<{ timestamp?: string, service_number?: string }>
@@ -69,10 +71,18 @@ export default async function AssignmentsPage({ searchParams }: {
 	// Get only routes for the particular service
 	const routes = driverRoutes?.routes.filter((r) => r.service_number == service_number);
 
+	const adminIdToken = (await cookies()).get(ADMIN_ID_TOKEN_COOKIE_KEY);
+	if (!adminIdToken) {
+		console.error("No id token cookie stored in user's browser! Check that `login.tsx` is functioning properly.")
+		// Ask the user to re-login
+		redirect("/admin", RedirectType.replace);
+	}
+
 	return (
 		<div className="w-full h-screen">
 			<AssignmentsView
 			 	timestamp={timestamp}
+				idToken={adminIdToken.value}
 				driversList={driverList}
 				requestsList={requestsList}
 				routes={routes}

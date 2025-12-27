@@ -11,6 +11,7 @@ import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { MUITheme } from "@/app/utils/constants";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import PrimaryButton from "@/app/ui/components/primary_button";
+import { toast } from "sonner";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -18,15 +19,16 @@ const MapView = dynamic(() => import(
 	{ ssr: false } // Don't pre-render on server because it uses "window"
 );
 
-export default function AssignmentsView({ timestamp, requestsList, driversList, routes }: {
+export default function AssignmentsView({ timestamp, idToken, requestsList, driversList, routes }: {
 	timestamp: string,
+	idToken: string,
 	requestsList: TransportRequest[],
 	driversList: Driver[],
 	routes?: DriverRoute[]
 }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
-	const { replace } = useRouter();
+	const { replace, refresh } = useRouter();
 
 	const nearestSunday = new Date(searchParams.get("timestamp") ?? new Date());
 	if (nearestSunday.getDay() !== 0) {
@@ -42,6 +44,30 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 		const params = new URLSearchParams(searchParams);
 		params.set(key, value);
 		replace(`${pathname}?${params.toString()}`);
+	}
+
+	function generateRoutes() {
+		setGenerationInProgress(true);
+		
+		const generationPromise = fetch("https://find-optimal-routes-dsplgp4a2a-uc.a.run.app", {
+			method: "POST",
+			body: JSON.stringify({ timestamp: timestamp }),
+			headers: { "Content-Type": "application/json", "X-Auth-Token": idToken }
+		}).then(async (res) => {
+			const responseBody = await res.json();
+			if (res.ok && responseBody["title"] == "Success") {
+				refresh(); // Refresh page to show routes
+			} else {
+				toast.error("Failed to generate routes: " + responseBody["message"])
+				setGenerationInProgress(false);
+			}
+		}).catch((e) => {
+			toast.error("Something went wrong while generating routes. Please try again later");
+			setGenerationInProgress(false);
+		});
+
+		// Show loading toast
+		toast.promise(generationPromise, { loading: "Generating routes..." });
 	}
 
 	return (
@@ -67,7 +93,6 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 							onChange={(e: SelectChangeEvent) => {
 								const newServiceNumber = e.target.value;
 								setServiceNumber(newServiceNumber);
-
 								updateSearchParams("service_number", newServiceNumber);
 							}}
 						>
@@ -77,14 +102,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 					</ThemeProvider>
 				</div>
 
-				<PrimaryButton onClick={() => {
-					fetch("https://find-optimal-routes-dsplgp4a2a-uc.a.run.app", {
-						method: "POST",
-						body: JSON.stringify({ timestamp: timestamp }),
-						headers: { "X-Auth-Token": "" }
-					})
-					setGenerationInProgress(true);
-				}}>
+				<PrimaryButton onClick={generateRoutes} disabled={generationInProgress}>
 					{generationInProgress ? "Generating..." : "Generate Routes"}
 				</PrimaryButton>
 			</div>
