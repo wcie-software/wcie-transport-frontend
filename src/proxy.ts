@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
-import {
-  SESSION_COOKIE_KEY,
-  ADMIN_ID_TOKEN_COOKIE_KEY,
-} from "@/app/utils/constants";
+import { SESSION_COOKIE_KEY, IS_ADMIN_COOKIE_KEY } from "@/app/utils/constants";
 
 export async function proxy(request: NextRequest) {
   const basePath = request.nextUrl.pathname.split("/")[1];
@@ -21,14 +18,14 @@ export async function proxy(request: NextRequest) {
     await auth.verifySessionCookie(sessionCookie.value);
 
     // Check if user is trying to access admin page, but doesn't have required privilege
-    const isAdmin = request.cookies.get(ADMIN_ID_TOKEN_COOKIE_KEY);
-    if ((!isAdmin || isAdmin.value.length == 0) && adminLogin) {
+    const isAdmin = request.cookies.get(IS_ADMIN_COOKIE_KEY);
+    if ((!isAdmin || isAdmin.value !== "TRUE") && adminLogin) {
       console.log(
         "Not an admin because " +
           (isAdmin ? "role is not admin" : "cookie does not exit")
       );
       return NextResponse.redirect(new URL(loginURL, request.url));
-    } else if (!adminLogin && isAdmin?.value.length) {
+    } else if (!adminLogin && isAdmin?.value === "TRUE") {
       console.log("Admin trying to access non-admin page");
       return NextResponse.redirect(new URL(loginURL, request.url));
     }

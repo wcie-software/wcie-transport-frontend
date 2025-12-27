@@ -1,9 +1,6 @@
 "use server";
 
-import {
-  SESSION_COOKIE_KEY,
-  ADMIN_ID_TOKEN_COOKIE_KEY,
-} from "@/app/utils/constants";
+import { SESSION_COOKIE_KEY, IS_ADMIN_COOKIE_KEY } from "@/app/utils/constants";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { Auth } from "firebase-admin/auth";
@@ -76,8 +73,8 @@ export async function adminLogin(idToken: string): Promise<boolean> {
 
   if (isAdmin) {
     const c = await cookies();
-    // Save admin's id token for middleware to know user is admin and for other uses (see `assignments_view.tsx`)
-    c.set(ADMIN_ID_TOKEN_COOKIE_KEY, idToken, {
+    // Indicator that lets the middleware know that user is admin
+    c.set(IS_ADMIN_COOKIE_KEY, "TRUE", {
       maxAge: expiresIn7Days / 1000,
       httpOnly: true,
       secure: true,
@@ -88,8 +85,17 @@ export async function adminLogin(idToken: string): Promise<boolean> {
   return isAdmin;
 }
 
+export async function logout(): Promise<void> {
+  const c = await cookies();
+
+  c.delete(SESSION_COOKIE_KEY);
+  c.delete(IS_ADMIN_COOKIE_KEY);
+}
+
 export async function isAdmin(): Promise<boolean> {
   const c = await cookies();
 
-  return c.has(SESSION_COOKIE_KEY) && c.has(ADMIN_ID_TOKEN_COOKIE_KEY);
+  return (
+    c.has(SESSION_COOKIE_KEY) && c.get(IS_ADMIN_COOKIE_KEY)?.value == "TRUE"
+  );
 }

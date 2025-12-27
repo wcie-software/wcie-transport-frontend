@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
-import { usePathname } from "next/navigation";
+import { Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
+import { logout } from "@/app/utils/login";
+import { auth } from "@/app/utils/firebase_setup/client";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {
 	const pathname = usePathname();
@@ -61,7 +63,16 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 						);
 					})}
 				</ul>
-				{/* <p className="text-lg">Sign Out</p> */}
+				<button
+					className="text-lg class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
+					onClick={async () => {
+						await Promise.all([auth.signOut(), logout()]);
+						redirect("/admin", RedirectType.replace);
+					}}
+				>
+					<ArrowRightStartOnRectangleIcon width={20} height={20}/>
+					<span className="font-medium">Sign Out</span>
+				</button>
 			</nav>
 			<main className="flex-1">
 				{children}
