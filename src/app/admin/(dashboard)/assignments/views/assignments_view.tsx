@@ -13,6 +13,7 @@ import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { toast } from "sonner";
 import { generateRoutes } from "@/app/utils/generate_routes";
+import { auth } from "@/app/utils/firebase_setup/client";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -44,6 +45,23 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 		const params = new URLSearchParams(searchParams);
 		params.set(key, value);
 		replace(`${pathname}?${params.toString()}`);
+	}
+
+	async function beginRouteGeneration(): Promise<void> {
+		const idToken = await auth.currentUser?.getIdToken();
+		if (!idToken) {
+			toast.error("Please refresh the page and re-login");
+			setGenerationInProgress(false);
+		} else {
+			const res = await generateRoutes(timestamp, idToken);
+			if (res.success) {
+				setGenerationInProgress(false);
+				refresh(); // Refresh page to show routes
+			} else {
+				toast.error(res.message);
+				setGenerationInProgress(false);
+			}
+		}
 	}
 
 	return (
@@ -80,24 +98,14 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 
 				<PrimaryButton
 					disabled={generationInProgress}
-					onClick={() => {
+					onClick={async () => {
 						setGenerationInProgress(true);
-						
-						const generationPromise = generateRoutes(timestamp).then((res) => {
-							if (res.success) {
-								setGenerationInProgress(false);
-								refresh(); // Refresh page to show routes
-							} else {
-								toast.error(res.message);
-								setGenerationInProgress(false);
-							}
-						});
-
+						const generationPromise = beginRouteGeneration();
 						// Show loading toast
 						toast.promise(generationPromise, { loading: "Generating routes..." });
 					}}
 				>
-					{generationInProgress ? "Generating..." : "Generate Routes"}
+					Generate Routes
 				</PrimaryButton>
 			</div>
 
