@@ -10,6 +10,8 @@ import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignmen
 import { cookies } from "next/headers";
 import { redirect, RedirectType } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function AssignmentsPage({ searchParams }: {
 	searchParams: Promise<{ timestamp?: string, service_number?: string }>
 }) {

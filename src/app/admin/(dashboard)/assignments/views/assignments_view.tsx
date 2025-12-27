@@ -85,6 +85,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 						
 						const generationPromise = generateRoutes(timestamp).then((res) => {
 							if (res.success) {
+								setGenerationInProgress(false);
 								refresh(); // Refresh page to show routes
 							} else {
 								toast.error(res.message);

@@ -5,8 +5,10 @@ import { ScheduleView } from "@/app/admin/(dashboard)/schedule/views/schedule_vi
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { Driver, DriverSchema } from "@/app/models/driver";
 
+export const dynamic = "force-dynamic";
+
 export default async function SchedulePage() {
-	const { app, auth, db } = await getFirebaseAdmin();
+	const { db } = await getFirebaseAdmin();
 
 	const schedules = await firebaseAdmin.getCollection<Schedule>(
 		db,

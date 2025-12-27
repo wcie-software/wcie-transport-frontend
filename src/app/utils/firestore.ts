@@ -18,7 +18,7 @@ export enum FirestoreCollections {
   Drivers = "drivers",
   Vehicles = "vehicles",
   Schedules = "schedules",
-  Assignments = "assignments",
+  Assignments = "assigned-routes",
 }
 
 export class FirestoreHelper {
