@@ -12,6 +12,7 @@ import { MUITheme } from "@/app/utils/constants";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { toast } from "sonner";
+import { generateRoutes } from "@/app/utils/generate_routes";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -19,9 +20,8 @@ const MapView = dynamic(() => import(
 	{ ssr: false } // Don't pre-render on server because it uses "window"
 );
 
-export default function AssignmentsView({ timestamp, idToken, requestsList, driversList, routes }: {
+export default function AssignmentsView({ timestamp, requestsList, driversList, routes }: {
 	timestamp: string,
-	idToken: string,
 	requestsList: TransportRequest[],
 	driversList: Driver[],
 	routes?: DriverRoute[]
@@ -44,30 +44,6 @@ export default function AssignmentsView({ timestamp, idToken, requestsList, driv
 		const params = new URLSearchParams(searchParams);
 		params.set(key, value);
 		replace(`${pathname}?${params.toString()}`);
-	}
-
-	function generateRoutes() {
-		setGenerationInProgress(true);
-		
-		const generationPromise = fetch("https://find-optimal-routes-dsplgp4a2a-uc.a.run.app", {
-			method: "POST",
-			body: JSON.stringify({ timestamp: timestamp }),
-			headers: { "Content-Type": "application/json", "X-Auth-Token": idToken }
-		}).then(async (res) => {
-			const responseBody = await res.json();
-			if (res.ok && responseBody["title"] == "Success") {
-				refresh(); // Refresh page to show routes
-			} else {
-				toast.error("Failed to generate routes: " + responseBody["message"])
-				setGenerationInProgress(false);
-			}
-		}).catch((e) => {
-			toast.error("Something went wrong while generating routes. Please try again later");
-			setGenerationInProgress(false);
-		});
-
-		// Show loading toast
-		toast.promise(generationPromise, { loading: "Generating routes..." });
 	}
 
 	return (
@@ -102,7 +78,24 @@ export default function AssignmentsView({ timestamp, idToken, requestsList, driv
 					</ThemeProvider>
 				</div>
 
-				<PrimaryButton onClick={generateRoutes} disabled={generationInProgress}>
+				<PrimaryButton
+					disabled={generationInProgress}
+					onClick={() => {
+						setGenerationInProgress(true);
+						
+						const generationPromise = generateRoutes(timestamp).then((res) => {
+							if (res.success) {
+								refresh(); // Refresh page to show routes
+							} else {
+								toast.error(res.message);
+								setGenerationInProgress(false);
+							}
+						});
+
+						// Show loading toast
+						toast.promise(generationPromise, { loading: "Generating routes..." });
+					}}
+				>
 					{generationInProgress ? "Generating..." : "Generate Routes"}
 				</PrimaryButton>
 			</div>

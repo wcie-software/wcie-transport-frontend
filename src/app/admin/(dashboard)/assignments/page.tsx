@@ -81,8 +81,7 @@ export default async function AssignmentsPage({ searchParams }: {
 	return (
 		<div className="w-full h-screen">
 			<AssignmentsView
-			 	timestamp={timestamp}
-				idToken={adminIdToken.value}
+				timestamp={timestamp}
 				driversList={driverList}
 				requestsList={requestsList}
 				routes={routes}
