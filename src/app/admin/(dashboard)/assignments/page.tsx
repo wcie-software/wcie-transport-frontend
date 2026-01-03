@@ -15,9 +15,18 @@ export default async function AssignmentsPage({ searchParams }: {
 }) {
 	const params = await searchParams;
 
-	const endDate = params?.timestamp
-		? new Date(params?.timestamp)
-		: new Date();
+	// Atempt to get date from url search param
+	let month, date, year;
+	try {
+		[month, date, year] = params?.timestamp?.split("-").map(parseFloat)!;
+	} catch (e) {
+		// Fallback to today's date
+		const today = new Date();
+		[month, date, year] = [today.getMonth() + 1, today.getDate(), today.getFullYear()];
+	}
+
+	// Construct date manually to mitigate date to string conversion issues
+	const endDate = new Date(year, month - 1, date, 23, 59, 59);
 	// Ensure it falls on a Sunday
 	if (endDate.getDay() !== 0) {
 		endDate.setDate(endDate.getDate() + (7 - endDate.getDay()));
@@ -43,11 +52,6 @@ export default async function AssignmentsPage({ searchParams }: {
 		],
 		"timestamp"
 	)).filter((t) => t.status != "cancelled");
-
-	console.log("Printing requests' timestamps");
-	for (const re of requestsList) {
-		console.log(re.timestamp);
-	}
 
 	let driverList: Driver[] = [];
 	// No need to show driver points in other services,
