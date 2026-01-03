@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
 import { auth } from "@/app/utils/firebase_setup/client";
+import { seedDB } from "@/app/utils/import_test_data";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {
 	const pathname = usePathname();
@@ -40,23 +41,23 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 				<Link
 					className="flex flex-row items-center gap-2.5 mt-4 mx-auto"
 					href="/admin">
-						<Image
-							src="/Logo.png"
-							alt="WCIE Logo"
-							width={40}
-							height={40}/>
-						<p className="text-2xl truncate font-(family-name:--font-pt-serif)">WCIE Transport</p>
+					<Image
+						src="/Logo.png"
+						alt="WCIE Logo"
+						width={40}
+						height={40} />
+					<p className="text-2xl truncate font-(family-name:--font-pt-serif)">WCIE Transport</p>
 				</Link>
 				<ul className="flex-1 flex flex-col mt-12 w-full">
 					{Object.entries(pages).map(([k, v]) => {
-						const {icon, href} = v;
+						const { icon, href } = v;
 						const Icon = icon;
 						return (
 							<li key={k} className={clsx("px-4 py-5 rounded-l-4xl", {
 								"bg-background": pathname === href
 							})}>
 								<Link href={href} className="flex flex-row items-center gap-2">
-									<Icon width={20} height={20}/>
+									<Icon width={20} height={20} />
 									<p className="text-lg">{k}</p>
 								</Link>
 							</li>
@@ -70,9 +71,18 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 						redirect("/admin", RedirectType.replace);
 					}}
 				>
-					<ArrowRightStartOnRectangleIcon width={20} height={20}/>
+					<ArrowRightStartOnRectangleIcon width={20} height={20} />
 					<span className="font-medium">Sign Out</span>
 				</button>
+				{(process.env.NODE_ENV === "development") &&
+					<button
+						className="text-lg text-primary class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
+						onClick={seedDB}
+					>
+						<BugAntIcon width={20} height={20} />
+						<span className="font-medium">Import Test Data</span>
+					</button>
+				}
 			</nav>
 			<main className="flex-1">
 				{children}
