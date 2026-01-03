@@ -5,6 +5,7 @@ import { useState, FormEvent } from "react";
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
 import { sendSignInLinkToEmail } from "firebase/auth";
 import { auth } from "@/app/utils/firebase_setup/client";
+import { createTestAdminAccount } from "@/app/utils/import_test_data";
 
 async function sendEmailLink(emailAddress: string) {
 	try {
@@ -58,14 +59,26 @@ export default function AdminLogin() {
 						onSubmit={handleFormSubmit}
 						className="flex flex-col items-start gap-4 mt-2"
 					>
-						<input 
+						<input
 							type="email"
 							name="email"
 							placeholder="name@gmail.com"
 							required
 							className="outline-0 text-foreground placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold autofill-reset"
 						/>
-						<PrimaryButton type="submit">Login</PrimaryButton>
+						<div className="flex flex-row items-center justify-start gap-2">
+							<PrimaryButton type="submit">Login</PrimaryButton>
+							{(process.env.NODE_ENV === "development") &&
+								<PrimaryButton
+									outline={true}
+									onClick={() => {
+										createTestAdminAccount();
+										alert("Admin account created")
+									}}
+								>
+									Create Test Admin Account
+								</PrimaryButton>}
+						</div>
 					</form>
 				</div>
 			}

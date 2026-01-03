@@ -24,12 +24,16 @@ export async function getFirebaseAdmin(): Promise<{
   const app =
     apps.length == 0
       ? initializeAdminApp({
-          credential: applicationDefault(),
-          projectId: process.env.FIREBASE_PROJECT_ID,
-        })
+        credential: applicationDefault(),
+        projectId: process.env.FIREBASE_PROJECT_ID,
+      })
       : apps[0];
   const auth = getAdminAuth(app);
   const adminDB = getAdminFirestore(app);
+
+  if (process.env.NODE_ENV === "development" && apps.length == 0) {
+    adminDB.settings({ ignoreUndefinedProperties: true })
+  }
 
   return { app: app, auth: auth, db: adminDB };
 }

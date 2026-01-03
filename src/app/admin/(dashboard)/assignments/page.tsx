@@ -44,6 +44,11 @@ export default async function AssignmentsPage({ searchParams }: {
 		"timestamp"
 	)).filter((t) => t.status != "cancelled");
 
+	console.log("Printing requests' timestamps");
+	for (const re of requestsList) {
+		console.log(re.timestamp);
+	}
+
 	let driverList: Driver[] = [];
 	// No need to show driver points in other services,
 	// since they all start at starting point
