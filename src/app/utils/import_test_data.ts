@@ -143,6 +143,10 @@ async function getVehicles(): Promise<Vehicle[]> {
  * collection is empty
  */
 export async function createTestAdminAccount() {
+    if (process.env.NODE_ENV !== "development") {
+        return;
+    }
+
     const { db, auth } = await getFirebaseAdmin();
 
     const admins = db.collection(FirestoreCollections.Admins);
@@ -165,6 +169,10 @@ export async function createTestAdminAccount() {
  * Uploads are performed in parallel.
  */
 export async function seedDB() {
+    if (process.env.NODE_ENV !== "development") {
+        return;
+    }
+
     const { db } = await getFirebaseAdmin();
 
     const drivers = await getDrivers();
