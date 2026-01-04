@@ -16,7 +16,7 @@ const DriverRouteSchema = z.object({
 });
 
 export const DriverRoutesSchema = BaseDocument.extend({
-  timestamp: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/), // mm/dd/yyyy
+  timestamp: z.string(),
   routes: z.array(DriverRouteSchema),
 });
 
