@@ -47,8 +47,8 @@ export default async function AssignmentsPage({ searchParams }: {
 		TransportRequestSchema,
 		[
 			{ field: "service_number", operator: "==", value: service_number },
-			{ field: "timestamp", operator: ">", value: TIMESTAMP_FORMATTER.format(startDate) },
-			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER.format(endDate) },
+			{ field: "timestamp", operator: ">", value: TIMESTAMP_FORMATTER(startDate) },
+			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER(endDate) },
 		],
 		"timestamp"
 	)).filter((t) => t.status != "cancelled");

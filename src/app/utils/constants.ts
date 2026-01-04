@@ -11,13 +11,15 @@ export const NUMBER_SUFFIX: Record<number, string> = {
   4: "th",
 };
 
-// 11/01/2025
-export const TIMESTAMP_FORMATTER = Intl.DateTimeFormat("en-US", {
-  timeZone: "America/Edmonton",
-  month: "2-digit",
-  day: "2-digit",
-  year: "numeric",
-});
+// 2025/11/01
+export function TIMESTAMP_FORMATTER(date: Date) {
+  return Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Edmonton",
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  }).format(date).replaceAll("-", "/");
+}
 
 export const MUITheme = createTheme({
   components: {
