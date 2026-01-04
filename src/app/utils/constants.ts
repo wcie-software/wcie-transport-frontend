@@ -11,8 +11,8 @@ export const NUMBER_SUFFIX: Record<number, string> = {
   4: "th",
 };
 
-// 2025/11/01
-export function TIMESTAMP_FORMATTER(date: Date) {
+// 2025/11/01 (November 01 2025)
+export function TIMESTAMP_FORMATTER(date: Date): string {
   return Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Edmonton",
     month: "2-digit",
