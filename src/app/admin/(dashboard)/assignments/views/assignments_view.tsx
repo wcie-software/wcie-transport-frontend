@@ -10,8 +10,8 @@ import { toast } from "sonner";
 import { generateRoutes } from "@/app/utils/generate_routes";
 import { auth } from "@/app/utils/firebase_setup/client";
 import { Vehicle } from "@/app/models/vehicle";
-import AssignmentsControlPanel from "./assignments_control_panel";
-import AssignmentsRouteList from "./assignments_route_list";
+import AssignmentsControlPanel from "./components/assignments_control_panel";
+import AssignmentsRouteList from "./components/assignments_route_list";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -88,6 +88,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 				routes={routes}
 				driversList={driversList}
 				assignedVehicles={assignedVehicles}
+				requests={requestsList}
 			/>
 
 			<MapView
