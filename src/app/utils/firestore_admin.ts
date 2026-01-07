@@ -1,11 +1,11 @@
 import { Firestore, Query, WhereFilterOp, FieldPath } from "firebase-admin/firestore";
 import { FirestoreCollections } from "./firestore";
-import { ZodObject } from "zod";
+import { ZodType } from "zod";
 
 export async function getCollection<Type>(
 	db: Firestore,
 	collectionName: FirestoreCollections,
-	schema: ZodObject,
+	schema: ZodType<Type>,
 	orderByField?: string,
 	orderByDirection: "asc" | "desc" = "desc",
 ): Promise<Type[]> {
@@ -35,11 +35,11 @@ export async function getCollection<Type>(
 export async function getDocuments<Type>(
 	db: Firestore,
 	collectionName: FirestoreCollections,
-	schema: ZodObject<any>,
+	schema: ZodType<Type>,
 	documentIds: string[],
 	orderByField?: string,
 	orderByDirection: "asc" | "desc" = "desc",
-) {
+): Promise<Type[]> {
 	const collection = db.collection(collectionName);
 	let query = collection.where(FieldPath.documentId(), "in", documentIds);
 	if (orderByField) {
@@ -70,9 +70,9 @@ export async function getDocuments<Type>(
 export async function getDocument<Type>(
 	db: Firestore,
 	collectionName: FirestoreCollections,
-	schema: ZodObject<any>,
+	schema: ZodType<Type>,
 	documentId: string
-) {
+): Promise<Type | undefined> {
 	const doc = await getDocuments<Type>(db, collectionName, schema, [documentId]);
 	if (doc.length > 0) {
 		return doc[0];
@@ -84,7 +84,7 @@ export async function getDocument<Type>(
 export async function queryCollection<Type>(
 	db: Firestore,
 	collectionName: FirestoreCollections,
-	schema: ZodObject<any>,
+	schema: ZodType<Type>,
 	whereClauses: { field: string, operator: WhereFilterOp, value: any }[] = [],
 	orderByField?: string,
 	orderByDirection: "asc" | "desc" = "desc",
