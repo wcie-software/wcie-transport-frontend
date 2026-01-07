@@ -14,6 +14,7 @@ import PrimaryButton from "@/app/ui/components/primary_button";
 import { toast } from "sonner";
 import { generateRoutes } from "@/app/utils/generate_routes";
 import { auth } from "@/app/utils/firebase_setup/client";
+import { Vehicle } from "@/app/models/vehicle";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -21,11 +22,12 @@ const MapView = dynamic(() => import(
 	{ ssr: false } // Don't pre-render on server because it uses "window"
 );
 
-export default function AssignmentsView({ timestamp, requestsList, driversList, routes }: {
+export default function AssignmentsView({ timestamp, requestsList, driversList, routes, assignedVehicles }: {
 	timestamp: string,
 	requestsList: TransportRequest[],
 	driversList: Driver[],
-	routes?: DriverRoute[]
+	routes?: DriverRoute[],
+	assignedVehicles?: Record<string, Vehicle>,
 }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -112,6 +114,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 			<MapView
 				requestPoints={requestsList}
 				driverPoints={driversList}
+				assignedVehicles={assignedVehicles}
 				routes={routes}
 			/>
 		</div>

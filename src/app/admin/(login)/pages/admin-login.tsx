@@ -73,7 +73,7 @@ export default function AdminLogin() {
 									outline={true}
 									onClick={() => {
 										createTestAdminAccount();
-										alert("Admin account created")
+										alert("Admin account created. Use 'test@wcie.app' to login.")
 									}}
 								>
 									Create Test Admin Account
