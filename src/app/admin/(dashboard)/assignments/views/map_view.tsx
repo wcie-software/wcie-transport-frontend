@@ -6,6 +6,7 @@ import { TransportRequest } from '@/app/models/request';
 import { Driver } from '@/app/models/driver';
 import { DriverRoute } from '@/app/models/fleet_route';
 import { Vehicle } from '@/app/models/vehicle';
+import { stringToColor } from '@/app/utils/colors';
 
 export default function MapView({ requestPoints, driverPoints, routes, assignedVehicles }: {
 	requestPoints: TransportRequest[],
@@ -43,16 +44,13 @@ export default function MapView({ requestPoints, driverPoints, routes, assignedV
 
 		const polylines = [];
 
-		let c = 0;
-		const colours = ["red", "blue", "orange", "black", "green"];
 
 		for (const r of routes) {
 			const route = r.route;
 			for (let i = 0; i < route.length - 1; i += 1) {
 				polylines.push(
 					<Polyline
-						color={colours[c]}
-						opacity={(route.length - i) / (route.length)}
+						color={stringToColor(r.driver_id)}
 						positions={[
 							{ lat: route[i].position.latitude, lng: route[i].position.longitude },
 							{ lat: route[i + 1].position.latitude, lng: route[i + 1].position.longitude },
@@ -62,11 +60,6 @@ export default function MapView({ requestPoints, driverPoints, routes, assignedV
 						{(i === route.length - 2) && <Tooltip permanent opacity={0.4}>End</Tooltip>} */}
 					</Polyline>
 				);
-			}
-
-			c++;
-			if (c >= colours.length) {
-				c = 0;
 			}
 		}
 

@@ -55,23 +55,19 @@ export default async function AssignmentsPage({ searchParams }: {
 	)).filter((t) => t.status != "cancelled");
 
 	let driverList: Driver[] = [];
-	// No need to show driver points in other services,
-	// since they all start at starting point
-	if (service_number === 1) {
-		const schedule = await firestoreAdmin.getDocument<Schedule>(
-			db, FirestoreCollections.Schedules, ScheduleSchema,
-			timestamp
-		);
+	const schedule = await firestoreAdmin.getDocument<Schedule>(
+		db, FirestoreCollections.Schedules, ScheduleSchema,
+		timestamp
+	);
 
-		const service_number_str = String(service_number);
-		if (schedule && service_number_str in schedule.schedule) {
-			driverList = await firestoreAdmin.getDocuments<Driver>(
-				db,
-				FirestoreCollections.Drivers,
-				DriverSchema,
-				schedule.schedule[service_number_str]
-			);
-		}
+	const service_number_str = String(service_number);
+	if (schedule && service_number_str in schedule.schedule) {
+		driverList = await firestoreAdmin.getDocuments<Driver>(
+			db,
+			FirestoreCollections.Drivers,
+			DriverSchema,
+			schedule.schedule[service_number_str]
+		);
 	}
 
 	const driverRoutes = await firestoreAdmin.getDocument<DriverRoutes>(

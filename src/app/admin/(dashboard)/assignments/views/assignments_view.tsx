@@ -6,15 +6,12 @@ import { Driver } from "@/app/models/driver";
 import { DriverRoute } from "@/app/models/fleet_route";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { MenuItem, Select, SelectChangeEvent, ThemeProvider } from "@mui/material";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { MUITheme } from "@/app/utils/constants";
-import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
-import PrimaryButton from "@/app/ui/components/primary_button";
 import { toast } from "sonner";
 import { generateRoutes } from "@/app/utils/generate_routes";
 import { auth } from "@/app/utils/firebase_setup/client";
 import { Vehicle } from "@/app/models/vehicle";
+import AssignmentsControlPanel from "./assignments_control_panel";
+import AssignmentsRouteList from "./assignments_route_list";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -68,51 +65,37 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 
 	return (
 		<div className="relative w-full h-full">
-			<div
-				className="max-w-lg min-w-fit h-14 absolute top-0 right-0 m-4 p-2 z-[500] bg-tertiary rounded-lg flex flex-row gap-2 justify-between items-stretch text-foreground"
-			>
-				<SundayDatePicker
-					date={chosenDate}
-					onDateSelected={(date) => {
-						setChosenDate(date);
-						updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
-					}}
-					includeLabel={false}
-				/>
-				<ThemeProvider theme={MUITheme}>
-					<Select
-						className="flex-1 border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0"
-						size="small"
-						value={serviceNumber}
-						IconComponent={() => <ChevronDownIcon width={20} height={20} />}
-						onChange={(e: SelectChangeEvent) => {
-							const newServiceNumber = e.target.value;
-							setServiceNumber(newServiceNumber);
-							updateSearchParams("service_number", newServiceNumber);
-						}}
-					>
-						<MenuItem value={1}>1st Service</MenuItem>
-						<MenuItem value={2}>2nd Service</MenuItem>
-					</Select>
-				</ThemeProvider>
-				<PrimaryButton
-					disabled={generationInProgress}
-					onClick={async () => {
-						setGenerationInProgress(true);
-						const generationPromise = beginRouteGeneration();
-						toast.promise(generationPromise, { loading: "Generating routes..." });
-					}}
-				>
-					Generate Routes
-				</PrimaryButton>
-			</div>
+			<AssignmentsControlPanel
+				chosenDate={chosenDate}
+				onDateSelected={(date) => {
+					setChosenDate(date);
+					updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
+				}}
+				serviceNumber={serviceNumber}
+				onServiceNumberChange={(newServiceNumber) => {
+					setServiceNumber(newServiceNumber);
+					updateSearchParams("service_number", newServiceNumber);
+				}}
+				generationInProgress={generationInProgress}
+				onGenerateRoutes={() => {
+					setGenerationInProgress(true);
+					const generationPromise = beginRouteGeneration();
+					toast.promise(generationPromise, { loading: "Generating routes..." });
+				}}
+			/>
 
-			{/* <MapView
+			<AssignmentsRouteList
+				routes={routes}
+				driversList={driversList}
+				assignedVehicles={assignedVehicles}
+			/>
+
+			<MapView
 				requestPoints={requestsList}
 				driverPoints={driversList}
 				assignedVehicles={assignedVehicles}
 				routes={routes}
-			/> */}
+			/>
 		</div>
 	);
 }
