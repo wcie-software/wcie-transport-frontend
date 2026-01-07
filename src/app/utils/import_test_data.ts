@@ -6,6 +6,7 @@ import * as csv from '@fast-csv/parse';
 import * as z from 'zod';
 
 import { Driver, DriverSchema } from '@/app/models/driver';
+import { DriverRoutes, DriverRoutesSchema } from '@/app/models/fleet_route';
 import { TransportRequest, TransportRequestSchema } from '@/app/models/request';
 import { Schedule, ScheduleSchema } from '@/app/models/schedule';
 import { Vehicle, VehicleSchema } from '@/app/models/vehicle';
@@ -98,7 +99,8 @@ async function getRequests(): Promise<TransportRequest[]> {
     return importCsvFile('requests.csv', TransportRequestSchema, (row) => ({
         ...row,
         coordinates: row.coordinates ? parsePythonJson(row.coordinates) : undefined,
-    }));
+        status: row.status ? row.status : "normal",
+    } as TransportRequest));
 }
 
 /**
@@ -135,6 +137,18 @@ async function getVehicles(): Promise<Vehicle[]> {
             // 'active' is handled effectively by the schema transform if it expects "True"/"False" strings
         };
     });
+}
+
+/**
+ * Imports assigned routes from the test CSV data (assigned-routes.csv).
+ * Parses the 'routes' JSON object.
+ * @returns Array of DriverRoutes objects
+ */
+async function getAssignedRoutes(): Promise<DriverRoutes[]> {
+    return importCsvFile('assigned-routes.csv', DriverRoutesSchema, (row) => ({
+        ...row,
+        routes: row.routes ? parsePythonJson(row.routes) : [],
+    }));
 }
 
 /**
@@ -179,6 +193,7 @@ export async function seedDB() {
     const requests = await getRequests();
     const schedules = await getSchedules();
     const vehicles = await getVehicles();
+    const assignments = await getAssignedRoutes();
 
     const uploadBatch = async <T extends { documentId?: string }>(
         collectionName: FirestoreCollections,
@@ -203,7 +218,8 @@ export async function seedDB() {
         uploadBatch(FirestoreCollections.Drivers, drivers),
         uploadBatch(FirestoreCollections.Requests, requests),
         uploadBatch(FirestoreCollections.Schedules, schedules),
-        uploadBatch(FirestoreCollections.Vehicles, vehicles)
+        uploadBatch(FirestoreCollections.Vehicles, vehicles),
+        uploadBatch(FirestoreCollections.Assignments, assignments),
     ]);
 }
 

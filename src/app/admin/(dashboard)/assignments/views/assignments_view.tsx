@@ -6,14 +6,12 @@ import { Driver } from "@/app/models/driver";
 import { DriverRoute } from "@/app/models/fleet_route";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { MenuItem, Select, SelectChangeEvent, ThemeProvider } from "@mui/material";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { MUITheme } from "@/app/utils/constants";
-import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
-import PrimaryButton from "@/app/ui/components/primary_button";
 import { toast } from "sonner";
 import { generateRoutes } from "@/app/utils/generate_routes";
 import { auth } from "@/app/utils/firebase_setup/client";
+import { Vehicle } from "@/app/models/vehicle";
+import AssignmentsControlPanel from "./components/assignments_control_panel";
+import AssignmentsRouteList from "./components/assignments_route_list";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -21,11 +19,12 @@ const MapView = dynamic(() => import(
 	{ ssr: false } // Don't pre-render on server because it uses "window"
 );
 
-export default function AssignmentsView({ timestamp, requestsList, driversList, routes }: {
+export default function AssignmentsView({ timestamp, requestsList, driversList, routes, assignedVehicles }: {
 	timestamp: string,
 	requestsList: TransportRequest[],
 	driversList: Driver[],
-	routes?: DriverRoute[]
+	routes?: DriverRoute[],
+	assignedVehicles?: Record<string, Vehicle>,
 }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -65,53 +64,37 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 	}
 
 	return (
-		<div className="relative w-full h-full text-white">
-			<div className="max-w-lg absolute top-0 right-0 m-4 flex flex-col gap-4 justify-start items-center z-[500]">
-				<div className="flex flex-row gap-2 justify-between items-center">
-					<div className="flex-1 bg-gray-800 rounded">
-						<SundayDatePicker
-							date={chosenDate}
-							onDateSelected={(date) => {
-								setChosenDate(date);
-								updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
-							}}
-							includeLabel={false}
-						/>
-					</div>
-					<ThemeProvider theme={MUITheme}>
-						<Select
-							className="flex-1 border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0 bg-gray-800"
-							size="small"
-							value={serviceNumber}
-							IconComponent={() => <ChevronDownIcon width={20} height={20} />}
-							onChange={(e: SelectChangeEvent) => {
-								const newServiceNumber = e.target.value;
-								setServiceNumber(newServiceNumber);
-								updateSearchParams("service_number", newServiceNumber);
-							}}
-						>
-							<MenuItem value={1}>1st Service</MenuItem>
-							<MenuItem value={2}>2nd Service</MenuItem>
-						</Select>
-					</ThemeProvider>
-				</div>
+		<div className="relative w-full h-full">
+			<AssignmentsControlPanel
+				chosenDate={chosenDate}
+				onDateSelected={(date) => {
+					setChosenDate(date);
+					updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
+				}}
+				serviceNumber={serviceNumber}
+				onServiceNumberChange={(newServiceNumber) => {
+					setServiceNumber(newServiceNumber);
+					updateSearchParams("service_number", newServiceNumber);
+				}}
+				generationInProgress={generationInProgress}
+				onGenerateRoutes={() => {
+					setGenerationInProgress(true);
+					const generationPromise = beginRouteGeneration();
+					toast.promise(generationPromise, { loading: "Generating routes..." });
+				}}
+			/>
 
-				<PrimaryButton
-					disabled={generationInProgress}
-					onClick={async () => {
-						setGenerationInProgress(true);
-						const generationPromise = beginRouteGeneration();
-						// Show loading toast
-						toast.promise(generationPromise, { loading: "Generating routes..." });
-					}}
-				>
-					Generate Routes
-				</PrimaryButton>
-			</div>
+			<AssignmentsRouteList
+				routes={routes}
+				driversList={driversList}
+				assignedVehicles={assignedVehicles}
+				requests={requestsList}
+			/>
 
 			<MapView
 				requestPoints={requestsList}
 				driverPoints={driversList}
+				assignedVehicles={assignedVehicles}
 				routes={routes}
 			/>
 		</div>

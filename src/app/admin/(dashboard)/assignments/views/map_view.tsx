@@ -5,11 +5,14 @@ import L, { LatLngExpression } from "leaflet";
 import { TransportRequest } from '@/app/models/request';
 import { Driver } from '@/app/models/driver';
 import { DriverRoute } from '@/app/models/fleet_route';
+import { Vehicle } from '@/app/models/vehicle';
+import { stringToColor } from '@/app/utils/colors';
 
-export default function MapView({ requestPoints, driverPoints, routes }: {
+export default function MapView({ requestPoints, driverPoints, routes, assignedVehicles }: {
 	requestPoints: TransportRequest[],
 	driverPoints?: Driver[],
-	routes?: DriverRoute[]
+	routes?: DriverRoute[],
+	assignedVehicles?: Record<string, Vehicle>,
 }) {
 	const churchPosition: LatLngExpression = { lat: 53.5461888, lng: -113.4886912 };
 	const markerIcon = L.icon({
@@ -40,30 +43,23 @@ export default function MapView({ requestPoints, driverPoints, routes }: {
 		}
 
 		const polylines = [];
-		
-		const colours = ["red", "yellow", "purple", "blue", "orange", "black", "green"];
-		let c = 0;
+
+
 		for (const r of routes) {
 			const route = r.route;
-			for (let i = 0; i < route.length-1; i += 1) {
+			for (let i = 0; i < route.length - 1; i += 1) {
 				polylines.push(
 					<Polyline
-						color={colours[c]}
-						opacity={(route.length - i) / (route.length)}
+						color={stringToColor(r.driver_id)}
 						positions={[
-							{lat: route[i].position.latitude, lng: route[i].position.longitude},
-							{lat: route[i+1].position.latitude, lng: route[i+1].position.longitude},
+							{ lat: route[i].position.latitude, lng: route[i].position.longitude },
+							{ lat: route[i + 1].position.latitude, lng: route[i + 1].position.longitude },
 						]}
 					>
-						{i === 0 && <Tooltip permanent opacity={0.4}>Start</Tooltip>}
-						{(i === route.length-2) && <Tooltip permanent opacity={0.4}>End</Tooltip>}
+						{/* {i === 0 && <Tooltip permanent opacity={0.4}>Start</Tooltip>}
+						{(i === route.length - 2) && <Tooltip permanent opacity={0.4}>End</Tooltip>} */}
 					</Polyline>
 				);
-			}
-
-			c++;
-			if (c >= colours.length) {
-				c = 0;
 			}
 		}
 
@@ -89,11 +85,11 @@ export default function MapView({ requestPoints, driverPoints, routes }: {
 			{requestPoints.map((r) => (
 				<Marker
 					key={r.documentId}
-				 	icon={markerIcon}
-					position={{lat: r.coordinates!.latitude, lng: r.coordinates!.longitude }}
+					icon={markerIcon}
+					position={{ lat: r.coordinates!.latitude, lng: r.coordinates!.longitude }}
 				>
 					<Popup>
-						Rider: {r.full_name} ({r.phone_number})<br />
+						{r.full_name} ({r.phone_number}) - {r.no_of_seats} seat{r.no_of_seats !== 1 ? 's' : ''}<br />
 						Address: {r.address}
 					</Popup>
 				</Marker>
@@ -101,11 +97,13 @@ export default function MapView({ requestPoints, driverPoints, routes }: {
 			{driverPoints && driverPoints.map((d) => (
 				<Marker
 					key={d.documentId}
-				 	icon={carIcon}
-					position={{lat: d.location!.latitude, lng: d.location!.longitude }}
+					icon={carIcon}
+					position={{ lat: d.location!.latitude, lng: d.location!.longitude }}
 				>
 					<Popup>
-						Driver: {d.full_name} ({d.phone_number})<br />
+						Driver: {d.full_name}<br />
+						Assigned Vehicle: {(assignedVehicles && d.documentId! in assignedVehicles) ?
+							assignedVehicles[d.documentId!].name : "(none)"}<br />
 						Address: {d.address}
 					</Popup>
 				</Marker>

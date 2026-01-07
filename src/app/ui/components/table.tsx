@@ -1,5 +1,3 @@
-import clsx from "clsx";
-
 export type ActionButton = {
 	icon: (index: number) => React.ReactNode,
 	onPressed: (index: number) => void
@@ -13,8 +11,8 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyl
 	actionButtons?: ActionButton[]
 }) {
 	return (
-		<div className="overflow-x-auto bg-tertiary rounded-xl">
-			<table className="w-full text-left table-fixed text-gray-400">
+		<div className="overflow-x-auto bg-tertiary rounded-xl w-full">
+			<table className="w-full text-left text-gray-400 min-w-xl">
 				<thead className="border-b border-tertiary">
 					<tr>
 						{[...Object.values(headerMap), ...(actionButtons ? ["Actions"] : [])].map((h) =>
@@ -39,8 +37,8 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyl
 											<td
 												key={k + value}
 												className={
-													"p-4 whitespace-nowrap " + 
-														(fieldStyle?.(k, value, index) ?? "")
+													"p-4 whitespace-nowrap " +
+													(fieldStyle?.(k, value, index) ?? "")
 												}
 											>
 												{fieldFormatter?.(k, value, index) ?? value}

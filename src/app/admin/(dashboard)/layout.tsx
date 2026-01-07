@@ -64,6 +64,9 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 						);
 					})}
 				</ul>
+
+				<hr className="w-full text-tertiary my-4" />
+
 				<button
 					className="text-lg class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
 					onClick={async () => {

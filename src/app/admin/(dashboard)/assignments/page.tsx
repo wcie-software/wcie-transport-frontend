@@ -7,6 +7,7 @@ import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
 import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignments_view";
+import { Vehicle, VehicleSchema } from "@/app/models/vehicle";
 
 export const dynamic = "force-dynamic";
 
@@ -54,23 +55,19 @@ export default async function AssignmentsPage({ searchParams }: {
 	)).filter((t) => t.status != "cancelled");
 
 	let driverList: Driver[] = [];
-	// No need to show driver points in other services,
-	// since they all start at starting point
-	if (service_number === 1) {
-		const schedule = await firestoreAdmin.getDocument<Schedule>(
-			db, FirestoreCollections.Schedules, ScheduleSchema,
-			timestamp
-		);
+	const schedule = await firestoreAdmin.getDocument<Schedule>(
+		db, FirestoreCollections.Schedules, ScheduleSchema,
+		timestamp
+	);
 
-		const service_number_str = String(service_number);
-		if (schedule && service_number_str in schedule.schedule) {
-			driverList = await firestoreAdmin.getDocuments<Driver>(
-				db,
-				FirestoreCollections.Drivers,
-				DriverSchema,
-				schedule.schedule[service_number_str]
-			);
-		}
+	const service_number_str = String(service_number);
+	if (schedule && service_number_str in schedule.schedule) {
+		driverList = await firestoreAdmin.getDocuments<Driver>(
+			db,
+			FirestoreCollections.Drivers,
+			DriverSchema,
+			schedule.schedule[service_number_str]
+		);
 	}
 
 	const driverRoutes = await firestoreAdmin.getDocument<DriverRoutes>(
@@ -80,11 +77,37 @@ export default async function AssignmentsPage({ searchParams }: {
 	// Get only routes for the particular service
 	const routes = driverRoutes?.routes.filter((r) => r.service_number == service_number);
 
+	// If routes have been generated, get the vehicles assigned to each driver
+	const assignedVehicles: Record<string, Vehicle> = {};
+	if (routes) {
+		const vehicleIdToDriverId: Record<string, string> = {};
+		routes.forEach((r) => {
+			vehicleIdToDriverId[r.assigned_vehicle_id] = r.driver_id;
+		});
+
+		const vehicles = await firestoreAdmin.getDocuments<Vehicle>(
+			db,
+			FirestoreCollections.Vehicles,
+			VehicleSchema,
+			Object.keys(vehicleIdToDriverId)
+		);
+
+		vehicles.forEach((v) => {
+			try {
+				const driverId = vehicleIdToDriverId[v.documentId!];
+				assignedVehicles[driverId] = v;
+			} catch (e) {
+				console.warn(`[Assignments Page] WARNING: Retrieved vehicle '${v.name}' that does not exist in generated route '${driverRoutes?.documentId}'`)
+			}
+		});
+	}
+
 	return (
 		<div className="w-full h-screen">
 			<AssignmentsView
 				timestamp={timestamp}
 				driversList={driverList}
+				assignedVehicles={assignedVehicles}
 				requestsList={requestsList}
 				routes={routes}
 			/>
