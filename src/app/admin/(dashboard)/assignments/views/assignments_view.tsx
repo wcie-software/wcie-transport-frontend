@@ -67,43 +67,39 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 	}
 
 	return (
-		<div className="relative w-full h-full text-white">
-			<div className="max-w-lg absolute top-0 right-0 m-4 flex flex-col gap-4 justify-start items-center z-[500]">
-				<div className="flex flex-row gap-2 justify-between items-center">
-					<div className="flex-1 bg-gray-800 rounded">
-						<SundayDatePicker
-							date={chosenDate}
-							onDateSelected={(date) => {
-								setChosenDate(date);
-								updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
-							}}
-							includeLabel={false}
-						/>
-					</div>
-					<ThemeProvider theme={MUITheme}>
-						<Select
-							className="flex-1 border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0 bg-gray-800"
-							size="small"
-							value={serviceNumber}
-							IconComponent={() => <ChevronDownIcon width={20} height={20} />}
-							onChange={(e: SelectChangeEvent) => {
-								const newServiceNumber = e.target.value;
-								setServiceNumber(newServiceNumber);
-								updateSearchParams("service_number", newServiceNumber);
-							}}
-						>
-							<MenuItem value={1}>1st Service</MenuItem>
-							<MenuItem value={2}>2nd Service</MenuItem>
-						</Select>
-					</ThemeProvider>
-				</div>
-
+		<div className="relative w-full h-full">
+			<div
+				className="max-w-lg min-w-fit h-14 absolute top-0 right-0 m-4 p-2 z-[500] bg-tertiary rounded-lg flex flex-row gap-2 justify-between items-stretch text-foreground"
+			>
+				<SundayDatePicker
+					date={chosenDate}
+					onDateSelected={(date) => {
+						setChosenDate(date);
+						updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
+					}}
+					includeLabel={false}
+				/>
+				<ThemeProvider theme={MUITheme}>
+					<Select
+						className="flex-1 border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0"
+						size="small"
+						value={serviceNumber}
+						IconComponent={() => <ChevronDownIcon width={20} height={20} />}
+						onChange={(e: SelectChangeEvent) => {
+							const newServiceNumber = e.target.value;
+							setServiceNumber(newServiceNumber);
+							updateSearchParams("service_number", newServiceNumber);
+						}}
+					>
+						<MenuItem value={1}>1st Service</MenuItem>
+						<MenuItem value={2}>2nd Service</MenuItem>
+					</Select>
+				</ThemeProvider>
 				<PrimaryButton
 					disabled={generationInProgress}
 					onClick={async () => {
 						setGenerationInProgress(true);
 						const generationPromise = beginRouteGeneration();
-						// Show loading toast
 						toast.promise(generationPromise, { loading: "Generating routes..." });
 					}}
 				>
@@ -111,12 +107,12 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 				</PrimaryButton>
 			</div>
 
-			<MapView
+			{/* <MapView
 				requestPoints={requestsList}
 				driverPoints={driversList}
 				assignedVehicles={assignedVehicles}
 				routes={routes}
-			/>
+			/> */}
 		</div>
 	);
 }
