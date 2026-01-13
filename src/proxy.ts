@@ -13,7 +13,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(loginURL, request.url));
   }
 
-  const { app, auth, db } = await getFirebaseAdmin();
+  const { auth } = await getFirebaseAdmin();
   try {
     await auth.verifySessionCookie(sessionCookie.value);
 
@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
     if ((!isAdmin || isAdmin.value !== "TRUE") && adminLogin) {
       console.log(
         "Not an admin because " +
-          (isAdmin ? "role is not admin" : "cookie does not exit")
+        (isAdmin ? "role is not admin" : "cookie does not exit")
       );
       return NextResponse.redirect(new URL(loginURL, request.url));
     } else if (!adminLogin && isAdmin?.value === "TRUE") {
