@@ -44,7 +44,7 @@ export default function Layout({ children, }: Readonly<{ children: React.ReactNo
 			<main className="w-full flex-1 px-6">
 				{children}
 			</main>
-			<footer className="absolute bottom-0 left-0 w-full h-16 bg-tertiary">
+			<footer className="sticky z-50 bottom-0 left-0 w-full h-16 bg-tertiary backdrop-blur">
 				<ul className="h-full w-full flex flex-row justify-between items-center gap-4 px-6 py-2 max-w-3xl m-auto">
 					{pages.map((p) => {
 						const Icon = p.icon;

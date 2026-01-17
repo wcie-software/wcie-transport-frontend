@@ -19,10 +19,9 @@ export default function DateSelector() {
         : new Date();
 
     const diffInDays = Math.round((date.getTime() - sunday.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
     const initialIndex = (diffInDays < -7)
         ? 0
-        : (diffInDays >= 0)
+        : (diffInDays > -7)
             ? 2
             : 1;
     const [index, setIndex] = useState(initialIndex);

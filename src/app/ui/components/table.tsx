@@ -11,7 +11,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyl
 	actionButtons?: ActionButton[]
 }) {
 	return (
-		<div className="overflow-x-auto bg-tertiary rounded-xl w-full">
+		<div className="bg-tertiary rounded-xl w-full">
 			<table className="w-full text-left text-gray-400 min-w-xl">
 				<thead className="border-b border-tertiary">
 					<tr>

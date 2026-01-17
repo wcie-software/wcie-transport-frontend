@@ -12,6 +12,7 @@ import { Schedule, ScheduleSchema } from '@/app/models/schedule';
 import { Vehicle, VehicleSchema } from '@/app/models/vehicle';
 import { getFirebaseAdmin } from './firebase_setup/server';
 import { FirestoreCollections } from '@/app/utils/firestore';
+import { revalidatePath } from 'next/cache';
 
 const DATA_DIR = path.join(process.cwd(), 'src/test/data');
 
@@ -221,5 +222,7 @@ export async function seedDB() {
         uploadBatch(FirestoreCollections.Vehicles, vehicles),
         uploadBatch(FirestoreCollections.Assignments, assignments),
     ]);
+
+    revalidatePath("/admin");
 }
 
