@@ -4,7 +4,10 @@ import { CalendarDaysIcon, TruckIcon, UserCircleIcon } from "@heroicons/react/24
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, redirect, RedirectType } from "next/navigation";
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { logout } from "@/app/utils/login";
+import { auth } from "@/app/utils/firebase_setup/client";
 
 const pages = [
 	{
@@ -31,7 +34,7 @@ export default function Layout({ children, }: Readonly<{ children: React.ReactNo
 		<div className="min-h-screen flex flex-col relative">
 			<header className="flex flex-row justify-between items-center py-3 px-6">
 				<Link
-					className="flex flex-row items-center gap-2.5"
+					className="flex flex-row items-center gap-2.5 truncate"
 					href="/driver">
 					<Image
 						src="/Logo.png"
@@ -40,6 +43,16 @@ export default function Layout({ children, }: Readonly<{ children: React.ReactNo
 						height={40} />
 					<p className="text-2xl truncate font-[family-name:var(--font-pt-serif)]">WCIE Transport Driver</p>
 				</Link>
+				<button
+					className="flex flex-row items-center gap-2 p-2 text-slate-400 hover:text-primary transition-colors cursor-pointer"
+					onClick={async () => {
+						await Promise.all([auth.signOut(), logout()]);
+						redirect("/driver/login", RedirectType.replace);
+					}}
+				>
+					<ArrowRightStartOnRectangleIcon width={20} height={20} />
+					<span className="text-sm font-medium hidden md:block">Sign Out</span>
+				</button>
 			</header>
 			<main className="w-full flex-1 px-6">
 				{children}
