@@ -1,12 +1,11 @@
 import { FirestoreCollections } from "@/app/utils/firestore";
-import DateSelector from "./components/date_selector";
 import * as firestoreAdmin from "@/app/utils/firestore_admin";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
 import { headers } from "next/headers";
 import { UID_HEADER_KEY } from "@/app/utils/constants";
 import { TransportRequestSchema } from "@/app/models/request";
-import PickupItem from "./components/pickup_item";
+import PickupView from "./pickup_view";
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ date: string }> }) {
     const { date: dateString } = await searchParams;
@@ -14,7 +13,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
     const h = await headers();
     const uid = h.get(UID_HEADER_KEY) || "bad-uid";
 
-    // TODO: Check date is not less than 2 weeks or greater than this week away
     // Atempt to get date from url search param
     let month, date, year;
     try {
@@ -30,7 +28,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
         sunday.setDate(sunday.getDate() + (7 - sunday.getDay()))
     }
 
-    const timestamp = `${sunday.getMonth() + 1}-${sunday.getDate()}-${sunday.getFullYear()}`;
+    const timestamp = sunday.toLocaleDateString("en-US").replaceAll("/", "-");
 
     const { db } = await getFirebaseAdmin();
     const routes = (await firestoreAdmin.getDocument<DriverRoutes>(
@@ -47,13 +45,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
         }
     }
 
-    const transportRequests = transportRequestIds.length > 0
-        ? await firestoreAdmin.getDocuments(
-            db,
-            FirestoreCollections.Requests,
-            TransportRequestSchema,
-            transportRequestIds)
-        : [];
+    const transportRequests = (await firestoreAdmin.getDocuments(
+        db,
+        FirestoreCollections.Requests,
+        TransportRequestSchema,
+        transportRequestIds)
+    ).filter(t => t.status !== "cancelled")
 
     return (
         <div className="mt-6 max-w-3xl m-auto">
@@ -62,13 +59,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
                 <p className="text-slate-400 text-sm truncate">{transportRequests.length} pickups scheduled for {sunday.toDateString()}</p>
                 <span className="text-slate-500 text-[10px] font-mono uppercase truncate">Last Sync {new Date().toLocaleTimeString()}</span>
             </div>
-            <div className="mt-8 mb-24 overflow-x-auto">
-                <DateSelector />
-                <div className="space-y-4">
-                    {transportRequests.map((t, i) => <PickupItem key={t.documentId} pickup={t} active={i == 0} />)}
-                </div>
-                {transportRequests.length === 0 && <p className="uppercase my-4 text-xs">No pickups</p>}
-            </div>
+            {/* Add a key here so the component updates when `transportRequests` is updated */}
+            <PickupView key={timestamp} transportRequests={transportRequests} />
         </div>
     );
 }
