@@ -152,6 +152,23 @@ async function getAssignedRoutes(): Promise<DriverRoutes[]> {
     }));
 }
 
+async function createDriverAccount(driver: Driver) {
+    const { auth } = await getFirebaseAdmin();
+
+    try {
+        const d = await auth.createUser({
+            uid: driver.documentId,
+            email: driver.email,
+            phoneNumber: driver.phone_number,
+            emailVerified: true,
+            displayName: driver.full_name,
+        });
+        await auth.setCustomUserClaims(d.uid, { role: "driver" });
+    } catch (e) {
+        console.error("import_test_data.ts: Unable to create driver account for " + driver.full_name);
+    }
+}
+
 /**
  * Creates a test admin account and adds it to the Admin collection in Firestore.
  * The function avoids creating multiple accounts by first checking if the Admin
@@ -183,7 +200,7 @@ export async function createTestAdminAccount() {
  * to their respective Firestore collections using batch writes for efficiency.
  * Uploads are performed in parallel.
  */
-export async function seedDB() {
+export async function importTestData() {
     if (process.env.NODE_ENV !== "development") {
         return;
     }
@@ -224,5 +241,7 @@ export async function seedDB() {
     ]);
 
     revalidatePath("/admin");
-}
 
+    // Create accounts for each driver
+    await Promise.all(drivers.map(d => createDriverAccount(d)));
+}

@@ -64,8 +64,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
             </div>
             <div className="mt-8 mb-24 overflow-x-auto">
                 <DateSelector />
-                {transportRequests.map((t, i) => <PickupItem key={t.documentId} pickup={t} active={i == 0} />)}
-                {transportRequests.length === 0 && <p className="uppercase my-4 text-xs">No requests</p>}
+                <div className="space-y-4">
+                    {transportRequests.map((t, i) => <PickupItem key={t.documentId} pickup={t} active={i == 0} />)}
+                </div>
+                {transportRequests.length === 0 && <p className="uppercase my-4 text-xs">No pickups</p>}
             </div>
         </div>
     );

@@ -28,7 +28,7 @@ export default function PickupItem({ pickup, active }: { pickup: TransportReques
                 </div>
                 {active &&
                     <div className="w-full h-24 bg-center bg-cover rounded-lg border border-white/10" style={{ backgroundImage: "url(/map.png)" }}>
-                        <Link className="w-full h-full bg-black/30 flex items-center justify-center" href={pickup.google_maps_link}>
+                        <Link target="_blank" className="w-full h-full bg-black/30 flex items-center justify-center" href={pickup.google_maps_link}>
                             <span className="bg-black/60 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border border-white/10">
                                 <span> <MapIcon width={24} height={24} /> </span> Open Maps
                             </span>
