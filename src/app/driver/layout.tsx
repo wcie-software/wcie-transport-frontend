@@ -16,7 +16,7 @@ const pages = [
 		href: "/driver"
 	},
 	{
-		name: "Schedules",
+		name: "Schedule",
 		icon: CalendarDaysIcon,
 		href: "/driver/schedules"
 	},

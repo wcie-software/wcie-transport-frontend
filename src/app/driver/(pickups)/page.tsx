@@ -36,21 +36,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
         timestamp
     ))?.routes.filter(r => r.driver_id == uid);
 
-    const transportRequestIds = [];
-    if (routes) {
-        for (const d of routes) {
-            for (const t of d.route) {
-                transportRequestIds.push(t.id);
-            }
-        }
-    }
-
+    const transportRequestIds = routes?.flatMap(r => r.route.map(t => t.id)) || [];
     const transportRequests = (await firestoreAdmin.getDocuments(
         db,
         FirestoreCollections.Requests,
         TransportRequestSchema,
-        transportRequestIds)
-    ).filter(t => t.status !== "cancelled")
+        transportRequestIds
+    ))
+        .filter((t) => t.status !== "cancelled")
+        // Make sure the order is preserved
+        .sort((a, b) => transportRequestIds.indexOf(a.documentId!) - transportRequestIds.indexOf(b.documentId!));
 
     return (
         <div className="mt-6 max-w-3xl m-auto">
