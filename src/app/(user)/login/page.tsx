@@ -6,7 +6,6 @@ import PhonePage from "@/app/(user)/login/pages/phone";
 import OTPPage from "@/app/(user)/login/pages/otp";
 import { ConfirmationResult } from "firebase/auth";
 import { userLogin } from "@/app/utils/login";
-import { FirebaseError } from "firebase/app";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -33,9 +32,8 @@ export default function LoginPage() {
 					onCodeSubmitted={(code) => {
 						if (confirmationResult != null) {
 							confirmationResult.confirm(code).then(async (result) => {
-								const idToken = await result.user.getIdToken();
-
 								try {
+									const idToken = await result.user.getIdToken();
 									const { role: userRole } = await userLogin(idToken);
 									if (userRole === "driver") {
 										router.push("/driver");
@@ -43,17 +41,16 @@ export default function LoginPage() {
 										router.push("/request");
 									}
 								} catch (e) {
-									if (e instanceof FirebaseError) {
-										throw e;
-									} else {
-										console.log(e);
-										toast.error("Login failed. Please try again.");
-										setStatus("login");
-									}
+									console.error(e);
+									toast.error("Login failed. Please enter your phone number again.");
+									setStatus("login");
 								}
 							}).catch((error) => {
 								toast.error("Incorrect code. Please try again.");
 							});
+						} else {
+							toast.error("We were unable to send an OTP. Please enter your phone number again.");
+							setStatus("login");
 						}
 					}}
 				/>

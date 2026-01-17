@@ -4,21 +4,19 @@ import { useEffect, useState } from "react";
 import { auth } from "@/app/utils/firebase_setup/client";
 import { RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from "firebase/auth";
 import CollectNumber from "@/app/ui/components/collect_number";
+import { toast } from "sonner";
+import { FirebaseError } from "firebase/app";
 
 export default function PhonePage({ onCodeSent }:
 	{ onCodeSent?: (phoneNumber: string, result: ConfirmationResult) => void }
 ) {
-	const [verified, setVerified] = useState(false);
 	const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier>();
 
 	useEffect(() => {
 		setRecaptchaVerifier(new RecaptchaVerifier(auth, "recaptcha-id", {
 			"size": "normal",
-			"callback": (response: any) => {
-				setVerified(true);
-			},
 			"expired-callback": () => {
-				setVerified(false);
+				toast.error(`reCAPTCHA has expired. Please refresh the page.`);
 			}
 		}));
 	}, [auth]);
@@ -36,6 +34,11 @@ export default function PhonePage({ onCodeSent }:
 						.then((confirmationResult) => {
 							onCodeSent?.(phone, confirmationResult);
 						}).catch((err) => {
+							if (err instanceof FirebaseError) {
+								toast.error(`Unable to process login: ${err.message}. Please try again later.`)
+							} else {
+								toast.error("Unexpected error. Please refresh the page.");
+							}
 							console.error(err);
 						});
 				}}
