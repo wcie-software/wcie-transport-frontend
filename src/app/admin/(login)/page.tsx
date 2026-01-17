@@ -29,6 +29,7 @@ export default function AdminPage() {
 		if (email && url && isSignInWithEmailLink(auth, url)) {
 			try {
 				const result = await signInWithEmailLink(auth, email, url);
+				// TODO: Add error messages in case sign in failed
 				localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
 
 				const idToken = await result.user.getIdToken();

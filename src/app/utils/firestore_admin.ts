@@ -40,6 +40,10 @@ export async function getDocuments<Type>(
 	orderByField?: string,
 	orderByDirection: "asc" | "desc" = "desc",
 ): Promise<Type[]> {
+	if (documentIds.length === 0) {
+		return [];
+	}
+
 	const collection = db.collection(collectionName);
 	let query = collection.where(FieldPath.documentId(), "in", documentIds);
 	if (orderByField) {

@@ -36,13 +36,8 @@ export default function LoginPage() {
 								const idToken = await result.user.getIdToken();
 
 								try {
-									/*
-										TODO: Get user role (userLogin returns a uid)
-										Get user role by checking if user has a phone number
-										and if phone number is in drivers collection
-									*/
-									const userRole = await userLogin(idToken);
-									if (userRole == "driver") {
+									const { role: userRole } = await userLogin(idToken);
+									if (userRole === "driver") {
 										router.push("/driver");
 									} else {
 										router.push("/request");

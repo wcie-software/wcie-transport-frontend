@@ -13,7 +13,7 @@ export const TransportRequestSchema = BaseDocument.extend({
   no_of_children: z.coerce.number().min(0).default(0),
   timestamp: z.string(),
   status: z
-    .optional(z.enum(["normal", "cancelled", "failed"]))
+    .optional(z.enum(["normal", "cancelled", "failed", "successful"]))
     .default("normal"),
 }).refine((data) => data.no_of_children < data.no_of_seats, {
   error: "Not enough seats to accommodate number of children",

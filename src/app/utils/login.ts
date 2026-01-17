@@ -2,9 +2,7 @@
 
 import { SESSION_COOKIE_KEY, IS_ADMIN_COOKIE_KEY } from "@/app/utils/constants";
 import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
-import { FirestoreCollections } from "@/app/utils/firestore";
 import { Auth } from "firebase-admin/auth";
-import { Firestore } from "firebase-admin/firestore";
 import { cookies } from "next/headers";
 
 export enum LoginError {
@@ -12,34 +10,32 @@ export enum LoginError {
   cookieCreationFailed,
 }
 
+interface VerificationResult {
+  uid: string;
+  role: "user" | "driver" | "admin";
+}
+
 async function verifyToken(
   idToken: string,
   auth: Auth
-): Promise<string | null> {
+): Promise<VerificationResult | null> {
   try {
     const decodedToken = await auth.verifyIdToken(idToken);
-    return decodedToken.uid;
+    return { uid: decodedToken.uid, role: decodedToken["role"] ?? "user" };
   } catch (e) {
     console.error("Invalid idToken or user needs to sign in again.\n" + e);
     return null;
   }
 }
 
-async function checkIfAdmin(uid: string, db: Firestore): Promise<boolean> {
-  const doc = db.collection(FirestoreCollections.Admins).doc(uid);
-  const ref = await doc.get();
-
-  return ref.exists;
-}
-
 export async function userLogin(
   idToken: string,
   expiresIn = 1000 * 60 * 60 * 24
-): Promise<string> {
+): Promise<VerificationResult> {
   const { auth } = await getFirebaseAdmin();
 
-  const uid = await verifyToken(idToken, auth);
-  if (!uid) {
+  const result = await verifyToken(idToken, auth);
+  if (!result) {
     console.error("Invalid idToken or user needs to sign in again.");
     throw LoginError.invalidToken;
   }
@@ -57,7 +53,7 @@ export async function userLogin(
     });
 
     console.log("Created session cookie");
-    return uid;
+    return result;
   } catch (e) {
     console.error("Bad idToken. Could not create cookie.");
     throw LoginError.cookieCreationFailed;
@@ -66,10 +62,9 @@ export async function userLogin(
 
 export async function adminLogin(idToken: string): Promise<boolean> {
   const expiresIn7Days = 1000 * 60 * 60 * 24 * 7;
-  const { db } = await getFirebaseAdmin();
 
-  const uid = await userLogin(idToken, expiresIn7Days);
-  const isAdmin = await checkIfAdmin(uid, db);
+  const { role } = await userLogin(idToken, expiresIn7Days);
+  const isAdmin = role === "admin";
 
   if (isAdmin) {
     const c = await cookies();

@@ -3,6 +3,7 @@ import { createTheme } from "@mui/material";
 export const EMAIL_LOCALSTORAGE_KEY = "wcie-transport-email";
 export const SESSION_COOKIE_KEY = "wcie-transport-session";
 export const IS_ADMIN_COOKIE_KEY = "wcie-transport-is-admin";
+export const UID_HEADER_KEY = "X-Auth-UID";
 
 export const NUMBER_SUFFIX: Record<number, string> = {
   1: "st",

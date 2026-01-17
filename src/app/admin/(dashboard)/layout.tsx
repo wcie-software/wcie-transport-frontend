@@ -7,7 +7,7 @@ import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
 import { auth } from "@/app/utils/firebase_setup/client";
-import { seedDB } from "@/app/utils/import_test_data";
+import { importTestData } from "@/app/utils/import_test_data";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {
 	const pathname = usePathname();
@@ -80,7 +80,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 				{(process.env.NODE_ENV === "development") &&
 					<button
 						className="text-lg text-primary class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
-						onClick={seedDB}
+						onClick={importTestData}
 					>
 						<BugAntIcon width={20} height={20} />
 						<span className="font-medium">Import Test Data</span>
