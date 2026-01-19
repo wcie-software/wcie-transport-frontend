@@ -3,21 +3,44 @@ import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import * as firestoreAdmin from "@/app/utils/firestore_admin";
 import RequestView from "@/app/admin/(dashboard)/requests/request_view";
+import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
 
 export const dynamic = "force-dynamic";
 
-export default async function RequestsPage() {
+export default async function RequestsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+	const pageParam = (await searchParams).page;
+	const page = parseInt(pageParam || "0");
+
+	// 1. Get reference Sunday (nearest sunday in the future)
+	const referenceSunday = new Date();
+	if (referenceSunday.getDay() !== 0) { // If not a Sunday
+		referenceSunday.setDate(referenceSunday.getDate() + 7 - referenceSunday.getDay());
+	}
+	referenceSunday.setHours(10, 59, 0, 0);
+
+	// 2. Calculate range for the current "page" (4 weeks per page)
+	const rangeEnd = new Date(referenceSunday);
+	rangeEnd.setDate(referenceSunday.getDate() - (page * 28)); // 4 weeks = 28 days
+
+	const rangeStart = new Date(rangeEnd);
+	rangeStart.setDate(rangeEnd.getDate() - 28);
+
 	const { db } = await getFirebaseAdmin();
-	const requestsList = await firestoreAdmin.getCollection<TransportRequest>(
+	const requestsList = await firestoreAdmin.queryCollection<TransportRequest>(
 		db,
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
+		[
+			{ field: "timestamp", operator: ">=", value: TIMESTAMP_FORMATTER(rangeStart) },
+			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER(rangeEnd) },
+		],
 		"timestamp"
 	);
 
 	const requestsGroupedByWeek: Record<string, TransportRequest[]> = {};
 	requestsList.forEach((r) => {
 		const end = new Date(r.timestamp);
+		// Find Sunday of that week
 		end.setDate(end.getDate() + (7 - end.getDay()));
 		end.setHours(10, 59, 0, 0); // Have a uniform time
 
@@ -33,7 +56,12 @@ export default async function RequestsPage() {
 
 	return (
 		<div className="w-full px-8">
-			<RequestView groups={requestsGroupedByWeek} />
+			<RequestView
+				key={page}
+				groups={requestsGroupedByWeek}
+				page={page}
+				startingDate={rangeEnd.toLocaleDateString("en-US", { dateStyle: "medium" })}
+			/>
 		</div>
 	);
 }
