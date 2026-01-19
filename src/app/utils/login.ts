@@ -49,7 +49,7 @@ export async function userLogin(
       httpOnly: true,
       secure: true,
       path: "/",
-      sameSite: "lax",
+      sameSite: "strict",
     });
 
     console.log("Created session cookie");

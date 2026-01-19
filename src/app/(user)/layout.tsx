@@ -1,7 +1,7 @@
 import { ArrowDownTrayIcon, PhoneIcon } from "@heroicons/react/16/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { importTestData } from "../utils/import_test_data";
+import { importTestData } from "../actions/import_test_data";
 
 export default function Layout({ children, }: Readonly<{ children: React.ReactNode; }>) {
 	return (

@@ -11,8 +11,8 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyl
 	actionButtons?: ActionButton[]
 }) {
 	return (
-		<div className="bg-tertiary rounded-xl w-full">
-			<table className="w-full text-left text-gray-400 min-w-xl">
+		<div className="bg-tertiary rounded-xl w-full overflow-x-auto">
+			<table className="w-full text-left text-gray-400">
 				<thead className="border-b border-tertiary">
 					<tr>
 						{[...Object.values(headerMap), ...(actionButtons ? ["Actions"] : [])].map((h) =>

@@ -7,7 +7,7 @@ import { DriverRoute } from "@/app/models/fleet_route";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { generateRoutes } from "@/app/utils/generate_routes";
+import { generateRoutes } from "@/app/actions/generate_routes";
 import { auth } from "@/app/utils/firebase_setup/client";
 import { Vehicle } from "@/app/models/vehicle";
 import AssignmentsControlPanel from "./components/assignments_control_panel";

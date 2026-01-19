@@ -22,84 +22,82 @@ export default function RequestView({ groups }: { groups: Record<string, Transpo
 			{Object.entries(tableData).map(([week, requests]) => (
 				<div key={week} className="space-y-1">
 					<h3 className="text-xl font-semibold">{week}</h3>
-					<div className="w-full overflow-x-auto">
-						<Table
-							headerMap={{
-								"timestamp": "Date",
-								"full_name": "Name",
-								"phone_number": "Phone",
-								"service_number": "Service",
-								"no_of_seats": "Seats",
-							}}
-							body={requests}
-							fieldStyle={(k, v, i) => {
-								if (k === "full_name") {
-									switch (requests[i].status) {
-										case "cancelled":
-											return "line-through";
-										case "failed":
-											return "text-red-400 line-through";
-										default:
-											return "text-foreground";
-									}
+					<Table
+						headerMap={{
+							"timestamp": "Date",
+							"full_name": "Name",
+							"phone_number": "Phone",
+							"service_number": "Service",
+							"no_of_seats": "Seats",
+						}}
+						body={requests}
+						fieldStyle={(k, v, i) => {
+							if (k === "full_name") {
+								switch (requests[i].status) {
+									case "cancelled":
+										return "line-through";
+									case "failed":
+										return "text-red-400 line-through";
+									default:
+										return "text-foreground";
 								}
-							}}
-							fieldFormatter={(k, v, i) => {
-								if (k === "service_number") {
-									return `${v}${NUMBER_SUFFIX[parseInt(v)]} Service`;
-								} else if (k === "timestamp") {
-									return new Date(v).toLocaleDateString("en-US");
-								} else if (k === "no_of_seats") {
-									const children = requests[i].no_of_children ?? 0;
-									if (children > 0) {
-										return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
-									}
+							}
+						}}
+						fieldFormatter={(k, v, i) => {
+							if (k === "service_number") {
+								return `${v}${NUMBER_SUFFIX[parseInt(v)]} Service`;
+							} else if (k === "timestamp") {
+								return new Date(v).toLocaleDateString("en-US");
+							} else if (k === "no_of_seats") {
+								const children = requests[i].no_of_children ?? 0;
+								if (children > 0) {
+									return `${v} (${children} ${(children == 1 ? "child" : "children")})`;
 								}
-								return v;
-							}}
-							actionButtons={[
-								{
-									icon: (i) => <MapPinIcon width={20} height={20} />,
-									onPressed: (i) => {
-										window.open(requests[i].google_maps_link, "_blank", "noopener,noreferrer");
-									}
-								},
-								{
-									icon: (i) => <PencilIcon width={20} height={20} />,
-									onPressed: (i) => setCurrentlyEditing({ week: week, index: i })
-								},
-								{
-									icon: (i) => (requests[i].status !== "cancelled"
-										? <XCircleIcon width={20} height={20} />
-										: <CheckCircleIcon width={20} height={20} />),
-									onPressed: async (i) => {
-										const requestId = requests[i].documentId!;
-										const newStatus = ((requests[i].status == "cancelled") ? "normal" : "cancelled");
+							}
+							return v;
+						}}
+						actionButtons={[
+							{
+								icon: (i) => <MapPinIcon width={20} height={20} />,
+								onPressed: (i) => {
+									window.open(requests[i].google_maps_link, "_blank", "noopener,noreferrer");
+								}
+							},
+							{
+								icon: (i) => <PencilIcon width={20} height={20} />,
+								onPressed: (i) => setCurrentlyEditing({ week: week, index: i })
+							},
+							{
+								icon: (i) => (requests[i].status !== "cancelled"
+									? <XCircleIcon width={20} height={20} />
+									: <CheckCircleIcon width={20} height={20} />),
+								onPressed: async (i) => {
+									const requestId = requests[i].documentId!;
+									const newStatus = ((requests[i].status == "cancelled") ? "normal" : "cancelled");
 
-										const success = await firestore.updateDocument(
-											FirestoreCollections.Requests,
-											requestId,
-											{ "status": newStatus }
-										);
+									const success = await firestore.updateDocument(
+										FirestoreCollections.Requests,
+										requestId,
+										{ "status": newStatus }
+									);
 
-										if (success) {
-											setTableData({
-												...tableData,
-												[week]: tableData[week].map((row, index) => {
-													// Update only that row
-													if (i === index) {
-														row["status"] = newStatus;
-													}
-													return row;
-												})
-											});
-										} else {
-											toast.error("Failed to edit request. Try again.")
-										}
+									if (success) {
+										setTableData({
+											...tableData,
+											[week]: tableData[week].map((row, index) => {
+												// Update only that row
+												if (i === index) {
+													row["status"] = newStatus;
+												}
+												return row;
+											})
+										});
+									} else {
+										toast.error("Failed to edit request. Try again.")
 									}
 								}
-							]} />
-					</div>
+							}
+						]} />
 				</div>
 			))}
 
