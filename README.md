@@ -11,13 +11,20 @@ WCIE Transport is a web application designed to facilitate ride requests for chu
 
 ### Admin Dashboard
 -   **Request Overview**: Admins can view and manage incoming ride requests.
--   **Resource Management**: Add and manage **Drivers** and **Vehicles**.
--   **Schedule Management**: Create and edit service schedules (defining services and their driver assignments).
+-   **Resource Management**: Comprehensive management of **Drivers** and **Vehicles**. Includes automated geolocation for driver addresses and license tracking.
+-   **Driver Account Creation**: Admins can programmatically create and update driver accounts in Firebase Auth with specific custom claims (`role: driver`).
+-   **Schedule Management**: Create and edit service schedules (defining services and their assignments).
 -   **Route Assignments**: Automated generation and assignment of optimal routes to drivers using serverless functions.
+
+### Driver Portal
+-   **Role-Based Access**: Dedicated portal for users with the `driver` role.
+-   **Pickup Management**: View a prioritized list of assigned pickups for specific dates (e.g., upcoming Sundays).
+-   **Interactive Routes**: Drivers can mark pickups as successful or failed, with real-time status updates reflected in the admin dashboard.
+-   **Trip History**: Browse completed pickups and upcoming assignments.
 
 ### Authentication
 -   **Secure Access**: Cookie-based authentication using Firebase Auth.
--   **Role-Based Access Control**: Middleware protection (`proxy.ts`) ensures only authorized users can access admin routes.
+-   **Role-Based Access Control**: Middleware protection (`proxy.ts`) ensures that admins, drivers, and users are restricted to their authorized routes.
 
 ## Tech Stack
 
@@ -70,7 +77,7 @@ Create a `.env.local` file in the root directory and add the following keys:
 FIREBASE_PROJECT_ID=your_firebase_project_id
 
 # Google Maps (for Places Autocomplete)
-NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=your_google_places_api_key
+GOOGLE_PLACES_API_KEY=your_google_places_api_key
 
 NEXT_PUBLIC_DEBUG_URL=http://localhost:[port number]
 ```

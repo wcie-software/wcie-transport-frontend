@@ -7,7 +7,7 @@ import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
 import { auth } from "@/app/utils/firebase_setup/client";
-import { importTestData } from "@/app/utils/import_test_data";
+import { importTestData } from "@/app/actions/import_test_data";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {
 	const pathname = usePathname();
@@ -87,7 +87,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 					</button>
 				}
 			</nav>
-			<main className="flex-1">
+			<main className="flex-1 min-w-0">
 				{children}
 			</main>
 		</div>

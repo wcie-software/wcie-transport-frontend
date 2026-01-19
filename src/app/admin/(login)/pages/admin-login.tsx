@@ -5,7 +5,7 @@ import { useState, FormEvent } from "react";
 import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
 import { sendSignInLinkToEmail } from "firebase/auth";
 import { auth } from "@/app/utils/firebase_setup/client";
-import { createTestAdminAccount } from "@/app/utils/import_test_data";
+import { createTestAdminAccount } from "@/app/actions/import_test_data";
 
 async function sendEmailLink(emailAddress: string) {
 	try {

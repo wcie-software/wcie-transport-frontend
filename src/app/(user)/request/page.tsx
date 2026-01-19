@@ -4,7 +4,7 @@ import { Place } from "@/app/models/place";
 import { TransportUser, TransportUserSchema } from "@/app/models/user";
 import { auth, db } from "@/app/utils/firebase_setup/client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import { getPlaceDetails, getPlacePredictions } from "@/app/utils/google_maps";
+import { getPlaceDetails, getPlacePredictions } from "@/app/actions/google_maps";
 import { MapPinIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { redirect, RedirectType } from "next/navigation";

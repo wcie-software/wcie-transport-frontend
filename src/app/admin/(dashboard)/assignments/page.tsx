@@ -27,7 +27,7 @@ export default async function AssignmentsPage({ searchParams }: {
 	}
 
 	// Construct date manually to mitigate date to string conversion issues
-	const endDate = new Date(year, month - 1, date, 23, 59, 59);
+	const endDate = new Date(year, month - 1, date, 10, 59, 59);
 	// Ensure it falls on a Sunday
 	if (endDate.getDay() !== 0) {
 		endDate.setDate(endDate.getDate() + (7 - endDate.getDay()));
