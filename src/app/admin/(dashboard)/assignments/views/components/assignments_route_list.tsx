@@ -1,7 +1,7 @@
 import { Driver } from "@/app/models/driver";
 import { DriverRoute } from "@/app/models/fleet_route";
 import { Vehicle } from "@/app/models/vehicle";
-import { stringToColor } from "@/app/utils/colors";
+import { stringToColor } from "@/app/utils/util";
 import { useState } from "react";
 import PopupForm from "@/app/ui/components/popup_form";
 import Table from "@/app/ui/components/table";

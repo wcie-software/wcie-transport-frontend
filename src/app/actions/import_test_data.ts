@@ -10,7 +10,7 @@ import { DriverRoutes, DriverRoutesSchema } from '@/app/models/fleet_route';
 import { TransportRequest, TransportRequestSchema } from '@/app/models/request';
 import { Schedule, ScheduleSchema } from '@/app/models/schedule';
 import { Vehicle, VehicleSchema } from '@/app/models/vehicle';
-import { getFirebaseAdmin } from '../utils/firebase_setup/server';
+import { getFirebaseAdmin } from './firebase_server_setup';
 import { FirestoreCollections } from '@/app/utils/firestore';
 import { revalidatePath } from 'next/cache';
 

@@ -15,6 +15,7 @@ import {
   getFirestore as getAdminFirestore,
 } from "firebase-admin/firestore";
 
+// Singleton access to firebase on the server
 export async function getFirebaseAdmin(): Promise<{
   app: App;
   auth: AdminAuth;
@@ -31,6 +32,7 @@ export async function getFirebaseAdmin(): Promise<{
   const auth = getAdminAuth(app);
   const adminDB = getAdminFirestore(app);
 
+  // If in dev mode, ignore properties that have `undefined` as their value
   if (process.env.NODE_ENV === "development" && apps.length == 0) {
     adminDB.settings({ ignoreUndefinedProperties: true })
   }

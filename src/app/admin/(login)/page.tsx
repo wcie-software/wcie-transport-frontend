@@ -1,7 +1,7 @@
 "use client"
 
-import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
-import { auth } from "@/app/utils/firebase_setup/client";
+import { Constants } from "@/app/utils/util";
+import { auth } from "@/app/utils/firebase_client";
 import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
@@ -21,7 +21,7 @@ export default function AdminPage() {
 	// Get URL before first paint
 	useLayoutEffect(() => {
 		setUrl(window.location.href);
-		setEmail(localStorage.getItem(EMAIL_LOCALSTORAGE_KEY));
+		setEmail(localStorage.getItem(Constants.EMAIL_LOCALSTORAGE_KEY));
 	}, []);
 
 	auth.authStateReady().then(async (_) => {
@@ -30,7 +30,7 @@ export default function AdminPage() {
 			try {
 				const result = await signInWithEmailLink(auth, email, url);
 				// TODO: Add error messages in case sign in failed
-				localStorage.removeItem(EMAIL_LOCALSTORAGE_KEY);
+				localStorage.removeItem(Constants.EMAIL_LOCALSTORAGE_KEY);
 
 				const idToken = await result.user.getIdToken();
 				try {

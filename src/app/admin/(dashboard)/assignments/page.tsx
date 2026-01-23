@@ -1,9 +1,9 @@
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
 import { Driver, DriverSchema } from "@/app/models/driver";
-import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
+import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
-import * as firestoreAdmin from "@/app/utils/firestore_admin";
-import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
+import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
+import { defaultFormatter } from "@/app/utils/util";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
 import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignments_view";
@@ -42,36 +42,36 @@ export default async function AssignmentsPage({ searchParams }: {
 	const service_number = isNaN(v) ? 1 : v;
 
 	const { db } = await getFirebaseAdmin();
-	const requestsList = (await firestoreAdmin.queryCollection<TransportRequest>(
-		db,
+	const fdb = new FirestoreAdminHelper(db);
+
+	const requestsList = (await fdb.queryCollection<TransportRequest>(
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
 		[
 			{ field: "service_number", operator: "==", value: service_number },
-			{ field: "timestamp", operator: ">", value: TIMESTAMP_FORMATTER(startDate) },
-			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER(endDate) },
+			{ field: "timestamp", operator: ">", value: defaultFormatter(startDate) },
+			{ field: "timestamp", operator: "<=", value: defaultFormatter(endDate) },
 		],
 		"timestamp"
 	)).filter((t) => t.status != "cancelled");
 
 	let driverList: Driver[] = [];
-	const schedule = await firestoreAdmin.getDocument<Schedule>(
-		db, FirestoreCollections.Schedules, ScheduleSchema,
+	const schedule = await fdb.getDocument<Schedule>(
+		FirestoreCollections.Schedules, ScheduleSchema,
 		timestamp
 	);
 
 	const service_number_str = String(service_number);
 	if (schedule && service_number_str in schedule.schedule) {
-		driverList = await firestoreAdmin.getDocuments<Driver>(
-			db,
+		driverList = await fdb.getDocuments<Driver>(
 			FirestoreCollections.Drivers,
 			DriverSchema,
 			schedule.schedule[service_number_str]
 		);
 	}
 
-	const driverRoutes = await firestoreAdmin.getDocument<DriverRoutes>(
-		db, FirestoreCollections.Assignments, DriverRoutesSchema,
+	const driverRoutes = await fdb.getDocument<DriverRoutes>(
+		FirestoreCollections.Assignments, DriverRoutesSchema,
 		timestamp
 	);
 	// Get only routes for the particular service
@@ -85,8 +85,7 @@ export default async function AssignmentsPage({ searchParams }: {
 			vehicleIdToDriverId[r.assigned_vehicle_id] = r.driver_id;
 		});
 
-		const vehicles = await firestoreAdmin.getDocuments<Vehicle>(
-			db,
+		const vehicles = await fdb.getDocuments<Vehicle>(
 			FirestoreCollections.Vehicles,
 			VehicleSchema,
 			Object.keys(vehicleIdToDriverId)

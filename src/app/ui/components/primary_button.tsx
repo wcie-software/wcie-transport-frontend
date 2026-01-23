@@ -1,3 +1,7 @@
+/**
+ * Themed button with nice utility functions.
+ */
+
 "use client"
 
 import clsx from "clsx";

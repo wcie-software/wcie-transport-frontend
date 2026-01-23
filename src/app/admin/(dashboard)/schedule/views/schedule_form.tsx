@@ -5,7 +5,7 @@ import { Checkbox, ListItemText, MenuItem, Select, ThemeProvider } from "@mui/ma
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { useState } from "react";
 import PrimaryButton from "@/app/ui/components/primary_button";
-import { MUITheme, NUMBER_SUFFIX } from "@/app/utils/constants";
+import { MUITheme, Constants } from "@/app/utils/util";
 import { toast } from "sonner";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
@@ -73,7 +73,7 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 				return (
 					<div key={index} className="flex flex-col gap-0.5 py-2 items-baseline justify-start">
 						<label htmlFor={`drivers-${serviceNumber}`} className="text-xs">
-							Select {serviceNumber}{NUMBER_SUFFIX[serviceNumber]} Service Drivers
+							Select {serviceNumber}{Constants.NUMBER_SUFFIX[serviceNumber]} Service Drivers
 						</label>
 						<ThemeProvider theme={MUITheme}>
 							<Select

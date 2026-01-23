@@ -2,10 +2,11 @@
 
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { useState, FormEvent } from "react";
-import { EMAIL_LOCALSTORAGE_KEY } from "@/app/utils/constants";
+import { Constants } from "@/app/utils/util";
 import { sendSignInLinkToEmail } from "firebase/auth";
-import { auth } from "@/app/utils/firebase_setup/client";
+import { auth } from "@/app/utils/firebase_client";
 import { createTestAdminAccount } from "@/app/actions/import_test_data";
+import styles from "./admin-login.module.css";
 
 async function sendEmailLink(emailAddress: string) {
 	try {
@@ -38,7 +39,7 @@ export default function AdminLogin() {
 				if (linkSent) {
 					setStatus("link-sent");
 					setEmail(emailAddr);
-					localStorage.setItem(EMAIL_LOCALSTORAGE_KEY, emailAddr);
+					localStorage.setItem(Constants.EMAIL_LOCALSTORAGE_KEY, emailAddr);
 				} else {
 					// Show error
 					console.log("Something went wrong with sending email link.");
@@ -64,7 +65,7 @@ export default function AdminLogin() {
 							name="email"
 							placeholder="name@gmail.com"
 							required
-							className="outline-0 text-foreground placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold autofill-reset"
+							className={"outline-0 text-foreground placeholder-gray-500 truncate w-full text-3xl md:text-4xl font-bold " + styles.autofillReset}
 						/>
 						<div className="flex flex-row items-center justify-start gap-2">
 							<PrimaryButton type="submit">Login</PrimaryButton>

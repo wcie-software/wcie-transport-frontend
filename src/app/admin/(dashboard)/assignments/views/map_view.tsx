@@ -6,7 +6,7 @@ import { TransportRequest } from '@/app/models/request';
 import { Driver } from '@/app/models/driver';
 import { DriverRoute } from '@/app/models/fleet_route';
 import { Vehicle } from '@/app/models/vehicle';
-import { stringToColor } from '@/app/utils/colors';
+import { stringToColor } from '@/app/utils/util';
 
 export default function MapView({ requestPoints, driverPoints, routes, assignedVehicles }: {
 	requestPoints: TransportRequest[],

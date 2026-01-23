@@ -1,3 +1,9 @@
+/**
+ * Displays a number input with a reactive button.
+ * Button is disabled at first. Enables when the user finishes typing.
+ * Disables again when the user starts typing again.
+ */
+
 "use client"
 
 import NumberInput from "@/app/ui/components/number_input";
@@ -56,7 +62,7 @@ export default function CollectNumber({
 						onSubmitted?.(no);
 					}}
 				>
-						{buttonText}
+					{buttonText}
 				</PrimaryButton>
 			</div>
 		</div>

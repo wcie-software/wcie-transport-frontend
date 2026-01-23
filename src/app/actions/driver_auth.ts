@@ -1,7 +1,7 @@
 "use server";
 
 import { Driver } from "@/app/models/driver";
-import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
+import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirebaseAuthError } from "firebase-admin/auth";
 
 /**

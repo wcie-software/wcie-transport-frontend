@@ -1,0 +1,14 @@
+.sectionDivider {
+    position: relative;
+}
+
+.sectionDivider::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 40px;
+    height: 3px;
+    background-color: var(--primary);
+    border-radius: 2px;
+}

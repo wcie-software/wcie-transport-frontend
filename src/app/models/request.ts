@@ -15,6 +15,7 @@ export const TransportRequestSchema = BaseDocument.extend({
   status: z
     .optional(z.enum(["normal", "cancelled", "failed", "successful"]))
     .default("normal"),
+  // Ensure no of seats is always greater than number of children
 }).refine((data) => data.no_of_children < data.no_of_seats, {
   error: "Not enough seats to accommodate number of children",
   path: ["no_of_children"],

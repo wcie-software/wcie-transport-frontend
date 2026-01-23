@@ -1,5 +1,5 @@
-import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
-import * as firebaseAdmin from "@/app/utils/firestore_admin";
+import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
+import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { ScheduleView } from "@/app/admin/(dashboard)/schedule/views/schedule_view";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 
 export default async function SchedulePage() {
 	const { db } = await getFirebaseAdmin();
+	const fdb = new FirestoreAdminHelper(db);
 
-	const schedules = await firebaseAdmin.getCollection<Schedule>(
-		db,
+	const schedules = await fdb.getCollection<Schedule>(
 		FirestoreCollections.Schedules,
 		ScheduleSchema,
 		"timestamp",
@@ -25,7 +25,7 @@ export default async function SchedulePage() {
 		(groupedByMonth[monthKey] ??= []).push(schedule);
 	});
 
-	const drivers = await firebaseAdmin.getCollection<Driver>(db, FirestoreCollections.Drivers, DriverSchema);
+	const drivers = await fdb.getCollection<Driver>(FirestoreCollections.Drivers, DriverSchema);
 	const driverIdsAndNames: Record<string, string> = {};
 	drivers.forEach((driver) => driverIdsAndNames[driver.documentId!] = driver.full_name);
 

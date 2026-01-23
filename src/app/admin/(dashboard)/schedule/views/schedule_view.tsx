@@ -3,11 +3,11 @@
 import { Schedule } from "@/app/models/schedule";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
-import { db } from "@/app/utils/firebase_setup/client";
+import { db } from "@/app/utils/firebase_client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { useState } from "react";
 import { ScheduleForm } from "./schedule_form";
-import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { Constants } from "@/app/utils/util";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 
@@ -129,7 +129,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 											{Object.entries(schedule.schedule).map(([service, drivers], i) => {
 												return (
 													<div key={service} className="mb-2 flex flex-col items-baseline gap-2">
-														<h4 className="text-md">{service}{NUMBER_SUFFIX[parseInt(service)]} Service</h4>
+														<h4 className="text-md">{service}{Constants.NUMBER_SUFFIX[parseInt(service)]} Service</h4>
 														<div className="flex flex-wrap gap-2">
 															{drivers.length > 0
 																? drivers.map((driver) =>

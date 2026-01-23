@@ -5,7 +5,7 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { TransportRequest } from "@/app/models/request";
 import Link from "next/link";
-import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { Constants } from "@/app/utils/util";
 
 export default function PickupItem({ pickup, active = false, onPickupSuccessful, onPickupFailed }:
     { pickup: TransportRequest, active: boolean, onPickupSuccessful?: () => void, onPickupFailed?: () => void }
@@ -21,7 +21,7 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
                             <span><UserIcon className={`text-${color}`} width={12} height={12} /></span>
                             <span className="text-foreground text-xs font-semibold">{pickup.no_of_seats}</span>
                         </div>
-                        <h3 className="mt-1 text-xl font-bold">{pickup.full_name} ({pickup.service_number}{NUMBER_SUFFIX[pickup.service_number]} service)</h3>
+                        <h3 className="mt-1 text-xl font-bold">{pickup.full_name} ({pickup.service_number}{Constants.NUMBER_SUFFIX[pickup.service_number]} service)</h3>
                     </div>
                     <Link href={active ? `tel:${pickup.phone_number}` : "#"} className={`bg-${color} size-10 flex items-center justify-center text-white rounded-full active:scale-95 transition-transform shadow-lg shadow-primary/20`}>
                         <PhoneIcon width={20} height={20} />

@@ -9,15 +9,9 @@ runConfig:
 
 # Environment variables and secrets.
 env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
-
+  # Expose as Google Places API key as runtime environment variable
   - variable: GOOGLE_PLACES_API_KEY
+    # Look for it in Google Secrets Manager
     secret: google-places-autocomplete-details-key
     availability:
       - RUNTIME

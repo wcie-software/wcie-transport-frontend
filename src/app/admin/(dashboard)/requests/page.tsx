@@ -1,9 +1,9 @@
 import { TransportRequest, TransportRequestSchema } from "@/app/models/request";
-import { getFirebaseAdmin } from "@/app/utils/firebase_setup/server";
+import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
-import * as firestoreAdmin from "@/app/utils/firestore_admin";
+import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
 import RequestView from "@/app/admin/(dashboard)/requests/request_view";
-import { TIMESTAMP_FORMATTER } from "@/app/utils/constants";
+import { defaultFormatter } from "@/app/utils/util";
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +26,13 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
 	rangeStart.setDate(rangeEnd.getDate() - 28);
 
 	const { db } = await getFirebaseAdmin();
-	const requestsList = await firestoreAdmin.queryCollection<TransportRequest>(
-		db,
+	const fdb = new FirestoreAdminHelper(db);
+	const requestsList = await fdb.queryCollection<TransportRequest>(
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
 		[
-			{ field: "timestamp", operator: ">=", value: TIMESTAMP_FORMATTER(rangeStart) },
-			{ field: "timestamp", operator: "<=", value: TIMESTAMP_FORMATTER(rangeEnd) },
+			{ field: "timestamp", operator: ">=", value: defaultFormatter(rangeStart) },
+			{ field: "timestamp", operator: "<=", value: defaultFormatter(rangeEnd) },
 		],
 		"timestamp"
 	);

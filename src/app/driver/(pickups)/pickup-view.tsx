@@ -4,16 +4,17 @@ import { TransportRequest } from "@/app/models/request";
 import DateSelector from "./components/date_selector";
 import PickupItem from "./components/pickup_item";
 import { useState } from "react";
-import { db } from "@/app/utils/firebase_setup/client";
+import { db } from "@/app/utils/firebase_client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { toast } from "sonner";
 import { PickedUpItem } from "./components/pickedup_item";
+import styles from "./pickup-view.module.css";
 
 export default function PickupView({ transportRequests }: { transportRequests: TransportRequest[] }) {
     const [pickups, setPickups] = useState(transportRequests.filter(t => t.status === "normal"));
     const [pickedUp, setPickedUp] = useState(transportRequests.filter(t => t.status !== "normal"))
 
-    async function update(t: TransportRequest) {
+    async function updatePickupStatus(t: TransportRequest) {
         setPickups(pickups.filter(p => p.documentId !== t.documentId));
         setPickedUp([...pickedUp, t]);
 
@@ -42,17 +43,19 @@ export default function PickupView({ transportRequests }: { transportRequests: T
                         active={i === 0}
                         onPickupSuccessful={() => {
                             t.status = "successful";
-                            update(t);
+                            updatePickupStatus(t);
                         }}
                         onPickupFailed={() => {
                             t.status = "failed";
-                            update(t);
+                            updatePickupStatus(t);
                         }}
                     />)
                 }
             </div>
             <div className="my-4">
-                {pickedUp.length > 0 && <h2 className="text-lg font-bold uppercase tracking-widest section-divider">Completed Pickups</h2>}
+                {pickedUp.length > 0 &&
+                    <h2 className={`text-lg font-bold uppercase tracking-widest ${styles.sectionDivider}`}>Completed Pickups</h2>
+                }
                 <div className="mt-4 space-y-4">
                     {pickedUp.map(t => <PickedUpItem key={t.documentId} item={t} />)}
                 </div>

@@ -6,7 +6,7 @@ import { BugAntIcon, Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, C
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
-import { auth } from "@/app/utils/firebase_setup/client";
+import { auth } from "@/app/utils/firebase_client";
 import { importTestData } from "@/app/actions/import_test_data";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {

@@ -1,3 +1,7 @@
+/**
+ * Displays a list of items with the properties of each item displayed as a grid of 3 columns.
+ */
+
 "use client"
 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";

@@ -2,7 +2,7 @@ import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { MenuItem, Select, SelectChangeEvent, ThemeProvider } from "@mui/material";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { MUITheme } from "@/app/utils/constants";
+import { MUITheme } from "@/app/utils/util";
 import { toast } from "sonner";
 
 interface AssignmentsControlPanelProps {

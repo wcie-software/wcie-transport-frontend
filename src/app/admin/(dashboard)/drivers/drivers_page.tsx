@@ -6,7 +6,7 @@ import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import SchemaForm from "@/app/ui/components/schema_form";
 import { createDriverAccount, updateDriverAccount } from "@/app/actions/driver_auth";
-import { db } from "@/app/utils/firebase_setup/client";
+import { db } from "@/app/utils/firebase_client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { getPlaceDetails, getPlacePredictions } from "@/app/actions/google_maps";
 import { UserIcon } from "@heroicons/react/24/solid";

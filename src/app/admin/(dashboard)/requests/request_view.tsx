@@ -6,9 +6,9 @@ import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, PencilIcon, XCircleIcon,
 import { useState } from "react";
 import SchemaForm from "@/app/ui/components/schema_form";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
-import { db } from "@/app/utils/firebase_setup/client";
+import { db } from "@/app/utils/firebase_client";
 import PopupForm from "@/app/ui/components/popup_form";
-import { NUMBER_SUFFIX } from "@/app/utils/constants";
+import { Constants } from "@/app/utils/util";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -85,7 +85,7 @@ export default function RequestView({ groups, page, startingDate }:
 						}}
 						fieldFormatter={(k, v, i) => {
 							if (k === "service_number") {
-								return `${v}${NUMBER_SUFFIX[parseInt(v)]} Service`;
+								return `${v}${Constants.NUMBER_SUFFIX[parseInt(v)]} Service`;
 							} else if (k === "timestamp") {
 								return new Date(v).toLocaleDateString("en-US");
 							} else if (k === "no_of_seats") {

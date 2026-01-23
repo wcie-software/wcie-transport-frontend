@@ -5,7 +5,7 @@ import { DetailList } from "@/app/ui/components/detail_list";
 import PopupForm from "@/app/ui/components/popup_form";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import SchemaForm from "@/app/ui/components/schema_form";
-import { db } from "@/app/utils/firebase_setup/client";
+import { db } from "@/app/utils/firebase_client";
 import { FirestoreCollections, FirestoreHelper } from "@/app/utils/firestore";
 import { TruckIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
@@ -60,7 +60,7 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
-				 	schema={VehicleSchema}
+					schema={VehicleSchema}
 					obj={currentlyEditing !== -1
 						? tableData[currentlyEditing]
 						: { documentId: "", name: "", plate_number: "", active: true, year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle}

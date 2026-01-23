@@ -1,9 +1,19 @@
+/**
+ * Component for generating a form from a Zod object.
+ */
+
 import { FormEvent } from "react";
 import { toast } from "sonner";
 import { ZodObject } from "zod";
 
 export default function SchemaForm({
-	obj, schema, customLabels, hiddenColumns = ["documentId"], readonlyColumns, suggestedValues, onSubmitted
+	obj,
+	schema,
+	customLabels,
+	hiddenColumns = ["documentId"],
+	readonlyColumns,
+	suggestedValues,
+	onSubmitted
 }: {
 	obj: object,
 	schema: ZodObject,
@@ -15,11 +25,11 @@ export default function SchemaForm({
 }) {
 	const keys = Object.keys(obj);
 	const types = Object.values(obj).map((v) => typeof v);
-	const zipped = Array.from(
-		{ length: keys.length },
+	const keysAndTypes = Array.from({ length: keys.length },
 		(_, i) => [keys[i], types[i]]
 	);
 
+	// Guess the type from the name or type string
 	function inferType(name: string, type: string) {
 		if (name.includes("phone")) {
 			return "tel";
@@ -37,49 +47,57 @@ export default function SchemaForm({
 	}
 
 	function formSubmitted(e: FormEvent<HTMLFormElement>) {
+		// Prevents the page from reloading.
+		// The default behaviour is to perform a GET request at the current URL with the values of the form passed in
 		e.preventDefault();
+
 		const formData = new FormData(e.target as HTMLFormElement);
 
-		const newObj = new Map<String, any>();
+		// Convert form data to object
+		const newObj: Record<string, string> = {};
 		for (const [k, v] of formData.entries()) {
-			newObj.set(k, String(v));
+			newObj[k] = String(v);
 		}
 
-		if ("documentId" in obj && !newObj.has("documentId")) {
-			newObj.set("documentId", obj["documentId" as keyof object])
+		// Ensure "documentId" is included (even though it wasn't part of the form)
+		// This is for object creation see "models/base.ts"
+		if ("documentId" in obj && !("documentId" in newObj)) {
+			newObj["documentId"] = obj["documentId" as keyof object];
 		}
 
-		const validObj = schema.safeParse(Object.fromEntries(newObj.entries()));
+		const validObj = schema.safeParse(newObj);
 		if (validObj.success) {
 			onSubmitted?.(validObj.data);
 		} else {
 			const errorObj = JSON.parse(validObj.error.message);
 			toast.error(`The data you typed in is not valid: '${errorObj[0]["message"]}'.`);
-			// console.log(validObj.error);
 		}
 	}
 
 	return (
 		<form className="flex flex-col gap-2" onSubmit={formSubmitted}>
 			<div>
-				{zipped.map(([k, t]) => {
+				{/* For each property in the object */}
+				{keysAndTypes.map(([k, t]) => {
 					if (hiddenColumns.includes(k)) {
 						return null;
 					}
 
 					const inferredType = inferType(k, t);
 					const key = k as keyof object;
-					const generatedLabel = k.split("_").map((element) =>
-						`${element[0].toUpperCase()}${element.slice(1)}`
+					// full_name -> ["full", "name"] -> ["Full", "Name"] -> "Full Name"
+					const generatedLabel = k.split("_").map((el) =>
+						`${el[0].toUpperCase()}${el.slice(1)}`
 					).join(" ");
 
 					const v = obj[key];
 					let currentValue = String(v);
 					if (inferredType === "datetime-local") {
 						try {
+							// Accepted value for datetime-local inputs
 							currentValue = (new Date(v)).toISOString().replace("Z", "");
 						} catch (e) { }
-					} else if (["true", "false"].includes(currentValue)) {
+					} else if (["true", "false"].includes(currentValue)) { // Boolean field
 						currentValue = (currentValue === "true") ? "Yes" : "No";
 					}
 
@@ -88,12 +106,14 @@ export default function SchemaForm({
 							<label htmlFor={k} className="text-xs">
 								{((customLabels && k in customLabels) ? customLabels[k] : generatedLabel)}
 							</label>
+							{/* If the user suggests values for this field, create a dropdown */}
 							{(suggestedValues && k in suggestedValues)
 								?
 								<select
 									id={k}
 									name={k}
 									defaultValue={currentValue}
+									aria-readonly={readonlyColumns?.includes(k)}
 									className="w-full border border-gray-200 dark:border-gray-600 focus:border-primary rounded outline-0 p-2 text-foreground"
 								>
 									{suggestedValues[k].map((sv) =>
