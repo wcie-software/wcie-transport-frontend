@@ -16,7 +16,7 @@ export default async function AssignmentsPage({ searchParams }: {
 }) {
 	const params = await searchParams;
 
-	// Atempt to get date from url search param
+	// Attempt to get date from url search param
 	let month, date, year;
 	try {
 		[month, date, year] = params?.timestamp?.split("-").map(parseFloat)!;
@@ -34,57 +34,65 @@ export default async function AssignmentsPage({ searchParams }: {
 	}
 
 	const startDate = new Date(endDate);
-	startDate.setDate(endDate.getDate() - 7);
+	// Start on Monday
+	startDate.setDate(endDate.getDate() - 6);
 
+	// M-D-YYYY
 	const timestamp = endDate.toLocaleDateString("en-US").replaceAll("/", "-");
 
-	const v = parseInt(params?.service_number ?? "1");
-	const service_number = isNaN(v) ? 1 : v;
+	const service = parseInt(params?.service_number ?? "1");
+	const serviceNumber = isNaN(service) ? 1 : service;
 
 	const { db } = await getFirebaseAdmin();
 	const fdb = new FirestoreAdminHelper(db);
 
+	// Get all requests that fall within the time range and are for that service
 	const requestsList = (await fdb.queryCollection<TransportRequest>(
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
 		[
-			{ field: "service_number", operator: "==", value: service_number },
-			{ field: "timestamp", operator: ">", value: defaultFormatter(startDate) },
+			{ field: "service_number", operator: "==", value: serviceNumber },
+			{ field: "timestamp", operator: ">=", value: defaultFormatter(startDate) },
 			{ field: "timestamp", operator: "<=", value: defaultFormatter(endDate) },
 		],
-		"timestamp"
-	)).filter((t) => t.status != "cancelled");
+		"timestamp" // Sort by time
+	)).filter((t) => t.status != "cancelled"); // Don't include cancelled
 
 	let driverList: Driver[] = [];
+	// Get driver schedule for this week
 	const schedule = await fdb.getDocument<Schedule>(
 		FirestoreCollections.Schedules, ScheduleSchema,
 		timestamp
 	);
 
-	const service_number_str = String(service_number);
-	if (schedule && service_number_str in schedule.schedule) {
+	const serviceNumberString = String(serviceNumber);
+	if (schedule && serviceNumberString in schedule.schedule) {
+		// Get drivers that are in this schedule
 		driverList = await fdb.getDocuments<Driver>(
 			FirestoreCollections.Drivers,
 			DriverSchema,
-			schedule.schedule[service_number_str]
+			schedule.schedule[serviceNumberString]
 		);
 	}
 
+	// Get route for this week
 	const driverRoutes = await fdb.getDocument<DriverRoutes>(
 		FirestoreCollections.Assignments, DriverRoutesSchema,
 		timestamp
 	);
 	// Get only routes for the particular service
-	const routes = driverRoutes?.routes.filter((r) => r.service_number == service_number);
+	const routes = driverRoutes?.routes.filter((r) => r.service_number == serviceNumber);
 
 	// If routes have been generated, get the vehicles assigned to each driver
 	const assignedVehicles: Record<string, Vehicle> = {};
 	if (routes) {
 		const vehicleIdToDriverId: Record<string, string> = {};
 		routes.forEach((r) => {
+			// Vehicle to driver map
 			vehicleIdToDriverId[r.assigned_vehicle_id] = r.driver_id;
 		});
 
+		// Get the vehicles pertaining to the chosen drivers
 		const vehicles = await fdb.getDocuments<Vehicle>(
 			FirestoreCollections.Vehicles,
 			VehicleSchema,
@@ -94,6 +102,7 @@ export default async function AssignmentsPage({ searchParams }: {
 		vehicles.forEach((v) => {
 			try {
 				const driverId = vehicleIdToDriverId[v.documentId!];
+				// Driver to vehicle details map
 				assignedVehicles[driverId] = v;
 			} catch (e) {
 				console.warn(`[Assignments Page] WARNING: Retrieved vehicle '${v.name}' that does not exist in generated route '${driverRoutes?.documentId}'`)

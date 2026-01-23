@@ -12,11 +12,12 @@ export default function PhonePage({ onCodeSent }:
 ) {
 	const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier>();
 
+	// ReCaptcha setup
 	useEffect(() => {
 		setRecaptchaVerifier(new RecaptchaVerifier(auth, "recaptcha-id", {
 			"size": "normal",
 			"expired-callback": () => {
-				toast.error(`reCAPTCHA has expired. Please refresh the page.`);
+				toast.error("reCAPTCHA has expired. Please refresh the page.");
 			}
 		}));
 	}, [auth]);
@@ -43,6 +44,7 @@ export default function PhonePage({ onCodeSent }:
 						});
 				}}
 			/>
+			{/* ReCaptcha container */}
 			<div id="recaptcha-id" className="ml-auto"></div>
 		</div>
 	);

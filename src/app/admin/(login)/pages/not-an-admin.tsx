@@ -1,3 +1,3 @@
 export default function NotAnAdminPage() {
-	return <p>You're not an admin</p>
+	return <p className="uppercase text-xs">You're not an admin</p>
 }

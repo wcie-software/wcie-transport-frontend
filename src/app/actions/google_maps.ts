@@ -19,19 +19,19 @@ export async function getPlacePredictions(query: string): Promise<Place[]> {
 			includedRegionCodes: ["ca"],
 		}),
 	});
-	
+
 	const body = await response.json();
 	if (!("suggestions" in body)) {
-		throw "Could not access Google Maps server.";
+		throw new Error("Could not access Google Maps server.");
 	}
-	
+
 	const suggestions: Place[] = [];
 	for (const suggestion of body["suggestions"]) {
 		const prediction = suggestion["placePrediction"];
 		const id = prediction["placeId"];
 		const text = prediction["text"]["text"];
 
-		suggestions.push({id: id, text: text});
+		suggestions.push({ id: id, text: text });
 	}
 
 	return suggestions
@@ -49,5 +49,9 @@ export async function getPlaceDetails(placeId: string) {
 		},
 	});
 
-	return LocationDetails.parse(await response.json());
+	if (response.ok) {
+		return LocationDetails.parse(await response.json());
+	} else {
+		throw new Error("Could not access Google Maps server.");
+	}
 }

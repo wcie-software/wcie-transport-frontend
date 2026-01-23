@@ -1,3 +1,5 @@
+"use client";
+
 import { Driver } from "@/app/models/driver";
 import { DriverRoute } from "@/app/models/fleet_route";
 import { Vehicle } from "@/app/models/vehicle";
@@ -21,6 +23,7 @@ export default function AssignmentsRouteList({
     requests,
 }: AssignmentsRouteListProps) {
     const [selectedRoute, setSelectedRoute] = useState<DriverRoute | null>(null);
+    const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
 
     if (!routes) return null;
 
@@ -35,6 +38,7 @@ export default function AssignmentsRouteList({
 
     return (
         <>
+            {/* Shown at the bottom-left on top of everything */}
             <div className="min-w-xs absolute bottom-0 left-0 m-4 p-4 z-[500] bg-background rounded-lg">
                 <ul className="space-y-3">
                     {routes.map((r) => {
@@ -56,9 +60,13 @@ export default function AssignmentsRouteList({
                             <div
                                 className="flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded transition-colors"
                                 key={r.driver_id}
-                                onClick={() => setSelectedRoute(r)}
+                                onClick={() => {
+                                    setSelectedDriver(driver);
+                                    setSelectedRoute(r);
+                                }}
                             >
                                 <div className="flex items-center gap-2">
+                                    {/* Coloured circle */}
                                     <span
                                         className="w-3 h-3 rounded-full"
                                         style={{
@@ -84,9 +92,12 @@ export default function AssignmentsRouteList({
             </div>
 
             <PopupForm
-                open={!!selectedRoute}
-                title="Route Details"
-                onClose={() => setSelectedRoute(null)}
+                open={selectedRoute != null}
+                title={`Route Details – ${selectedDriver?.full_name}`}
+                onClose={() => {
+                    setSelectedRoute(null);
+                    setSelectedDriver(null);
+                }}
             >
                 <Table
                     headerMap={{

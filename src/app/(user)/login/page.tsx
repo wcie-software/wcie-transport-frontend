@@ -17,6 +17,7 @@ export default function LoginPage() {
 
 	return (
 		<div className="max-w-2xl w-full">
+			{/* Allows user to type in phone number and sends out OTP */}
 			{status === "login" &&
 				<PhonePage
 					onCodeSent={(phone, result) => {
@@ -26,6 +27,7 @@ export default function LoginPage() {
 					}}
 				/>
 			}
+			{/* Allows user to type in OTP and then redirects the user if successful */}
 			{status === "code-sent" &&
 				<OTPPage
 					phoneNumber={phone}

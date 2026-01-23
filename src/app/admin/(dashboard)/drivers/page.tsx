@@ -4,7 +4,7 @@ import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import DriversPage from "./drivers_page";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // Don't cache data
 
 export default async function RequestsPage() {
 	const { db } = await getFirebaseAdmin();

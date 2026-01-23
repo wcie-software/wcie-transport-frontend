@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+// Home page body
 export default function Home() {
 	return (
 		<div className="max-w-2xl w-full flex flex-col items-start px-6">

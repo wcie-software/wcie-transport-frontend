@@ -62,15 +62,20 @@ export default function SchemaForm({
 		// Ensure "documentId" is included (even though it wasn't part of the form)
 		// This is for object creation see "models/base.ts"
 		if ("documentId" in obj && !("documentId" in newObj)) {
-			newObj["documentId"] = obj["documentId" as keyof object];
+			const documentId = obj["documentId" as keyof object];
+			if ((typeof documentId) === "string") {
+				newObj["documentId"] = documentId;
+			}
 		}
 
 		const validObj = schema.safeParse(newObj);
 		if (validObj.success) {
 			onSubmitted?.(validObj.data);
 		} else {
-			const errorObj = JSON.parse(validObj.error.message);
-			toast.error(`The data you typed in is not valid: '${errorObj[0]["message"]}'.`);
+			const errorObj = JSON.parse(validObj.error.message)[0];
+			const errorField = errorObj["path"][0];
+
+			toast.error(`${errorField} is not valid: '${errorObj["message"]}'.`);
 		}
 	}
 
@@ -99,6 +104,8 @@ export default function SchemaForm({
 						} catch (e) { }
 					} else if (["true", "false"].includes(currentValue)) { // Boolean field
 						currentValue = (currentValue === "true") ? "Yes" : "No";
+					} else if (currentValue === "[object Object]") {
+						currentValue = ""; // If an object is passed, just show an empty value
 					}
 
 					return (

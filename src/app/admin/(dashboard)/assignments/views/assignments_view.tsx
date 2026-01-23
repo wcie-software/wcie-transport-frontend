@@ -30,7 +30,9 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 	const pathname = usePathname();
 	const { replace, refresh } = useRouter();
 
-	const nearestSunday = new Date(searchParams.get("timestamp") ?? new Date());
+	const nearestSunday = searchParams.has("timestamp")
+		? new Date(searchParams.get("timestamp")!)
+		: new Date();
 	if (nearestSunday.getDay() !== 0) {
 		nearestSunday.setDate(nearestSunday.getDate() + (7 - nearestSunday.getDay()));
 	}
@@ -47,6 +49,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 	}
 
 	async function beginRouteGeneration(): Promise<void> {
+		// We authenticate the route generation microservice with the user's JWT
 		const idToken = await auth.currentUser?.getIdToken();
 		if (!idToken) {
 			toast.error("Please refresh the page and re-login");
@@ -65,10 +68,12 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 
 	return (
 		<div className="relative w-full h-full">
+			{/* Floating panel for selecting date and service, ang generating routes */}
 			<AssignmentsControlPanel
 				chosenDate={chosenDate}
 				onDateSelected={(date) => {
 					setChosenDate(date);
+					// Update timestamp param to chosen date in M-D-YYYY format
 					updateSearchParams("timestamp", date.toLocaleDateString("en-US").replaceAll("/", "-"));
 				}}
 				serviceNumber={serviceNumber}
@@ -79,12 +84,13 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 				generationInProgress={generationInProgress}
 				onGenerateRoutes={() => {
 					setGenerationInProgress(true);
-					const generationPromise = beginRouteGeneration();
-					toast.promise(generationPromise, { loading: "Generating routes..." });
+					toast.promise(beginRouteGeneration(), { loading: "Generating routes..." });
 				}}
 			/>
 
+			{/*  Floating panel showing each driver's route */}
 			<AssignmentsRouteList
+				key={"RouteList " + timestamp + serviceNumber}
 				routes={routes}
 				driversList={driversList}
 				assignedVehicles={assignedVehicles}
@@ -92,6 +98,8 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 			/>
 
 			<MapView
+				// Update map view anytime date or service number changes
+				key={"MapView " + timestamp + serviceNumber}
 				requestPoints={requestsList}
 				driverPoints={driversList}
 				assignedVehicles={assignedVehicles}

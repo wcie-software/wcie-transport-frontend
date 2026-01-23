@@ -74,6 +74,24 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 		}
 	}
 
+	async function deleteSchedule(schedule: Schedule) {
+		const deleted = await firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
+
+		const month = monthKey(schedule);
+		// Update ui
+		setSchedules({
+			...scheduleGroups,
+			// Exclude just deleted schedule
+			[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
+		});
+
+		if (deleted) {
+			toast.success(`Schedule for ${dateKey(schedule)} deleted successfully.`);
+		} else {
+			toast.error(`Failed to delete schedule for ${dateKey(schedule)}.`);
+		}
+	}
+
 	return (
 		<div className="w-full mt-12">
 			<PrimaryButton onClick={() => { setPopupOpen(true); }} >
@@ -90,10 +108,13 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 								const date = new Date(schedule.timestamp);
 								return (
 									<div key={schedule.timestamp} className="flex flex-col gap-6 bg-tertiary rounded-lg p-4">
+										{/* Header bar */}
 										<div className="flex flex-row justify-between gap-1.5 items-baseline">
+											{/* Date header */}
 											<h3 className="text-xl font-medium">
 												{new Intl.DateTimeFormat("en-US", { dateStyle: "full", timeZone: "America/Edmonton" }).format(date)}
 											</h3>
+											{/* Edit and delete button */}
 											<div className="flex flex-row items-center gap-3.5">
 												<div
 													className="cursor-pointer flex flex-row items-center gap-2 border border-tertiary py-2 px-2.5 rounded-md"
@@ -107,18 +128,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 												</div>
 												<div
 													className="cursor-pointer flex flex-row items-center gap-2 bg-deleteRed py-2 px-2.5 rounded-md text-white"
-													onClick={async () => {
-														const deleted = await firestore.deleteDocument(FirestoreCollections.Schedules, documentKey(schedule));
-														setSchedules({
-															...scheduleGroups,
-															[month]: scheduleGroups[month].filter(s => s.timestamp !== schedule.timestamp)
-														});
-														if (deleted) {
-															toast.success(`Schedule for ${dateKey(schedule)} deleted successfully.`);
-														} else {
-															toast.error(`Failed to delete schedule for ${dateKey(schedule)}.`);
-														}
-													}}
+													onClick={() => deleteSchedule(schedule)}
 												>
 													<TrashIcon width={20} height={20} />
 													<p>Delete</p>
@@ -126,23 +136,24 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 											</div>
 										</div>
 										<div className="flex flex-row justify-between items-start">
-											{Object.entries(schedule.schedule).map(([service, drivers], i) => {
-												return (
-													<div key={service} className="mb-2 flex flex-col items-baseline gap-2">
-														<h4 className="text-md">{service}{Constants.NUMBER_SUFFIX[parseInt(service)]} Service</h4>
-														<div className="flex flex-wrap gap-2">
-															{drivers.length > 0
-																? drivers.map((driver) =>
-																	<p className="bg-tertiary text-foreground px-2.5 py-1 rounded-full" key={`${driver}-${i}`}>
-																		{driverInfo[driver]}
-																	</p>
-																)
-																: <span className="text-sm italic text-gray-500">No drivers assigned</span>
-															}
-														</div>
+											{/* Chip items */}
+											{Object.entries(schedule.schedule).map(([service, drivers], i) => (
+												<div key={service} className="mb-2 flex flex-col items-baseline gap-2">
+													<h4 className="text-md">{service}{Constants.NUMBER_SUFFIX[parseInt(service)]} Service</h4>
+													<div className="flex flex-wrap gap-2">
+														{drivers.length > 0
+															? drivers.map((driver) =>
+																<p
+																	className="bg-tertiary text-foreground px-2.5 py-1 rounded-full"
+																	key={`${driver}-${i}`}
+																>
+																	{driverInfo[driver]}
+																</p>)
+															: <span className="text-sm italic text-gray-500">No drivers assigned</span>
+														}
 													</div>
-												);
-											})}
+												</div>
+											))}
 										</div>
 									</div>
 								);
@@ -160,7 +171,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 				<ScheduleForm
 					defaultSchedule={currentSchedule}
 					driverOptions={driverInfo}
-					onSubmitted={async (schedule) => {
+					onSubmitted={(schedule) => {
 						setPopupOpen(false);
 
 						if (!currentSchedule) {

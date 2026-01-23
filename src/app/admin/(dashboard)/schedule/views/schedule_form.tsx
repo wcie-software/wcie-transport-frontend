@@ -19,6 +19,7 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 	nearestSunday.setDate(nearestSunday.getDate() + (7 - nearestSunday.getDay()));
 
 	const [chosenDate, setChosenDate] = useState<Date>(new Date(defaultSchedule?.timestamp ?? nearestSunday));
+	// Get driver names for each service
 	const [selectedDrivers, setSelectedDrivers] = useState<Record<number, string[]>>({
 		1: defaultSchedule?.schedule["1"].map((id) => driverOptions[id]) ?? [],
 		2: defaultSchedule?.schedule["2"].map((id) => driverOptions[id]) ?? [],
@@ -53,8 +54,6 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 
 				return;
 			}
-			console.log(chosenDate);
-			console.log(validSchedule.error);
 		}
 
 		toast.error("Invalid schedule.");
@@ -67,29 +66,35 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 				date={chosenDate}
 				onDateSelected={setChosenDate}
 			/>
+			{/* Dropdowns */}
 			{Array.from({ length: numberOfServices }).map((_, index) => {
 				const serviceNumber = index + 1;
 
 				return (
 					<div key={index} className="flex flex-col gap-0.5 py-2 items-baseline justify-start">
 						<label htmlFor={`drivers-${serviceNumber}`} className="text-xs">
+							{/* e.g., Select 1st Service Drivers */}
 							Select {serviceNumber}{Constants.NUMBER_SUFFIX[serviceNumber]} Service Drivers
 						</label>
+						{/* Multi-select dropdown from mui */}
 						<ThemeProvider theme={MUITheme}>
 							<Select
 								className="w-full border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0 text-foreground"
 								name={`drivers-${serviceNumber}`}
 								id={`drivers-${serviceNumber}`}
 								IconComponent={() => <ChevronDownIcon width={20} height={20} />}
-								multiple
+								multiple // Allow multiple selections
 								value={selectedDrivers[serviceNumber] || []}
 								onChange={(e) => {
 									const value = e.target.value;
+									// Update selections ui
 									setSelectedDrivers({
 										...selectedDrivers,
-										[serviceNumber]: typeof value === 'string' ? value.split(',') : value,
+										// Value would look like "a,b,c,d"
+										[serviceNumber]: String(value).split(","),
 									});
 								}}
+								// Define the style of dropdown menu
 								MenuProps={{ PaperProps: { style: { maxHeight: 48 * 4.5 + 8 } } }}
 								renderValue={(selected) => selected.join(", ") || "No Drivers Selected"}
 								displayEmpty
@@ -108,9 +113,7 @@ export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numb
 				);
 			})}
 			<div className="ml-auto">
-				<PrimaryButton type="submit">
-					Done
-				</PrimaryButton>
+				<PrimaryButton type="submit">Done</PrimaryButton>
 			</div>
 		</form>
 	);

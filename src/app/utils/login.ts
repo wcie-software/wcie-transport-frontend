@@ -71,6 +71,7 @@ export async function userLogin(
     return result;
   } catch (e) {
     console.error("Bad idToken. Could not create cookie.");
+    await logout(); // Cleanup
     throw LoginError.cookieCreationFailed;
   }
 }
@@ -96,6 +97,8 @@ export async function adminLogin(idToken: string): Promise<boolean> {
       secure: true,
       sameSite: "strict",
     });
+  } else {
+    await logout(); // Cleanup
   }
 
   return isAdmin;

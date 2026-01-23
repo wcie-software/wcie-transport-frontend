@@ -18,7 +18,8 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
 
-	const today = new Date().toLocaleDateString().replaceAll("/", "-");
+	// YYYY-MM-DD
+	const today = new Date().toLocaleDateString("en-CA").replaceAll("/", "-");
 
 	return (
 		<div>
@@ -50,6 +51,7 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 					const success = await firestore.deleteDocument(FirestoreCollections.Vehicles, tableData[i].documentId!);
 					const vehicleName = tableData[i].name;
 					if (success) {
+						// Update ui (exclude recently deleted object)
 						setTableData(tableData.filter((r, index) => index != i));
 						toast.success(`Vehicle '${vehicleName}' deleted successfully.`);
 					} else {
@@ -61,22 +63,23 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
 					schema={VehicleSchema}
-					obj={currentlyEditing !== -1
-						? tableData[currentlyEditing]
-						: { documentId: "", name: "", plate_number: "", active: true, year: 2025, seating_capacity: 4, remarks: "", fuel_cost: 0, last_fuel_date: today, maintenance_type: "", maintenance_receipt_amount: 0, last_maintenance_date: today } as Vehicle}
+					obj={currentlyEditing !== -1 ? tableData[currentlyEditing] : VehicleSchema.shape}
 					customLabels={{ "name": "Vehicle Name" }}
 					suggestedValues={{
 						"active": ["Yes", "No"]
 					}}
 					onSubmitted={async (obj) => {
-						const newVehicle = VehicleSchema.parse(obj);
+						const v = VehicleSchema.parse(obj);
 						if (currentlyEditing !== -1) {
-							const success = await firestore.updateDocument(FirestoreCollections.Vehicles, newVehicle.documentId!, newVehicle);
+							const success = await firestore.updateDocument(FirestoreCollections.Vehicles, v.documentId!, v);
 							const vehicleName = tableData[currentlyEditing].name;
 							if (success) {
+								// Update ui
 								setTableData(tableData.map((r, i) => {
+									// Only update the edited object
 									if (i === currentlyEditing) {
-										return { ...r, ...newVehicle };
+										// e.g., { name: "oba", name: "Oba" } = { name: "Oba" }
+										return { ...r, ...v };
 									}
 									return r;
 								}));
@@ -85,16 +88,17 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 								toast.error(`Failed to update vehicle '${vehicleName}'. Try again.`);
 							}
 						} else {
-							const success = await firestore.addDocument(FirestoreCollections.Vehicles, newVehicle);
-							const vehicleName = newVehicle.name;
+							const success = await firestore.addDocument(FirestoreCollections.Vehicles, v);
+							const vehicleName = v.name;
 							if (success) {
-								setTableData([...tableData, newVehicle]);
+								setTableData([...tableData, v]); // Update ui
 								toast.success(`Vehicle '${vehicleName}' added successfully.`);
 							} else {
 								toast.error(`Failed to add vehicle '${vehicleName}'. Try again.`);
 							}
 						}
 
+						// Reset variables
 						setCurrentlyEditing(-1);
 						setPopupOpen(false);
 					}}

@@ -28,16 +28,28 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 	}
 
 	async function addDriver(driver: Driver) {
-		const uid = await createDriverAccount(driver);
-		driver.documentId = uid; // Document id should match uid
-		driver.location = await getAddressCoordinates(driver.address);
+		try {
+			const uid = await createDriverAccount(driver);
+			driver.documentId = uid; // Document id should match uid
+		} catch (e) {
+			toast.error("Failed to add new driver. " + String(e));
+			return;
+		}
+
+		try {
+			// Guess driver's coordinates from provided address
+			driver.location = await getAddressCoordinates(driver.address);
+		} catch (e) {
+			toast.error("Failed to get driver's location. " + String(e));
+			return;
+		}
 
 		const success = await firestore.addDocument(
-			FirestoreCollections.Drivers, driver, uid);
+			FirestoreCollections.Drivers, driver, driver.documentId);
 
 		const driverName = driver.full_name;
 		if (success) {
-			setData([...data, driver]);
+			setData([...data, driver]); // Update ui
 			toast.success(`Added '${driverName}'.`);
 		} else {
 			toast.error(`Failed to add '${driverName}'. Driver might already be added`);
@@ -45,12 +57,22 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 	}
 
 	async function updateDriver(driver: Driver) {
-		await updateDriverAccount(driver);
+		try {
+			await updateDriverAccount(driver);
+		} catch (e) {
+			toast.error("Failed to update driver's details. " + String(e));
+			return;
+		}
 
 		// If there's been a change in address
 		if (driver.address != data[currentlyEditing].address) {
 			// Update coordinates
-			driver.location = await getAddressCoordinates(driver.address);
+			try {
+				driver.location = await getAddressCoordinates(driver.address);
+			} catch (e) {
+				toast.error("Failed to get driver's location. Please check it is spelled correctly.");
+				return;
+			}
 		}
 
 		const success = await firestore.updateDocument(
@@ -58,7 +80,9 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 
 		const driverName = driver.full_name;
 		if (success) {
+			// Update ui
 			setData(data.map((r, i) => {
+				// Only change value of newly updated record
 				if (i === currentlyEditing) {
 					return { ...r, ...driver };
 				}
@@ -96,6 +120,7 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 					const success = await firestore.deleteDocument(FirestoreCollections.Drivers, data[i].documentId!);
 					const driverName = data[i].full_name;
 					if (success) {
+						// Update ui
 						setData(data.filter((r, index) => index != i));
 						toast.success(`Removed '${driverName}'.`);
 					} else {
@@ -107,9 +132,7 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
 					schema={DriverSchema}
-					obj={currentlyEditing !== -1
-						? data[currentlyEditing]
-						: { full_name: "", phone_number: "", email: "", address: "", driver_license_class: "Class 5", comments: "" } as Driver}
+					obj={currentlyEditing !== -1 ? data[currentlyEditing] : DriverSchema.shape}
 					hiddenColumns={["documentId", "location"]}
 					suggestedValues={{ "driver_license_class": Array.from({ length: 7 }).map((v, i) => `Class ${i + 1}`), }}
 					onSubmitted={async (obj) => {

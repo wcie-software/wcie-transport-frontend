@@ -17,15 +17,23 @@ export default async function SchedulePage() {
 		"timestamp",
 	);
 
+	// Create groups of schedules
 	const groupedByMonth: Record<string, Schedule[]> = {};
 	schedules.forEach((schedule) => {
 		// e.g. "March 2025"
 		const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Edmonton" });
+		// Get month from date
 		const monthKey = dateFormatter.format(new Date(schedule.timestamp));
-		(groupedByMonth[monthKey] ??= []).push(schedule);
+		// Add schedule to correct month bucket
+		if (monthKey in groupedByMonth) {
+			groupedByMonth[monthKey].push(schedule);
+		} else {
+			groupedByMonth[monthKey] = [schedule];
+		}
 	});
 
 	const drivers = await fdb.getCollection<Driver>(FirestoreCollections.Drivers, DriverSchema);
+	// Records of (driver id: driver name)
 	const driverIdsAndNames: Record<string, string> = {};
 	drivers.forEach((driver) => driverIdsAndNames[driver.documentId!] = driver.full_name);
 
