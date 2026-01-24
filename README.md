@@ -41,9 +41,18 @@ This project is built with a modern, high-performance stack:
 -   **Backend Logic**: Firebase Cloud Functions (via Cloud Run / Serverless)
 -   **Deployment**: [Firebase App Hosting](https://firebase.google.com/docs/app-hosting)
 
-## Getting Started
+## Documentation
 
-Follow these instructions to set up the project locally.
+Detailed documentation for developers and contributors can be found in the [docs](docs) folder:
+
+- [Getting Started](docs/GETTING_STARTED.md): Setup and local development instructions.
+- [Architecture](docs/ARCHITECTURE.md): Project structure and technology stack.
+- [Authentication](docs/AUTHENTICATION.md): Session management, RBAC, and middleware.
+- [Data Schema](docs/SCHEMA.md): Firestore collections and Zod models.
+- [UI/UX](docs/UI_UX.md): Design principles and shared components.
+- [Agent Knowledge Base](docs/AGENTS.md): Technical details and patterns for developers/agents.
+
+## Getting Started
 
 ### Prerequisites
 
