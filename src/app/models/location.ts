@@ -1,6 +1,8 @@
 import * as z from "zod";
 
-export const Location = z.object({
+export const LocationSchema = z.object({
 	latitude: z.number(),
 	longitude: z.number()
 });
+
+export type Location = z.infer<typeof LocationSchema>;

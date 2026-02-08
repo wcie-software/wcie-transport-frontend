@@ -115,7 +115,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 												{new Intl.DateTimeFormat("en-US", { dateStyle: "full", timeZone: "America/Edmonton" }).format(date)}
 											</h3>
 											{/* Edit and delete button */}
-											<div className="flex flex-row items-center gap-3.5">
+											<div className="flex flex-col md:flex-row items-center gap-3.5">
 												<div
 													className="cursor-pointer flex flex-row items-center gap-2 border border-tertiary py-2 px-2.5 rounded-md"
 													onClick={() => {
@@ -135,7 +135,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 												</div>
 											</div>
 										</div>
-										<div className="flex flex-row justify-between items-start">
+										<div className="flex flex-row justify-between items-start gap-2">
 											{/* Chip items */}
 											{Object.entries(schedule.schedule).map(([service, drivers], i) => (
 												<div key={service} className="mb-2 flex flex-col items-baseline gap-2">

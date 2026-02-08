@@ -9,14 +9,16 @@ import { ZodObject } from "zod";
 export default function SchemaForm({
 	obj,
 	schema,
+	isNew = false,
 	customLabels,
 	hiddenColumns = ["documentId"],
 	readonlyColumns,
 	suggestedValues,
-	onSubmitted
+	onSubmitted,
 }: {
 	obj: object,
 	schema: ZodObject,
+	isNew?: boolean,
 	customLabels?: Record<string, string>,
 	hiddenColumns?: string[],
 	readonlyColumns?: string[],
@@ -54,7 +56,7 @@ export default function SchemaForm({
 		const formData = new FormData(e.target as HTMLFormElement);
 
 		// Convert form data to object
-		const newObj: Record<string, string> = {};
+		const newObj: Record<string, string> = { ...(isNew ? {} : obj) };
 		for (const [k, v] of formData.entries()) {
 			newObj[k] = String(v);
 		}

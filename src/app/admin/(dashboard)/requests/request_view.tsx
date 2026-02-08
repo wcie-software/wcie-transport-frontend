@@ -159,7 +159,7 @@ export default function RequestView({ groups, page, startingDate }:
 							"no_of_seats": "Number of Seats",
 							"no_of_children": "Number of Children",
 						}}
-						hiddenColumns={["documentId", "coordinates"]}
+						hiddenColumns={["documentId", "coordinates", "status"]}
 						readonlyColumns={["timestamp", "address", "google_maps_link"]}
 						onSubmitted={async (obj) => {
 							const newRequest = obj as TransportRequest;

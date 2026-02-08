@@ -1,14 +1,15 @@
 import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
-import { Location } from "@/app/models/location";
+import { LocationSchema } from "@/app/models/location";
+import { Constants } from "@/app/utils/util";
 
 export const TransportRequestSchema = BaseDocument.extend({
   full_name: z.string(),
   phone_number: z.string().startsWith("+1").length(12),
   address: z.string(),
   google_maps_link: z.url(),
-  coordinates: Location,
-  service_number: z.coerce.number().min(1),
+  coordinates: LocationSchema,
+  service_number: z.coerce.number().min(1).max(Constants.NUMBER_OF_SERVICES),
   no_of_seats: z.coerce.number().min(1),
   no_of_children: z.coerce.number().min(0).default(0),
   timestamp: z.string(),
