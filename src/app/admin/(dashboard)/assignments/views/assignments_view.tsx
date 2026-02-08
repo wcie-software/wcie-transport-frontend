@@ -5,13 +5,13 @@ import { TransportRequest } from "@/app/models/request";
 import { Driver } from "@/app/models/driver";
 import { DriverRoute } from "@/app/models/fleet_route";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { generateRoutes } from "@/app/actions/generate_routes";
 import { auth } from "@/app/utils/firebase_client";
 import { Vehicle } from "@/app/models/vehicle";
 import AssignmentsControlPanel from "./components/assignments_control_panel";
-import AssignmentsRouteList from "./components/assignments_route_list";
+import AssignmentsRouteEditor from "./components/assignments_route_editor";
 
 // Lazy load map view
 const MapView = dynamic(() => import(
@@ -41,6 +41,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 		searchParams.get("service_number") ?? "1");
 	const [chosenDate, setChosenDate] = useState(nearestSunday);
 	const [generationInProgress, setGenerationInProgress] = useState(false);
+	const [displayRoutes, setDisplayRoutes] = useState(routes ?? []);
 
 	function updateSearchParams(key: string, value: string): void {
 		const params = new URLSearchParams(searchParams);
@@ -88,14 +89,18 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 				}}
 			/>
 
-			{/*  Floating panel showing each driver's route */}
-			<AssignmentsRouteList
-				key={"RouteList " + timestamp + serviceNumber}
-				routes={routes}
-				driversList={driversList}
-				assignedVehicles={assignedVehicles}
-				requests={requestsList}
-			/>
+			<div className="absolute bottom-0 right-0 my-4 z-500 flex flex-col gap-3">
+				<AssignmentsRouteEditor
+				 	key={timestamp}
+					timestamp={timestamp}
+					serviceNumber={parseInt(serviceNumber)}
+					driversList={driversList}
+					assignedVehicles={assignedVehicles}
+					requests={requestsList}
+					routes={routes}
+					onRoutesChange={(nextRoutes) => setDisplayRoutes(nextRoutes)}
+				/>
+			</div>
 
 			<MapView
 				// Update map view anytime date or service number changes
@@ -103,7 +108,7 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 				requestPoints={requestsList}
 				driverPoints={driversList}
 				assignedVehicles={assignedVehicles}
-				routes={routes}
+				routes={displayRoutes}
 			/>
 		</div>
 	);

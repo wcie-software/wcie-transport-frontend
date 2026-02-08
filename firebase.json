@@ -15,7 +15,7 @@
     "rules": "firestore.rules"
   },
   "apphosting": {
-    "backendId": "wcie-transport-frontend",
+    "backendId": "wcie-transport",
     "rootDir": "/",
     "ignore": [
       "node_modules",

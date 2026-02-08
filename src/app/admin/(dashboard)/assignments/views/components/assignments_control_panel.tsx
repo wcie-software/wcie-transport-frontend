@@ -23,7 +23,7 @@ export default function AssignmentsControlPanel({
 }: AssignmentsControlPanelProps) {
     return (
         // Shown at the top-right on top of everything
-        <div className="max-w-lg min-w-fit absolute top-0 right-0 m-4 p-2 z-[500] bg-background rounded-lg md:h-14 flex flex-col md:flex-row gap-2 justify-between items-stretch text-foreground">
+        <div className="max-w-lg min-w-fit absolute top-0 right-0 m-4 p-2 z-600 bg-background rounded-lg md:h-14 flex flex-col md:flex-row gap-2 justify-between items-stretch text-foreground">
             <SundayDatePicker
                 date={chosenDate}
                 onDateSelected={onDateSelected}
