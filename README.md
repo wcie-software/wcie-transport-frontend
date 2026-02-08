@@ -1,34 +1,10 @@
 # WCIE Transport
 
-WCIE Transport is a web application designed to facilitate ride requests for church members. It allows users to verify their identity, locate their address, and submit ride requests efficiently. The platform also includes administrative features for managing these requests.
-
-## Features
-
-### Member Ride Requests
--   **Phone Number Verification**: Securely validates users via SMS.
--   **Address Location**: Integrated map interface (Canada-limited) to pinpoint pickup locations.
--   **Request Management**: Simple form integration to capture trip details.
-
-### Admin Dashboard
--   **Request Overview**: Admins can view and manage incoming ride requests.
--   **Resource Management**: Comprehensive management of **Drivers** and **Vehicles**. Includes automated geolocation for driver addresses and license tracking.
--   **Driver Account Creation**: Admins can programmatically create and update driver accounts in Firebase Auth with specific custom claims (`role: driver`).
--   **Schedule Management**: Create and edit service schedules (defining services and their assignments).
--   **Route Assignments**: Automated generation and assignment of optimal routes to drivers using serverless functions.
-
-### Driver Portal
--   **Role-Based Access**: Dedicated portal for users with the `driver` role.
--   **Pickup Management**: View a prioritized list of assigned pickups for specific dates (e.g., upcoming Sundays).
--   **Interactive Routes**: Drivers can mark pickups as successful or failed, with real-time status updates reflected in the admin dashboard.
--   **Trip History**: Browse completed pickups and upcoming assignments.
-
-### Authentication
--   **Secure Access**: Cookie-based authentication using Firebase Auth.
--   **Role-Based Access Control**: Middleware protection (`proxy.ts`) ensures that admins, drivers, and users are restricted to their authorized routes.
+- Users can request rides to church by logging in with your phone number, selecting your address using Google Maps and filling out a Fillout form.
+- Admins can manage transport requests and inventory (drivers, vehicles etc).
+- **Flagship Feature**: App allows admins to automatically generate routes for drivers to pickup riders.
 
 ## Tech Stack
-
-This project is built with a modern, high-performance stack:
 
 -   **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
 -   **Language**: [TypeScript](https://www.typescriptlang.org/)
@@ -45,7 +21,7 @@ This project is built with a modern, high-performance stack:
 
 Detailed documentation for developers and contributors can be found in the [docs](docs) folder:
 
-- [Getting Started](docs/GETTING_STARTED.md): Setup and local development instructions.
+- Getting Started: Keep on reading.
 - [Architecture](docs/ARCHITECTURE.md): Project structure and technology stack.
 - [Authentication](docs/AUTHENTICATION.md): Session management, RBAC, and middleware.
 - [Data Schema](docs/SCHEMA.md): Firestore collections and Zod models.
@@ -59,6 +35,7 @@ Detailed documentation for developers and contributors can be found in the [docs
 -   Node.js (v18 or newer)
 -   npm
 -   A Firebase project with Firestore and Auth enabled.
+- Firebase and gcloud CLIs
 
 ### Installation
 
@@ -73,7 +50,13 @@ Detailed documentation for developers and contributors can be found in the [docs
     firebase login && gcloud auth application-default login
     ```
 
-3.  Install dependencies:
+3. Setup Firebase [(read this)](https://firebase.google.com/docs/app-hosting/firebase-sdks#automatically-initialize-firebase-admin-and-web-sdks)
+	- Before installing dependencies, ensure `FIREBASE_WEBAPP_CONFIG` is set to the Firebase web app config object.
+		```bash
+		export FIREBASE_WEBAPP_CONFIG="{...}"
+		```
+
+4.  Install dependencies:
     ```bash
     npm install
     ```
@@ -83,7 +66,8 @@ Detailed documentation for developers and contributors can be found in the [docs
 Create a `.env.local` file in the root directory and add the following keys:
 
 ```env
-FIREBASE_PROJECT_ID=your_firebase_project_id
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_project_api_key
 
 # Google Maps (for Places Autocomplete)
 GOOGLE_PLACES_API_KEY=your_google_places_api_key
@@ -93,10 +77,8 @@ NEXT_PUBLIC_DEBUG_URL=http://localhost:[port number]
 
 ### Running Locally
 
-Start the development server:
-
 ```bash
-npm run dev
+npm run firebase
 ```
 
 ## Project Structure
@@ -104,16 +86,18 @@ npm run dev
 -   `src/app`: Main application routes (App Router).
     -   `(user)`: Public facing routes for users.
     -   `admin`: Restricted routes for administrators.
-    -   `api`: Backend API routes.
--   `src/utils`: Utility functions, including Firebase setup and helper scripts.
--   `src/models`: TypeScript interfaces and data models.
+		- 	`driver`: Restricted routes for drivers.
+    -   `action`: Backend-only functions.
+- 	`src/app/ui/components`: Reusable UI components.
+-   `src/app/utils`: Utility functions, including Firebase setup and helper scripts.
+-   `src/app/models`: TypeScript interfaces and data models.
 
 ## Deployment
 
 This project is configured for **Firebase App Hosting**.
 See `apphosting.yaml` for configuration details.
 
-To deploy, ensure your Firebase CLI is set up and run:
+To deploy, merge to main or
 
 ```bash
 firebase deploy
