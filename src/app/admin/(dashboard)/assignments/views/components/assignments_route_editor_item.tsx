@@ -1,3 +1,6 @@
+/**
+ * Single draggable request item used in the route editor lists.
+ */
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";

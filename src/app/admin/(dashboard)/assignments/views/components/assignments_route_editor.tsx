@@ -1,3 +1,8 @@
+/**
+ * Route editor UI shell. Owns layout and wires drag-and-drop to the logic hook.
+ * Keeps presentation concerns here while state + behaviors live in
+ * `use_assignments_route_editor.ts`.
+ */
 "use client";
 
 import {

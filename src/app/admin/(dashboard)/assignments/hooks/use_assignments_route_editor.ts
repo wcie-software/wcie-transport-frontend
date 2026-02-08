@@ -1,3 +1,7 @@
+/**
+ * Route editor state + behaviors (DnD, derived routes, reset).
+ * Exposes a small API for the UI shell to render and control.
+ */
 "use client";
 
 import { DragEndEvent } from "@dnd-kit/core";
@@ -56,6 +60,7 @@ export default function useAssignmentsRouteEditor({
   routes?: DriverRoute[];
   onRoutesChange: (routes: DriverRoute[]) => void;
 }): AssignmentsRouteEditorState {
+  // Map request id -> request object for fast lookups in render and rebuilds.
   const requestsById = useMemo(() => {
     const map = new Map<string, TransportRequest>();
     requests.forEach((r) => {
@@ -66,6 +71,7 @@ export default function useAssignmentsRouteEditor({
     return map;
   }, [requests]);
 
+  // Preserve original positions from existing routes (even if request coords are missing).
   const requestPositionsById = useMemo(() => {
     const map: Record<string, Location> = {};
     routes?.forEach((r) => {
@@ -82,6 +88,8 @@ export default function useAssignmentsRouteEditor({
   const [unassignedIds, setUnassignedIds] = useState<string[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Build initial editor state from existing routes and requests.
+  // Produces fixed prefix/suffix points and a request-only order.
   function buildInitialState() {
     const usedRequestIds = new Set<string>();
 
@@ -96,6 +104,7 @@ export default function useAssignmentsRouteEditor({
 
         requestIds.forEach((id) => usedRequestIds.add(id));
 
+        // If no request points exist, keep the entire route as fixed prefix.
         if (requestIds.length === 0) {
           return {
             driverId,
@@ -107,6 +116,7 @@ export default function useAssignmentsRouteEditor({
           };
         }
 
+        // Split non-request points into fixed prefix/suffix so only requests are draggable.
         const firstIndex = existingRoute.route.findIndex((p) =>
           requestsById.has(p.id)
         );
@@ -130,6 +140,7 @@ export default function useAssignmentsRouteEditor({
         };
       }
 
+      // New route defaults when no existing route is found.
       const driverLocationPoint =
         driver.location && serviceNumber === 1
           ? { id: driverId, position: driver.location }
@@ -153,6 +164,7 @@ export default function useAssignmentsRouteEditor({
     return { builtRoutes, unassigned };
   }
 
+  // Reset editor state any time upstream data changes (new week/service/routes).
   useEffect(() => {
     const { builtRoutes, unassigned } = buildInitialState();
     setEditableRoutes(builtRoutes);
@@ -160,6 +172,7 @@ export default function useAssignmentsRouteEditor({
     setIsDirty(false);
   }, [driversList, routes, requests, requestsById, serviceNumber]);
 
+  // Requests without coordinates (or preserved positions) can't be placed on the map.
   const invalidRequestIds = useMemo(() => {
     return new Set(
       requests
@@ -168,6 +181,7 @@ export default function useAssignmentsRouteEditor({
     );
   }, [requests, requestPositionsById]);
 
+  // Rebuild the `DriverRoute` array to update the map + legend immediately.
   const currentRoutes = useMemo(() => {
     return editableRoutes.map((route) => {
       const requestPoints = route.requestIds
@@ -197,10 +211,12 @@ export default function useAssignmentsRouteEditor({
     serviceNumber,
   ]);
 
+  // Emit rebuilt routes so the map can render updated polylines.
   useEffect(() => {
     onRoutesChange(currentRoutes);
   }, [currentRoutes, onRoutesChange]);
 
+  // Resolve which list contains a dragged item.
   function findContainerForItem(itemId: string) {
     if (unassignedIds.includes(itemId)) {
       return "unassigned";
@@ -215,6 +231,7 @@ export default function useAssignmentsRouteEditor({
     return editableRoutes.findIndex((r) => r.driverId === driverId);
   }
 
+  // Central DnD handler: reorder within list or move between lists.
   function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over) return;
@@ -228,6 +245,7 @@ export default function useAssignmentsRouteEditor({
       (overId.startsWith("driver:") || overId === "unassigned" ? overId : null);
 
     if (!overContainer || !activeContainer) return;
+    // Work on shallow copies to avoid mutating state directly.
     const nextRoutes = editableRoutes.map((route) => ({
       ...route,
       requestIds: [...route.requestIds],
@@ -276,6 +294,7 @@ export default function useAssignmentsRouteEditor({
     if (activeContainer === overContainer) {
       if (overId === overContainer) return;
 
+      // Same list reorder.
       if (activeContainer === "unassigned") {
         const oldIndex = nextUnassigned.indexOf(activeId);
         const newIndex = nextUnassigned.indexOf(overId);
@@ -299,6 +318,7 @@ export default function useAssignmentsRouteEditor({
       return;
     }
 
+    // Move between lists.
     removeFromContainer(activeContainer, activeId);
     moveToContainer(overContainer, activeId, overId === overContainer ? undefined : overId);
     setEditableRoutes(nextRoutes);

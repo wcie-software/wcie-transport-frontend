@@ -1,3 +1,7 @@
+/**
+ * Droppable list wrapper for route editor sections.
+ * Adds visual highlight when an item is dragged over.
+ */
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";

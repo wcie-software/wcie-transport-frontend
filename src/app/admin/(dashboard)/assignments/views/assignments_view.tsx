@@ -11,7 +11,6 @@ import { generateRoutes } from "@/app/actions/generate_routes";
 import { auth } from "@/app/utils/firebase_client";
 import { Vehicle } from "@/app/models/vehicle";
 import AssignmentsControlPanel from "./components/assignments_control_panel";
-import AssignmentsRouteList from "./components/assignments_route_list";
 import AssignmentsRouteEditor from "./components/assignments_route_editor";
 
 // Lazy load map view
@@ -101,13 +100,6 @@ export default function AssignmentsView({ timestamp, requestsList, driversList, 
 					routes={routes}
 					onRoutesChange={(nextRoutes) => setDisplayRoutes(nextRoutes)}
 				/>
-				{/* <AssignmentsRouteList
-					key={"RouteList " + timestamp + serviceNumber}
-					routes={displayRoutes}
-					driversList={driversList}
-					assignedVehicles={assignedVehicles}
-					requests={requestsList}
-				/> */}
 			</div>
 
 			<MapView

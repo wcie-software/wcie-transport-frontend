@@ -1,3 +1,7 @@
+/**
+ * Reusable list section in the route editor.
+ * Renders header + droppable list + empty state.
+ */
 "use client";
 
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
