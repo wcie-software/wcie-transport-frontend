@@ -87,8 +87,8 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
                         transport_id: pickup.documentId!,
                         user_phone_number: pickup.phone_number,
                         pickup_time: defaultFormatter(new Date()),
-                        passengers_picked: pickup.no_of_seats,
-                        failure_reason: "",
+                        passengers_picked: status === "successful" ? pickup.no_of_seats : 0,
+                        failure_reason: status === "successful" ? null : "",
                     }}
                     schema={PickupInfoSchema}
                     hiddenColumns={[
@@ -98,6 +98,9 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
                         "user_phone_number",
                         ...(status === "successful" ? ["failure_reason"] : ["passengers_picked"])
                     ]}
+										suggestedValues={{
+											"passengers_picked": Array.from({ length: pickup.no_of_seats }).map((v, i) => String(i+1))
+										}}
                     onSubmitted={handleConfirmed}
                 />
             </PopupForm>
