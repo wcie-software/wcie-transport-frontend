@@ -6,7 +6,7 @@ import { BugAntIcon, Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, C
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
-import { auth } from "@/app/utils/firebase_setup/client";
+import { auth } from "@/app/utils/firebase_client";
 import { importTestData } from "@/app/actions/import_test_data";
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode; }>) {
@@ -36,18 +36,19 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 	};
 
 	return (
-		<div className="h-screen flex flex-col md:flex-row items-start overflow-y-auto">
-			<nav className="hidden md:flex w-[265] h-full shrink-0 bg-tertiary rounded-xl flex-col items-start py-3 sticky top-0">
+		<div className="h-screen flex flex-row items-start overflow-y-auto">
+			<nav className="flex max-w-[265] h-full shrink-0 bg-tertiary rounded-xl flex-col items-start py-3 sticky top-0">
 				<Link
-					className="flex flex-row items-center gap-2.5 mt-4 mx-auto"
+					className="flex flex-row items-center gap-2.5 mt-4 mx-auto px-4"
 					href="/admin">
 					<Image
 						src="/Logo.png"
 						alt="WCIE Logo"
 						width={40}
 						height={40} />
-					<p className="text-2xl truncate font-(family-name:--font-pt-serif)">WCIE Transport</p>
+					<p className="hidden lg:block text-2xl truncate font-(family-name:--font-pt-serif)">WCIE Transport</p>
 				</Link>
+				{/* Nav options */}
 				<ul className="flex-1 flex flex-col mt-12 w-full">
 					{Object.entries(pages).map(([k, v]) => {
 						const { icon, href } = v;
@@ -58,7 +59,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 							})}>
 								<Link href={href} className="flex flex-row items-center gap-2">
 									<Icon width={20} height={20} />
-									<p className="text-lg">{k}</p>
+									<p className="hidden lg:block text-lg">{k}</p>
 								</Link>
 							</li>
 						);
@@ -67,6 +68,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 
 				<hr className="w-full text-tertiary my-4" />
 
+				{/* Sign out */}
 				<button
 					className="text-lg class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
 					onClick={async () => {
@@ -75,15 +77,16 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 					}}
 				>
 					<ArrowRightStartOnRectangleIcon width={20} height={20} />
-					<span className="font-medium">Sign Out</span>
+					<span className="hidden lg:block font-medium">Sign Out</span>
 				</button>
+				{/* Debug button for importing data */}
 				{(process.env.NODE_ENV === "development") &&
 					<button
 						className="text-lg text-primary class flex flex-row gap-2 items-center px-4 mb-2 cursor-pointer"
 						onClick={importTestData}
 					>
 						<BugAntIcon width={20} height={20} />
-						<span className="font-medium">Import Test Data</span>
+						<span className="hidden lg:block font-medium">Import Test Data</span>
 					</button>
 				}
 			</nav>

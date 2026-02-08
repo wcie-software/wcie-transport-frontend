@@ -22,19 +22,18 @@ export const metadata: Metadata = {
   description: "Request A Ride To Winners Chapel Int'l Edmonton",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }:
+  Readonly<{ children: React.ReactNode; }>
+) {
   return (
     <html lang="en">
       <body className={`${pt_serif.variable} ${montserrat.variable} antialiased font-[family-name:var(--font-mont)]`}>
         {children}
+        {/* This component is used for displayed mini banners at the bottom of all pages */}
         <Toaster
           position="bottom-right"
           toastOptions={{
-						duration: 5500,
+            duration: 5500,
             classNames: {
               error: "!bg-deleteRed !text-white !border-deleteRed",
               success: "!bg-green-600 !text-white !border-green-600",

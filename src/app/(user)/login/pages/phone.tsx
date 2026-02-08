@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { auth } from "@/app/utils/firebase_setup/client";
+import { auth } from "@/app/utils/firebase_client";
 import { RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from "firebase/auth";
 import CollectNumber from "@/app/ui/components/collect_number";
 import { toast } from "sonner";
@@ -12,11 +12,12 @@ export default function PhonePage({ onCodeSent }:
 ) {
 	const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier>();
 
+	// ReCaptcha setup
 	useEffect(() => {
 		setRecaptchaVerifier(new RecaptchaVerifier(auth, "recaptcha-id", {
 			"size": "normal",
 			"expired-callback": () => {
-				toast.error(`reCAPTCHA has expired. Please refresh the page.`);
+				toast.error("reCAPTCHA has expired. Please refresh the page.");
 			}
 		}));
 	}, [auth]);
@@ -43,6 +44,7 @@ export default function PhonePage({ onCodeSent }:
 						});
 				}}
 			/>
+			{/* ReCaptcha container */}
 			<div id="recaptcha-id" className="ml-auto"></div>
 		</div>
 	);

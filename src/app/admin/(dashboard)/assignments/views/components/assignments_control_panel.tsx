@@ -2,8 +2,7 @@ import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { MenuItem, Select, SelectChangeEvent, ThemeProvider } from "@mui/material";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { MUITheme } from "@/app/utils/constants";
-import { toast } from "sonner";
+import { MUITheme } from "@/app/utils/util";
 
 interface AssignmentsControlPanelProps {
     chosenDate: Date;
@@ -23,12 +22,14 @@ export default function AssignmentsControlPanel({
     onGenerateRoutes,
 }: AssignmentsControlPanelProps) {
     return (
-        <div className="max-w-lg min-w-fit h-14 absolute top-0 right-0 m-4 p-2 z-[500] bg-background rounded-lg flex flex-row gap-2 justify-between items-stretch text-foreground">
+        // Shown at the top-right on top of everything
+        <div className="max-w-lg min-w-fit absolute top-0 right-0 m-4 p-2 z-[500] bg-background rounded-lg md:h-14 flex flex-col md:flex-row gap-2 justify-between items-stretch text-foreground">
             <SundayDatePicker
                 date={chosenDate}
                 onDateSelected={onDateSelected}
                 includeLabel={false}
             />
+            {/* Select service */}
             <ThemeProvider theme={MUITheme}>
                 <Select
                     className="flex-1 border-gray-200 dark:border-gray-600 rounded p-0 pe-2 outline-0"
@@ -45,9 +46,7 @@ export default function AssignmentsControlPanel({
             </ThemeProvider>
             <PrimaryButton
                 disabled={generationInProgress}
-                onClick={async () => {
-                    onGenerateRoutes();
-                }}
+                onClick={onGenerateRoutes}
             >
                 Generate Routes
             </PrimaryButton>

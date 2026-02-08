@@ -6,7 +6,7 @@ import { TransportRequest } from '@/app/models/request';
 import { Driver } from '@/app/models/driver';
 import { DriverRoute } from '@/app/models/fleet_route';
 import { Vehicle } from '@/app/models/vehicle';
-import { stringToColor } from '@/app/utils/colors';
+import { stringToColor } from '@/app/utils/util';
 
 export default function MapView({ requestPoints, driverPoints, routes, assignedVehicles }: {
 	requestPoints: TransportRequest[],
@@ -37,14 +37,13 @@ export default function MapView({ requestPoints, driverPoints, routes, assignedV
 		popupAnchor: [0, -28],
 	});
 
+	// Generate list lines between each point
 	function getPolylines() {
 		if (routes == null) {
 			return [];
 		}
 
 		const polylines = [];
-
-
 		for (const r of routes) {
 			const route = r.route;
 			for (let i = 0; i < route.length - 1; i += 1) {
@@ -73,15 +72,14 @@ export default function MapView({ requestPoints, driverPoints, routes, assignedV
 			className="h-full w-full outline-none border-none"
 		>
 			<TileLayer
-				attribution="&copy; OpenStreetMap contributors"
-				// url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-				// url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png"
+				attribution="&copy; Stadia Maps &copy; OpenStreetMap contributors"
 				url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png"
 			/>
 			<Marker position={churchPosition} icon={churchIcon}>
 				<Popup>Winners Chapel International Edmonton</Popup>
 			</Marker>
 			{...getPolylines()}
+			{/* Place markers on each request point */}
 			{requestPoints.map((r) => (
 				<Marker
 					key={r.documentId}
@@ -94,6 +92,7 @@ export default function MapView({ requestPoints, driverPoints, routes, assignedV
 					</Popup>
 				</Marker>
 			))}
+			{/* Place car markers on driver positions */}
 			{driverPoints && driverPoints.map((d) => (
 				<Marker
 					key={d.documentId}

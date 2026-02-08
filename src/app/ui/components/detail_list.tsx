@@ -1,3 +1,7 @@
+/**
+ * Displays a list of items with the properties of each item displayed as a grid of 3 columns.
+ */
+
 "use client"
 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -16,14 +20,14 @@ export function DetailList<Type>({ header, body, idColumn, titleIcon, titleColum
 			{body.map((item, i) => (
 				<div
 					key={item[idColumn as keyof object] || i}
-					className="border-b-[0.2px] last:border-0 border-gray-600 py-8 flex flex-row justify-between items-start gap-6"
+					className="border-b-[0.2px] last:border-0 border-gray-600 py-8 flex flex-col md:flex-row justify-between items-start gap-6"
 				>
 					<div>
 						<h2 className="font-semibold text-xl mb-4 flex flex-row gap-1 items-center">
 							{item[titleColumn as keyof object]}
 							{titleIcon}
 						</h2>
-						<div className="grid grid-cols-3 gap-6">
+						<div className="grid md:grid-cols-3 gap-6">
 							{Object.entries(header).map(([key, name]) => (
 								<div key={key}>
 									<h3 className="text-gray-400">{name}</h3>
@@ -32,7 +36,7 @@ export function DetailList<Type>({ header, body, idColumn, titleIcon, titleColum
 							))}
 						</div>
 					</div>
-					<div className="flex flex-row items-center gap-3.5">
+					<div className="flex flex-col md:flex-row md:items-center gap-3.5">
 						<div
 							className="cursor-pointer flex flex-row items-center gap-2 border border-tertiary py-2 px-2.5 rounded-md"
 							onClick={() => onEdit?.(i)}

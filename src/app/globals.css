@@ -16,6 +16,7 @@
   --color-deleteRed: var(--deleteRed);
 }
 
+/* Custom date picker image (used by input[type:date] */
 ::-webkit-calendar-picker-indicator {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="black" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /> </svg>');
 }
@@ -27,6 +28,7 @@
     --tertiary: rgba(111, 111, 111, 0.3);
   }
 
+  /* Different image for dark theme */
   ::-webkit-calendar-picker-indicator {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /> </svg>');
   }
@@ -38,43 +40,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Remove autofill background color */
-
-/* Chrome, Safari, Edge */
-input.autofill-reset:-webkit-autofill,
-input.autofill-reset:-webkit-autofill:focus,
-input.autofill-reset:-webkit-autofill:hover {
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
-  box-shadow: 0 0 0px 1000px transparent inset !important;
-  -webkit-text-fill-color: var(--foreground) !important;
-  transition: background-color 5000s ease-in-out 0s !important;
-}
-
-/* Firefox */
-input.autofill-reset:-moz-autofill,
-input.autofill-reset:-moz-autofill:focus,
-input.autofill-reset:-moz-autofill:hover {
-  box-shadow: 0 0 0px 1000px transparent inset !important;
-  -moz-text-fill-color: var(--foreground) !important;
-}
-
 ::-webkit-scrollbar-track {
   background: red;
-  /* or background: rgba(0, 0, 0, 0); */
-}
-
-/* Custom Styles */
-.section-divider {
-  position: relative;
-}
-
-.section-divider::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 40px;
-  height: 3px;
-  background-color: var(--primary);
-  border-radius: 2px;
 }
