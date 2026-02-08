@@ -3,10 +3,12 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
 // Singleton pattern
-export const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
+export const app = process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+  ? initializeApp({
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    }) // While in dev
+  : initializeApp(); // Prod
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
