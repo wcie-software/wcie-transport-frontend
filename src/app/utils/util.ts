@@ -5,6 +5,7 @@ export const Constants = {
   SESSION_COOKIE_KEY: "wcie-transport-session",
   IS_ADMIN_COOKIE_KEY: "wcie-transport-is-admin",
   UID_HEADER_KEY: "X-Auth-UID",
+  NUMBER_OF_SERVICES: 2,
   NUMBER_SUFFIX: {
     1: "st",
     2: "nd",

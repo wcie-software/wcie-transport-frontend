@@ -9,7 +9,7 @@ import { MUITheme, Constants } from "@/app/utils/util";
 import { toast } from "sonner";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
-export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numberOfServices = 2 }: {
+export function ScheduleForm({ defaultSchedule, driverOptions, onSubmitted, numberOfServices = Constants.NUMBER_OF_SERVICES }: {
 	defaultSchedule?: Schedule,
 	driverOptions: Record<string, string>,
 	onSubmitted: (schedule: Schedule) => void,

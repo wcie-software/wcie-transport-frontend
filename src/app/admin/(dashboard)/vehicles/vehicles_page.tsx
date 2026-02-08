@@ -62,6 +62,7 @@ export default function VehiclesView({ body }: { body: Vehicle[] }) {
 
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
+					isNew={currentlyEditing === -1}
 					schema={VehicleSchema}
 					obj={currentlyEditing !== -1 ? tableData[currentlyEditing] : VehicleSchema.shape}
 					customLabels={{ "name": "Vehicle Name" }}

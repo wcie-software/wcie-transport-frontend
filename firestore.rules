@@ -30,5 +30,16 @@ service cloud.firestore {
     match /schedules/{s} {
       allow read, write: if request.auth.token.role == "admin";
     }
+
+    match /assigned-routes/{a} {
+      allow read: if request.auth.token.role == "admin" || request.auth.token.role == "driver";
+      allow update: if request.auth.token.role == "admin";
+    }
+
+    match /pickup_info/{p} {
+      allow create: if request.auth.token.role == "driver";
+      allow read: if request.auth.token.role == "admin" || request.auth.token.role == "driver";
+      allow update: if request.auth.token.role == "admin";
+    }
   }
 }

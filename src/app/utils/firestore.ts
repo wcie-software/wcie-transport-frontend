@@ -19,6 +19,7 @@ export enum FirestoreCollections {
   Vehicles = "vehicles",
   Schedules = "schedules",
   Assignments = "assigned-routes",
+  PickupInfo = "pickup_info",
 }
 
 // Create, get, update and delete documents in a firestore database

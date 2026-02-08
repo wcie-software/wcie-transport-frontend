@@ -1,10 +1,10 @@
 import * as z from "zod";
 import { BaseDocument } from "@/app/models/base";
-import { Location } from "@/app/models/location";
+import { LocationSchema } from "@/app/models/location";
 
 const RequestPoint = z.object({
   id: z.string(),
-  position: Location,
+  position: LocationSchema,
 });
 
 const DriverRouteSchema = z.object({

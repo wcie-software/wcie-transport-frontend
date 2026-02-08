@@ -17,7 +17,8 @@ The system heavily relies on a "Sunday timestamp" pattern for weekly data (Sched
 
 ### 3. Zod-Powered Data Layer
 Never bypass the Zod schemas when interacting with Firestore.
-- **Best Practice**: Always use the `FirestoreHelper` methods which take a `schema: ZodType<Type>` argument. This ensures that any data pulled from the database is valid and typed.
+- **Best Practice**: Always use the `FirestoreHelper` methods which take a `schema: ZodType<Type>` argument. This ensures that any data pulled from the database is valid and typed. 
+- **Optional Fields**: Prefer using `z.optional(...)` instead of the trailing `.optional()`. (e.g. `field: z.optional(z.string())`).
 - **Manual Parse**: If you must fetch data raw, use `TransportRequestSchema.safeParse(data)` immediately.
 
 ### 4. Server vs. Client Firestore
@@ -62,7 +63,8 @@ The route generation logic is handled by an external microservice.
 - **Adding a new Model**:
     1. Create the schema in `src/app/models/new_model.ts`.
     2. Add the collection name to the `FirestoreCollections` enum in `src/app/utils/firestore.ts`.
-    3. Use the helpers to fetch/save data.
+    3. Update `firestore.rules` to enable read/write access to the correct user role.
+    4. Use the helpers to fetch/save data.
 
 - **Modifying UI**:
     1. Check `src/app/globals.css` for color variables.

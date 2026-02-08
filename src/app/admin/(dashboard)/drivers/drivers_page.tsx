@@ -12,6 +12,7 @@ import { getPlaceDetails, getPlacePredictions } from "@/app/actions/google_maps"
 import { UserIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Location } from "@/app/models/location";
 
 export default function DriversPage({ body }: { body: Driver[] }) {
 	const firestore = new FirestoreHelper(db);
@@ -20,11 +21,13 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentlyEditing, setCurrentlyEditing] = useState(-1);
 
-	async function getAddressCoordinates(address: string) {
+	async function getAddressCoordinates(address: string): Promise<{ fullAddress: string, coordinates: Location }> {
 		// Get first suggestion
-		const placeId = (await getPlacePredictions(address))[0].id;
+		const place = (await getPlacePredictions(address))[0];
 		// Get coordinates of place
-		return (await getPlaceDetails(placeId)).location;
+		const coord = (await getPlaceDetails(place.id)).location;
+
+		return { fullAddress: place.text, coordinates: coord };
 	}
 
 	async function addDriver(driver: Driver) {
@@ -37,8 +40,10 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 		}
 
 		try {
-			// Guess driver's coordinates from provided address
-			driver.location = await getAddressCoordinates(driver.address);
+			// Guess driver's location from provided address
+			const { fullAddress, coordinates } = await getAddressCoordinates(driver.address);
+			driver.address = fullAddress;
+			driver.location = coordinates;
 		} catch (e) {
 			toast.error("Failed to get driver's location. " + String(e));
 			return;
@@ -66,9 +71,11 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 
 		// If there's been a change in address
 		if (driver.address != data[currentlyEditing].address) {
-			// Update coordinates
+			// Update location details
 			try {
-				driver.location = await getAddressCoordinates(driver.address);
+				const { fullAddress, coordinates } = await getAddressCoordinates(driver.address);
+				driver.address = fullAddress;
+				driver.location = coordinates;
 			} catch (e) {
 				toast.error("Failed to get driver's location. Please check it is spelled correctly.");
 				return;
@@ -132,6 +139,7 @@ export default function DriversPage({ body }: { body: Driver[] }) {
 			<PopupForm open={popupOpen} onClose={() => { setPopupOpen(false); setCurrentlyEditing(-1); }}>
 				<SchemaForm
 					schema={DriverSchema}
+					isNew={currentlyEditing === -1}
 					obj={currentlyEditing !== -1 ? data[currentlyEditing] : DriverSchema.shape}
 					hiddenColumns={["documentId", "location"]}
 					suggestedValues={{ "driver_license_class": Array.from({ length: 7 }).map((v, i) => `Class ${i + 1}`), }}
