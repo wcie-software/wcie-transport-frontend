@@ -49,6 +49,20 @@ The route generation logic is handled by an external microservice.
 
 ---
 
+## Manual Route Editing (Admin Assignments)
+
+Admins can manually edit routes in the Assignments page.
+- **UI**: Route editor pane above the legend. Supports drag-and-drop reordering and reassignment between drivers.
+- **Fixed Points**: Only transport requests are draggable. Non-request points (driver start/origin) remain fixed.
+- **Service-Specific Defaults**:
+  - Service 1: New routes start at driver location (if available), then requests, then origin.
+  - Other services: New routes start at origin, then requests, then origin.
+- **Unassigned Bucket**: Any request not in a route is listed as unassigned and can be dragged into a driver route.
+- **Saving**: Only routes for the currently selected service are replaced in `assigned-routes/{timestamp}`; other services in the same document are preserved.
+- **Server Action**: Use `saveCustomRoutes(timestamp, serviceNumber, routes)` to persist manual edits.
+
+---
+
 ## Agent Operating Procedures
 
 1. **Keep Documentation Fresh**: Always update the relevant `.md` files in the `docs/` folder (especially `AGENTS.md`) whenever new design choices are made, existing ones are refined, or new patterns are introduced.

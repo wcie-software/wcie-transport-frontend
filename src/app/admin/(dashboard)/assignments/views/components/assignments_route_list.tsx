@@ -38,8 +38,7 @@ export default function AssignmentsRouteList({
 
     return (
         <>
-            {/* Shown at the bottom-left on top of everything */}
-            <div className="min-w-xs absolute bottom-0 left-0 m-4 p-4 z-[500] bg-background rounded-lg">
+            <div className="min-w-xs p-4 bg-background rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                 <ul className="space-y-3">
                     {routes.map((r) => {
                         const driver = driversList.find(
