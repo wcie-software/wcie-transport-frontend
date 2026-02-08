@@ -1,8 +1,5 @@
-"use client";
-
 import clsx from "clsx";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 export default function DateSelector() {
     const searchParams = useSearchParams();
@@ -21,7 +18,7 @@ export default function DateSelector() {
         : new Date();
 
     // `getTime` returns milliseconds, so convert to days
-    const diffInDays = Math.round((date.getTime() - sunday.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const diffInDays = Math.round((date.getTime() - sunday.getTime()) / (1000 * 60 * 60 * 24));
 
     const dateDifferences = [
         // [-28, "A Month Ago"],
@@ -34,17 +31,15 @@ export default function DateSelector() {
 
     // Based on the difference in days (from the coming Sunday to the provided date)
     // Pick a title from `dateDifferences`
-    let initialIndex = dateDifferences.length - 1;
+    let index = dateDifferences.length - 1;
     for (let i = 0; i < dateDifferences.length - 1; i++) {
         const diff = Number(dateDifferences[i][0]);
 
-        if (diffInDays === diff) {
-            initialIndex = i;
+        if (diffInDays <= diff) {
+            index = i;
             break;
         }
     }
-
-    const [index, setIndex] = useState(initialIndex);
 
     return (
         <div className="flex flex-row gap-6 border-b border-tertiary min-w-full overflow-x-auto">
@@ -56,8 +51,6 @@ export default function DateSelector() {
                         "border-primary text-primary": i == index
                     })}
                     onClick={() => {
-                        setIndex(i);
-
                         const date = new Date();
                         // Set date relative to nearest Sunday (move backwards)
                         date.setDate(sunday.getDate() + (7 * (i - names.length + 1)))
