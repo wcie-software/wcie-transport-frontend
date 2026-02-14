@@ -43,7 +43,7 @@ export class FirestoreHelper {
     collectionName: FirestoreCollections,
     data: Record<string, any>,
     documentPath?: string,
-    allowUpdating: boolean = false
+    allowUpdating: boolean = false,
   ): Promise<boolean> {
     const d = { ...data };
     // See `models/base.tsx`
@@ -58,11 +58,16 @@ export class FirestoreHelper {
       return true;
     } else {
       const ref = doc(this._db, collectionName, documentPath);
-      const snapshot = await getDoc(ref);
-      // Check if document exists (if `allowUpdating` is false)
-      if (!snapshot.exists() || allowUpdating) {
+      if (allowUpdating) {
         await setDoc(ref, d);
         return true;
+      } else {
+        const snapshot = await getDoc(ref);
+        // Check if document exists
+        if (!snapshot.exists()) {
+          await setDoc(ref, d);
+          return true;
+        }
       }
     }
 
@@ -79,7 +84,7 @@ export class FirestoreHelper {
   async updateDocument(
     collectionName: FirestoreCollections,
     documentPath: string,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<boolean> {
     const ref = doc(this._db, collectionName, documentPath);
     try {
@@ -107,7 +112,7 @@ export class FirestoreHelper {
   async getDocument<Type>(
     collectionName: FirestoreCollections,
     documentPath: string,
-    schema: ZodType<Type>
+    schema: ZodType<Type>,
   ): Promise<Type | null> {
     const docRef = doc(this._db, collectionName, documentPath);
     const docSnap = await getDoc(docRef);
@@ -125,7 +130,7 @@ export class FirestoreHelper {
       } else {
         console.warn(
           `Failed to parse data from '${collectionName}/${documentPath}'`,
-          data
+          data,
         );
       }
     }
@@ -142,7 +147,7 @@ export class FirestoreHelper {
    */
   async getCollection<Type>(
     collectionName: FirestoreCollections,
-    schema: ZodType<Type>
+    schema: ZodType<Type>,
   ): Promise<Type[]> {
     const collectionRef = collection(this._db, collectionName);
     const snapshot = await getDocs(collectionRef);
@@ -160,7 +165,7 @@ export class FirestoreHelper {
       } else {
         console.warn(
           `Failed to parse data from '${collectionName}/${doc.id}'`,
-          data
+          data,
         );
       }
     });
@@ -170,19 +175,21 @@ export class FirestoreHelper {
 
   /**
    * Deletes an existing document
-   * @param collectionName Name of collection 
+   * @param collectionName Name of collection
    * @param documentPath Document name
    * @returns Whether deletion was successful
    */
   async deleteDocument(
     collectionName: FirestoreCollections,
-    documentPath: string
+    documentPath: string,
   ): Promise<boolean> {
     try {
       await deleteDoc(doc(this._db, collectionName, documentPath));
       return true;
     } catch (e) {
-      console.error(`Document ${collectionName}/${documentPath} properly does not exist: ${e}`);
+      console.error(
+        `Document ${collectionName}/${documentPath} properly does not exist: ${e}`,
+      );
       return false;
     }
   }

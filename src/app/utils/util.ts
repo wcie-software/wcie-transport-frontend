@@ -20,12 +20,29 @@ export const Constants = {
  * @returns Formatted date string
  */
 export function defaultFormatter(date: Date): string {
+  return toTimestamp(date).split(" ")[0];
+}
+
+/**
+ * Formats a date to YYYY/MM/DD HH:MM:SS format using Edmonton time zone.
+ * @param date The date to format
+ * @returns Formatted datetime string
+ */
+export function toTimestamp(date: Date): string {
   return Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Edmonton",
     month: "2-digit",
     day: "2-digit",
     year: "numeric",
-  }).format(date).replaceAll("-", "/");
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })
+    .format(date)
+    .split(", ")
+    .join(" ")
+    .replaceAll("-", "/");
 }
 
 /**
