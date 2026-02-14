@@ -22,7 +22,7 @@ export function ScheduleView({ schedulesByMonth, driverInfo }: {
 	const [currentSchedule, setCurrentSchedule] = useState<Schedule>();
 
 	const documentKey = (schedule: Schedule) =>
-		new Date(schedule.timestamp).toLocaleDateString().replaceAll("/", "-");
+		new Date(schedule.timestamp).toLocaleDateString("en-US").replaceAll("/", "-");
 	const monthKey = (schedule: Schedule) =>
 		new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Edmonton" }).format(new Date(schedule.timestamp));
 	const dateKey = (schedule: Schedule) => new Date(schedule.timestamp).toLocaleDateString();
