@@ -24,6 +24,7 @@ import PlaceResultsList from "@/app/(user)/request/components/place_results_list
 import RequestDetailsModal from "@/app/(user)/request/components/request_details_modal";
 import { updateUsername } from "@/app/actions/update_username";
 import { logout } from "@/app/utils/login";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 type PlaceWithDetails = Place & LocationDetails;
 
@@ -39,6 +40,15 @@ export default function AddressPage() {
   // Get user's address from database and search for it automatically
   // This is called only once (or once the user's settings are loaded)
   useEffect(() => {
+    // Wait for user's details to be loaded from firebase
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.replace("/login");
+      }
+    });
+
     if (user && !defaultAddress) {
       const firestore = new FirestoreHelper(db);
       firestore
@@ -55,15 +65,6 @@ export default function AddressPage() {
         });
     }
   }, [user, defaultAddress]);
-
-  // Wait for user's details to be loaded from firebase
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUser(user);
-    } else {
-      router.replace("/login");
-    }
-  });
 
   // Avoid calling function back-to-back by using a debouncer
   // A debouncer creates a timer that resets every time it's called
@@ -115,7 +116,7 @@ export default function AddressPage() {
         updateUsername(user?.uid!, transportRequest.full_name);
         // Log the user out and take them to a success page
         await Promise.all([auth.signOut(), logout()]);
-        router.replace("/request/success");
+        router.replace("/success");
       } else {
         toast.error("Failed to save your request. Please try again.");
         setSelectedPlace(null);
@@ -128,7 +129,7 @@ export default function AddressPage() {
 
   return (
     <>
-      <div className="flex flex-col gap-6 items-start justify-start max-w-2xl w-full mx-4">
+      <div className="flex flex-col gap-6 items-start justify-start max-w-2xl w-full px-4">
         {user ? (
           <>
             <LocationInputSection
@@ -159,7 +160,11 @@ export default function AddressPage() {
             />
           </>
         ) : (
-          <div>Loading...</div>
+          <ArrowPathIcon
+            width={32}
+            height={32}
+            className="animate-spin mx-auto"
+          />
         )}
       </div>
 
