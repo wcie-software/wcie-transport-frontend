@@ -32,6 +32,7 @@ export default function RequestDetailsModal({
           {
             full_name: user?.displayName ?? "",
             phone_number: user?.phoneNumber!,
+            userId: user?.uid,
             service_number: 1,
             no_of_seats: 1,
             no_of_children: 0,
@@ -43,7 +44,13 @@ export default function RequestDetailsModal({
           } as TransportRequest
         }
         readonlyColumns={["address", "phone_number"]}
-        hiddenColumns={["google_maps_link", "coordinates", "timestamp", "status"]}
+        hiddenColumns={[
+          "google_maps_link",
+          "coordinates",
+          "timestamp",
+          "status",
+          "userId",
+        ]}
         suggestedValues={{
           service_number: Array.from({
             length: Constants.NUMBER_OF_SERVICES,

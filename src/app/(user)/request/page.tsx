@@ -22,6 +22,8 @@ import { toTimestamp } from "@/app/utils/util";
 import LocationInputSection from "@/app/(user)/request/components/location_input_section";
 import PlaceResultsList from "@/app/(user)/request/components/place_results_list";
 import RequestDetailsModal from "@/app/(user)/request/components/request_details_modal";
+import { updateUsername } from "@/app/actions/update_username";
+import { logout } from "@/app/utils/login";
 
 type PlaceWithDetails = Place & LocationDetails;
 
@@ -110,7 +112,10 @@ export default function AddressPage() {
         ),
       ]);
       if (success.every((b) => b == true)) {
-        router.replace("/success");
+        updateUsername(user?.uid!, transportRequest.full_name);
+        // Log the user out and take them to a success page
+        await Promise.all([auth.signOut(), logout()]);
+        router.replace("/request/success");
       } else {
         toast.error("Failed to save your request. Please try again.");
         setSelectedPlace(null);

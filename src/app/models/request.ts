@@ -4,8 +4,9 @@ import { LocationSchema } from "@/app/models/location";
 import { Constants } from "@/app/utils/util";
 
 export const TransportRequestSchema = BaseDocument.extend({
-  full_name: z.string(),
+  full_name: z.string().min(2),
   phone_number: z.string().startsWith("+1").length(12),
+  userId: z.optional(z.string()),
   address: z.string(),
   google_maps_link: z.url(),
   coordinates: LocationSchema,
