@@ -1,57 +1,80 @@
-# Authentication & Authorization
+# Authentication and Authorization
 
-This document describes the authentication mechanisms and authorization patterns used in the **WCIE Transport** application.
+This document describes current auth and access-control behavior in **WCIE Transport**.
 
 ## Overview
 
-The application uses **Firebase Auth** for identity management and **Next.js Middleware** for session enforcement and role-based access control (RBAC).
+The app uses Firebase Authentication for identity and Firebase Admin for server-side session validation.
+
+- Session cookie key: `wcie-transport-session`
+- Admin flag cookie key: `wcie-transport-is-admin`
+- UID header key forwarded by middleware: `X-Auth-UID`
+
+(Defined in `src/app/utils/util.ts`.)
 
 ## Authentication Flows
 
-### 1. User/Driver Authentication
-- **Mechanism**: Phone number verification (SMS).
-- **Process**: Users/Drivers sign in on the client side using the Firebase Web SDK.
-- **Session**: Upon successful sign-in, a Firebase ID Token is sent to the server (via `userLogin` in `src/app/utils/login.ts`).
-- **Cookie**: The server verifies the ID Token and creates a **Firebase Session Cookie**. This cookie is `httpOnly`, `secure`, and has a `sameSite: strict` policy for security.
+### User and Driver login
 
-### 2. Admin Authentication
-- **Mechanism**: Email Link (Passwordless) Authentication.
-- **Process**: 
-    1. Admins enter their email on the `/admin` login page.
-    2. Firebase sends a sign-in link to their email.
-    3. Clicking the link redirects the admin back to the app (`/admin` page), where the session is finalized via `signInWithEmailLink`.
-- **Admin Flag**: If the user has the `admin` role (checked via custom claims), an additional `IS_ADMIN` cookie is set to `TRUE`.
+- Client signs in with Firebase Auth (phone flow).
+- Client sends ID token to `userLogin` (`src/app/utils/login.ts`).
+- `userLogin` verifies the token and creates a session cookie.
+- Default session lifetime is 24 hours.
 
-## Authorization (RBAC)
+### Admin login
 
-Authorization is enforced at the edge/middleware level and within Server Actions.
+- Admin signs in with email-link flow from the admin login route.
+- Client sends ID token to `adminLogin` (`src/app/utils/login.ts`).
+- `adminLogin` reuses `userLogin` with 7-day expiry.
+- If role claim is `admin`, admin cookie flag is set to `TRUE`.
+- If role is not `admin`, session is cleared.
 
-### Custom Claims
-The system uses Firebase custom claims to define user roles:
-- `role: "admin"`: Full access to the admin dashboard.
-- `role: "driver"`: Access to the driver portal and assigned routes.
-- `role: "user"`: Default role for transport requests.
+## Session Cookie Behavior
 
-### Middleware Enforcement (`src/proxy.ts`)
-A custom middleware function (aliased as `proxy` in this project) intercepts requests to protected routes:
-- **Protected Paths**: `/request/*`, `/admin/*`, `/driver/*`.
-- **Validation**: 
-    1. Checks for the presence of the session cookie.
-    2. Verifies the session cookie with `firebase-admin`.
-    3. Enforces role-specific path access (e.g., only admins can access `/admin`).
-- **UID Header**: Upon successful validation, the user's `uid` is injected into the request headers (`x-uid`) for use by downstream Server Components and Actions.
+`userLogin` sets the session cookie with:
 
-## Key Files
+- `httpOnly: true`
+- `secure: true`
+- `sameSite: "strict"`
+- `path: "/"`
 
-| File | Purpose |
-| :--- | :--- |
-| `src/proxy.ts` | Next.js middleware for route protection and role enforcement. |
-| `src/app/utils/login.ts` | Server Actions for creating session cookies and handling logouts. |
-| `src/app/actions/driver_auth.ts` | Logic for programmatically creating driver accounts with custom claims. |
-| `src/app/actions/firebase_server_setup.ts` | Initializes the Firebase Admin SDK for server-side operations. |
+Admin flow additionally sets the `IS_ADMIN` flag cookie with secure and strict settings.
 
-## Important Notes for Developers
+## Authorization Middleware
 
-- **Session Expiry**: User sessions typically last 24 hours, while admin sessions last 7 days.
-- **HttpOnly Cookies**: Authentication cookies cannot be accessed or modified by client-side JavaScript, mitigating XSS risks.
-- **Role Sync**: When creating or updating drivers via the Admin dashboard, the `role: driver` claim is automatically set by `createDriverAccount`.
+Middleware is implemented in `src/proxy.ts`.
+
+Protected matcher:
+
+- `/request/:path*`
+- `/admin/:path+`
+- `/driver/:path*`
+
+Enforcement behavior:
+
+1. Requires session cookie presence.
+2. Verifies session cookie via Firebase Admin.
+3. Applies admin/non-admin path restrictions.
+4. Injects verified UID into response headers as `X-Auth-UID`.
+
+## Failure and Redirect Behavior
+
+- Missing session cookie:
+  - Redirects to `/admin` when hitting admin routes.
+  - Redirects to `/login` for non-admin protected routes.
+- Invalid/expired session cookie:
+  - Redirects using same route-aware logic above.
+  - Session cookie is deleted during redirect response.
+- Admin cookie/path mismatch:
+  - Non-admin cookie on admin route -> redirect to `/admin`.
+  - Admin cookie on non-admin protected route -> redirect to `/login`.
+
+## Role Claims
+
+Role checks depend on Firebase custom claim `role`:
+
+- `admin`
+- `driver`
+- `user` (default fallback in token verification)
+
+Claims are evaluated in server logic during login and middleware checks.
