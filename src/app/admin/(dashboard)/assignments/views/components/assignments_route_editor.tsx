@@ -83,38 +83,16 @@ export default function AssignmentsRouteEditor({
   const unassignedLabel = "Unassigned";
 
   return (
-    <div className="min-w-xs bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm h-[90vh] overflow-y-auto">
-      <div className="flex items-center justify-between gap-2">
-        <span
-          className={clsx("text-[10px] font-mono uppercase", {
-            "text-gray-400": !isDirty,
-            "text-amber-500": isDirty,
-          })}
-        >
-          {isDirty ? "Unsaved changes" : "No changes made"}
-        </span>
-      </div>
-
-      <div className="w-full mt-4 flex flex-row items-stretch justify-center gap-4 h-8">
-        <PrimaryButton disabled={!isDirty || isSaving} onClick={handleSave}>
-          Save
-        </PrimaryButton>
-        <PrimaryButton outline disabled={!isDirty || isSaving} onClick={reset}>
-          Reset
-        </PrimaryButton>
-      </div>
-
-			<hr className="w-full text-tertiary my-4" />
-
+    <div className="hidden md:flex absolute z-500 mx-4 mb-2 right-0 bottom-0 flex-col gap-0 min-w-0 bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm h-[90vh]">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={onDragEnd}
       >
-        <div className="mt-4 space-y-4">
+        <div className="space-y-4 overflow-y-auto">
           {editableRoutes.map((route) => {
             const driver = driversList.find(
-              (d) => d.documentId === route.driverId
+              (d) => d.documentId === route.driverId,
             );
             const assignedVehicleName =
               route.assignedVehicleId && assignedVehicles
@@ -160,12 +138,36 @@ export default function AssignmentsRouteEditor({
           {invalidRequestIds.size > 0 && (
             <p className="text-[10px] text-amber-500">
               {invalidRequestIds.size} request
-              {invalidRequestIds.size === 1 ? "" : "s"} missing coordinates cannot
-              be dragged.
+              {invalidRequestIds.size === 1 ? "" : "s"} missing coordinates
+              cannot be dragged.
             </p>
           )}
         </div>
       </DndContext>
+
+      <div className="flex flex-col gap-4 items-center p-4">
+        <p
+          className={clsx("text-[10px] font-mono uppercase", {
+            "text-gray-400": !isDirty,
+            "text-amber-500": isDirty,
+          })}
+        >
+          {isDirty ? "Unsaved changes" : "No changes made"}
+        </p>
+
+        <div className="w-full flex flex-row items-stretch justify-center gap-2 h-8">
+          <PrimaryButton disabled={!isDirty || isSaving} onClick={handleSave}>
+            Save
+          </PrimaryButton>
+          <PrimaryButton
+            outline
+            disabled={!isDirty || isSaving}
+            onClick={reset}
+          >
+            Reset
+          </PrimaryButton>
+        </div>
+      </div>
     </div>
   );
 }
