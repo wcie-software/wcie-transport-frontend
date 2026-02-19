@@ -64,6 +64,7 @@ export default function MapView({
       for (let i = 0; i < route.length - 1; i += 1) {
         polylines.push(
           <Polyline
+            key={r.driver_id + route[i].id}
             color={stringToColor(r.driver_id)}
             positions={[
               {
@@ -75,13 +76,7 @@ export default function MapView({
                 lng: route[i + 1].position.longitude,
               },
             ]}
-          >
-            <Tooltip permanent opacity={0.4}>
-              {stringToColor(r.driver_id)}
-            </Tooltip>
-            {/* {i === 0 && <Tooltip permanent opacity={0.4}>Start</Tooltip>}
-						{(i === route.length - 2) && <Tooltip permanent opacity={0.4}>End</Tooltip>} */}
-          </Polyline>,
+          />,
         );
       }
     }
