@@ -114,8 +114,6 @@ export default function AddressPage() {
       ]);
       if (success.every((b) => b == true)) {
         updateUsername(user?.uid!, transportRequest.full_name);
-        // Log the user out and take them to a success page
-        await Promise.all([auth.signOut(), logout()]);
         router.replace("/success");
       } else {
         toast.error("Failed to save your request. Please try again.");
