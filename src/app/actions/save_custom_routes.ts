@@ -37,6 +37,13 @@ export async function saveCustomRoutes(
       .filter((r) => r.service_number !== serviceNumber)
       .concat(routes);
 
+    // Assign a dummy vehicle id for those that don't have one
+    for (const r of mergedRoutes) {
+      if (!r.assigned_vehicle_id.trim()) {
+        r.assigned_vehicle_id = "(none)";
+      }
+    }
+
     // Save to db (merge)
     const ref = db.collection(FirestoreCollections.Assignments).doc(timestamp);
     await ref.set(
