@@ -1,6 +1,6 @@
 "use client";
 
-import { BellAlertIcon, BellIcon, ChatBubbleLeftIcon, CheckCircleIcon, ExclamationCircleIcon, MapIcon, PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ExclamationCircleIcon, MapIcon, PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import PrimaryButton from "@/app/ui/components/primary_button";
 import { TransportRequest } from "@/app/models/request";
@@ -41,34 +41,33 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
                         <h3 className="mt-1 text-xl font-bold">{pickup.full_name} ({pickup.service_number}{Constants.NUMBER_SUFFIX[pickup.service_number]} service)</h3>
                     </div>
                     <div className="flex flex-col md:flex-row gap-2">
-                        {/* <Link href={active ? `tel:${pickup.phone_number}` : ""} className={`border border-${color} size-10 flex items-center justify-center text-white rounded-full active:scale-95 transition-transform shadow-lg shadow-primary/20`}>
+                        {/* <Link href={`tel:${pickup.phone_number}`} className={`border border-${color} size-10 flex items-center justify-center text-white rounded-full active:scale-95 transition-transform shadow-lg shadow-primary/20`}>
                             <BellAlertIcon width={20} height={20} />
                         </Link> */}
-                        <Link href={active ? `tel:${pickup.phone_number}` : ""} className={`bg-${color} size-10 flex items-center justify-center text-white rounded-full active:scale-95 transition-transform shadow-lg shadow-primary/20`}>
+                        <Link href={`tel:${pickup.phone_number}`} className={`bg-${color} size-10 flex items-center justify-center text-white rounded-full active:scale-95 transition-transform shadow-lg shadow-primary/20`}>
                             <PhoneIcon width={20} height={20} />
                         </Link>
                     </div>
                 </div>
-                <div className="flex items-center gap-1 text-foreground">
-                    <MapPinIcon className={`text-${color}`} width={24} height={24} />
-                    <p className="text-sm leading-snug">{pickup.address}</p>
+                <Link href={pickup.google_maps_link} target="_blank" className="flex items-center gap-1 text-foreground active:opacity-70">
+                    <MapPinIcon className={`text-${color} shrink-0`} width={24} height={24} />
+                    <p className="text-sm leading-snug underline underline-offset-2 decoration-dotted">{pickup.address}</p>
+                </Link>
+                <div className="w-full h-24 bg-center bg-cover rounded-lg border border-white/10" style={{ backgroundImage: "url(/map.png)" }}>
+                    <Link target="_blank" className="w-full h-full bg-black/30 flex items-center justify-center" href={pickup.google_maps_link}>
+                        <span className="bg-black/60 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border border-white/10 text-white">
+                            <span> <MapIcon width={24} height={24} /> </span> Open Maps
+                        </span>
+                    </Link>
                 </div>
-                {active &&
-                    <div className="w-full h-24 bg-center bg-cover rounded-lg border border-white/10" style={{ backgroundImage: "url(/map.png)" }}>
-                        <Link target="_blank" className="w-full h-full bg-black/30 flex items-center justify-center" href={pickup.google_maps_link}>
-                            <span className="bg-black/60 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border border-white/10 text-white">
-                                <span> <MapIcon width={24} height={24} /> </span> Open Maps
-                            </span>
-                        </Link>
-                    </div>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                    <PrimaryButton disabled={!active} onClick={() => { setStatus("successful"); setIsModalOpen(true); }}>
+                    <PrimaryButton onClick={() => { setStatus("successful"); setIsModalOpen(true); }}>
                         <span className="flex flex-row gap-2">
                             <CheckCircleIcon width={24} height={24} />
                             Confirm Pickup
                         </span>
                     </PrimaryButton>
-                    <PrimaryButton outline disabled={!active} onClick={() => { setStatus("failed"); setIsModalOpen(true); }}>
+                    <PrimaryButton outline onClick={() => { setStatus("failed"); setIsModalOpen(true); }}>
                         <span className="flex flex-row gap-2">
                             <ExclamationCircleIcon width={24} height={24} />
                             Failed to Pickup
@@ -99,7 +98,7 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
                         ...(status === "successful" ? ["failure_reason"] : ["passengers_picked"])
                     ]}
 										suggestedValues={{
-											"passengers_picked": Array.from({ length: pickup.no_of_seats }).map((v, i) => String(i+1))
+											"passengers_picked": Array.from({ length: pickup.no_of_seats }).map((_, i) => String(i+1))
 										}}
                     onSubmitted={handleConfirmed}
                 />
