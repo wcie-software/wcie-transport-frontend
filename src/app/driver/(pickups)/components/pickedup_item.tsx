@@ -1,5 +1,6 @@
 import { TransportRequest } from "@/app/models/request";
-import { ChevronRightIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, XCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export function PickedUpItem({ item }: { item: TransportRequest }) {
     return (
@@ -31,7 +32,13 @@ export function PickedUpItem({ item }: { item: TransportRequest }) {
                 <p className="text-[10px] text-slate-500 uppercase tracking-tighter">
                     {item.status === "successful" ? "Verified" : "No Show"}
                 </p>
-                <ChevronRightIcon className="text-tertiary" width={24} height={24} />
+                <div className="flex items-center gap-2">
+                    <Link href={item.google_maps_link} target="_blank"
+                        className="size-8 rounded-full bg-tertiary/20 border border-tertiary/30 flex items-center justify-center active:scale-95 transition-transform"
+                        title="Open in Google Maps">
+                        <MapPinIcon className="text-tertiary" width={16} height={16} />
+                    </Link>
+                </div>
             </div>
         </div>
     );
