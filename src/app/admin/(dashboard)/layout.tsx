@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BugAntIcon, Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, Squares2X2Icon, ArrowsRightLeftIcon, UserIcon, TruckIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import clsx from "clsx";
 import { logout } from "@/app/utils/login";
@@ -32,6 +32,10 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
 		"Vehicles": {
 			icon: TruckIcon,
 			href: "/admin/vehicles",
+		},
+		"Reports": {
+			icon: ChartBarIcon,
+			href: "/admin/reports",
 		},
 	};
 

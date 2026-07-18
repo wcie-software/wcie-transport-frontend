@@ -46,6 +46,52 @@ export function toTimestamp(date: Date): string {
 }
 
 /**
+ * Returns the nearest Sunday (future or same day) for the given date.
+ * If `date` is already a Sunday, returns it unchanged (time preserved).
+ */
+export function getNearestSunday(date: Date): Date {
+  const sunday = new Date(date);
+  if (sunday.getDay() !== 0) {
+    sunday.setDate(sunday.getDate() + (7 - sunday.getDay()));
+  }
+  return sunday;
+}
+
+/**
+ * Formats a Date into the canonical Sunday key `M-D-YYYY` (no padding),
+ * matching the document ID used for `schedules` and `assigned-routes`.
+ */
+export function formatSundayKey(date: Date): string {
+  return date.toLocaleDateString("en-US").replaceAll("/", "-");
+}
+
+/**
+ * Returns the Monday→Sunday week range as `YYYY/MM/DD` strings,
+ * suitable for `requests.timestamp` Firestore range queries.
+ * `start` is Monday 00:00:00, `end` is Sunday 23:59:59 of the same week.
+ */
+export function getWeekRange(sunday: Date): { start: string; end: string } {
+  const end = new Date(sunday);
+  end.setHours(23, 59, 59, 999);
+  const start = new Date(end);
+  start.setDate(end.getDate() - 6);
+  start.setHours(0, 0, 0, 0);
+  return { start: defaultFormatter(start), end: defaultFormatter(end) };
+}
+
+/**
+ * Parses a `M-D-YYYY` Sunday key into a Date at 11:59 local time.
+ * Returns null if the string is malformed.
+ */
+export function parseSundayKey(key: string): Date | null {
+  const parts = key.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+  const [month, date, year] = parts;
+  if (!month || !date || !year) return null;
+  return new Date(year, month - 1, date, 11, 59, 0, 0);
+}
+
+/**
  * Generates a deterministic bold color string from a given string input (like a route ID).
  * Written by Antigravity
  */
