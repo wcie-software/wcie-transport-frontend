@@ -66,16 +66,22 @@ export function formatSundayKey(date: Date): string {
 }
 
 /**
- * Returns the Monday→Sunday week range as `YYYY/MM/DD` strings,
- * suitable for `requests.timestamp` Firestore range queries.
- * `start` is Monday 00:00:00, `end` is Sunday 23:59:59 of the same week.
+ * Returns the submission window for the week whose service Sunday is `sunday`.
+ *
+ * A request submitted during [previous Sunday 00:00, service Sunday 00:00)
+ * is for `sunday`'s service. So a Sunday-morning submission belongs to the
+ * *next* Sunday's week, not the current one.
+ *
+ * `start` is the previous Sunday 00:00 (inclusive), `end` is the service
+ * Sunday 00:00 (exclusive). Both are `YYYY/MM/DD` strings suitable for
+ * Firestore `timestamp` range queries used with `>=` and `<`.
  */
 export function getWeekRange(sunday: Date): { start: string; end: string } {
-  const end = new Date(sunday);
-  end.setHours(23, 59, 59, 999);
-  const start = new Date(end);
-  start.setDate(end.getDate() - 6);
+  const start = new Date(sunday);
+  start.setDate(start.getDate() - 7);
   start.setHours(0, 0, 0, 0);
+  const end = new Date(sunday);
+  end.setHours(0, 0, 0, 0);
   return { start: defaultFormatter(start), end: defaultFormatter(end) };
 }
 

@@ -13,11 +13,14 @@ import {
 
 /**
  * Per-week transportation report row.
- * - `picked` counts requests with a successful `pickup_info` record.
- * - `notPicked` counts requests with a failed `pickup_info` record.
- * - `pending` counts requests with no `pickup_info` record yet.
+ * - `picked` / `notPicked` / `pending` come from `request.status`
+ *   (successful / failed / normal), matching the Requests screen's coloring.
+ * - `totalPassengersPicked` is enriched from `pickup_info.passengers_picked`
+ *   for successful requests (joined via `transport_id`).
  * - `adults` = `no_of_seats - no_of_children` (approximation; no gender data today).
  * - `pickupRate` = `picked / totalRequests` (0 if no requests).
+ * - Week window is [previous Sunday 00:00, service Sunday 00:00): a request
+ *   submitted on Sunday morning counts toward the *next* Sunday's week.
  */
 export type WeeklyReport = {
   sundayKey: string;
@@ -43,13 +46,16 @@ export type GenerateReportsResult = {
  * Generates weekly transportation reports for every Sunday in the
  * inclusive range [`startSundayKey`, `endSundayKey`] (both `M-D-YYYY`).
  *
- * For each week:
- * 1. Query `requests` by `timestamp` range (Monday 00:00 → Sunday 23:59),
- *    excluding cancelled requests.
- * 2. Query `pickup_info` by `pickup_time` range (the Sunday date, since
- *    `pickup_time` is stored as `YYYY/MM/DD` via `defaultFormatter`).
- * 3. Join `pickup_info` to `requests` via `transport_id` to classify each
- *    request as picked / notPicked / pending.
+ * For each week (service Sunday = S):
+ * 1. Query `requests` by `timestamp` in [S-7 00:00, S 00:00) — i.e. the
+ *    previous Sunday through Saturday 23:59. A request submitted on
+ *    Sunday morning belongs to the *next* Sunday's week. Cancelled
+ *    requests are excluded.
+ * 2. Query `pickup_info` by `pickup_time == S` (drivers confirm pickups
+ *    on the service Sunday itself). Used only to enrich the
+ *    `totalPassengersPicked` total.
+ * 3. Classify each request via `request.status`:
+ *    `successful` → picked, `failed` → notPicked, `normal` → pending.
  */
 export async function generateReports(
   startSundayKey: string,
@@ -112,12 +118,15 @@ async function buildWeekReport(
       TransportRequestSchema,
       [
         { field: "timestamp", operator: ">=", value: start },
-        { field: "timestamp", operator: "<=", value: end },
+        { field: "timestamp", operator: "<", value: end },
       ],
       "timestamp",
     )
   ).filter((r) => r.status !== "cancelled");
 
+  // pickup_info is only used to enrich the passengers-picked total.
+  // Picked / not-picked / pending counts come from `request.status`,
+  // which is the same field the Requests screen colors by.
   const pickups = await fdb.queryCollection<PickupInfo>(
     FirestoreCollections.PickupInfo,
     PickupInfoSchema,
@@ -127,9 +136,14 @@ async function buildWeekReport(
     ],
   );
 
-  const pickupByTransportId = new Map<string, PickupInfo>();
+  const passengersByTransportId = new Map<string, number>();
   for (const p of pickups) {
-    pickupByTransportId.set(p.transport_id, p);
+    if (p.failure_reason == null) {
+      passengersByTransportId.set(
+        p.transport_id,
+        p.passengers_picked ?? 0,
+      );
+    }
   }
 
   let adults = 0;
@@ -147,19 +161,18 @@ async function buildWeekReport(
     adults += Math.max(0, seats - childCount);
     children += childCount;
 
-    const info = r.documentId
-      ? pickupByTransportId.get(r.documentId)
-      : undefined;
-
-    if (!info) {
-      pending += 1;
-    } else if (info.failure_reason == null) {
+    if (r.status === "successful") {
       picked += 1;
-      totalPassengersPicked += info.passengers_picked ?? 0;
       if (r.service_number === 1) firstService += 1;
       else if (r.service_number === 2) secondService += 1;
-    } else {
+      if (r.documentId) {
+        totalPassengersPicked +=
+          passengersByTransportId.get(r.documentId) ?? 0;
+      }
+    } else if (r.status === "failed") {
       notPicked += 1;
+    } else {
+      pending += 1;
     }
   }
 
