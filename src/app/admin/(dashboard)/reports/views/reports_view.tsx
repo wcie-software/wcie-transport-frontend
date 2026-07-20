@@ -97,7 +97,7 @@ export default function ReportsView({
     const rate = total > 0 ? picked / total : 0;
     return [
       { label: "Total Requests", value: String(total) },
-      { label: "Picked", value: String(picked) },
+      { label: "Successful", value: String(picked) },
       { label: "Pickup Rate", value: `${(rate * 100).toFixed(1)}%` },
       { label: "Passengers Picked", value: String(passengers) },
     ];
