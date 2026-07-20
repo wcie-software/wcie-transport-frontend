@@ -79,11 +79,21 @@ export default function ReportsView({
 
   const chartData = useMemo(
     () =>
-      reports.map((r) => ({
-        sunday: r.sundayKey,
-        requests: r.totalRequests,
-        picked: r.picked,
-      })),
+      reports.map((r) => {
+        // Label each point by its submission-window start (previous Sunday)
+        // so it visually matches the Requests page's "Sun – Sat" week label.
+        const [month, day, year] = r.sundayKey.split("-").map(Number);
+        const serviceSunday = new Date(year, month - 1, day);
+        const weekStart = new Date(serviceSunday);
+        weekStart.setDate(serviceSunday.getDate() - 7);
+        const dd = String(weekStart.getDate()).padStart(2, "0");
+        const mmm = weekStart.toLocaleDateString("en-US", { month: "short" });
+        return {
+          sunday: `${dd} ${mmm} ${weekStart.getFullYear()}`,
+          requests: r.totalRequests,
+          picked: r.picked,
+        };
+      }),
     [reports],
   );
 
@@ -205,16 +215,7 @@ export default function ReportsView({
                   borderRadius: "8px",
                   color: "var(--foreground)",
                 }}
-                labelFormatter={(label) => {
-                  const [month, day, year] = String(label).split("-").map(Number);
-                  if (!month || !day || !year) return String(label);
-                  const dd = String(day).padStart(2, "0");
-                  const monthName = new Date(year, month - 1, day).toLocaleDateString(
-                    "en-US",
-                    { month: "short" },
-                  );
-                  return `${dd} ${monthName} ${year}`;
-                }}
+                labelFormatter={(label) => String(label)}
               />
               <Legend />
               <Line
