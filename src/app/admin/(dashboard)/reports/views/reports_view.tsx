@@ -98,7 +98,7 @@ export default function ReportsView({
     return [
       { label: "Total Requests", value: String(total) },
       { label: "Successful", value: String(picked) },
-      { label: "Pickup Rate", value: `${(rate * 100).toFixed(1)}%` },
+      { label: "Success Rate", value: `${(rate * 100).toFixed(1)}%` },
       { label: "Passengers Picked", value: String(passengers) },
     ];
   }, [reports]);
