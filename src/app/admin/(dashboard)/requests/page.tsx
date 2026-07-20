@@ -3,7 +3,12 @@ import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
 import RequestView from "@/app/admin/(dashboard)/requests/request_view";
-import { defaultFormatter } from "@/app/utils/util";
+import {
+  formatWeekLabel,
+  getMultiWeekRange,
+  getNearestSunday,
+  getServiceSunday,
+} from "@/app/utils/util";
 
 export const dynamic = "force-dynamic";
 
@@ -12,22 +17,21 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
 	const page = parseInt(pageParam || "0");
 
 	// Get reference Sunday (nearest sunday in the future)
-	const referenceSunday = new Date();
-	if (referenceSunday.getDay() !== 0) { // If not a Sunday
-		referenceSunday.setDate(referenceSunday.getDate() + 7 - referenceSunday.getDay());
-	}
+	const referenceSunday = getNearestSunday(new Date());
 	referenceSunday.setHours(10, 59, 0, 0);
 
-	// Calculate range for the current "page" (4 weeks per page)
-
+	// Calculate range for the current "page" (4 weeks per page).
+	// `rangeMax` is the service Sunday of the latest week in the view.
+	// `rangeMin` is the service Sunday 4 weeks earlier.
+	// The Firestore query spans [rangeMin - 7 days, rangeMax + 7 days) so
+	// every submission whose next-Sunday is in [rangeMin, rangeMax] is captured.
 	const rangeMax = new Date(referenceSunday);
-	// Whenever a user increases the page, we want to move 4 weeks from previous page start
-	// (4 * `page`) weeks from today. 
 	rangeMax.setDate(referenceSunday.getDate() - (page * 28));
 
 	const rangeMin = new Date(rangeMax);
-	// Minimum date is 4 weeks from max
-	rangeMin.setDate(rangeMax.getDate() - 28);
+	rangeMin.setDate(rangeMax.getDate() - 28); // 4 weeks of Sundays
+
+	const { start, end } = getMultiWeekRange(rangeMin, rangeMax);
 
 	const { db } = await getFirebaseAdmin();
 	const fdb = new FirestoreAdminHelper(db);
@@ -35,30 +39,18 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
 		FirestoreCollections.Requests,
 		TransportRequestSchema,
 		[
-			{ field: "timestamp", operator: ">=", value: defaultFormatter(rangeMin) },
-			{ field: "timestamp", operator: "<=", value: defaultFormatter(rangeMax) },
+			{ field: "timestamp", operator: ">=", value: start },
+			{ field: "timestamp", operator: "<", value: end },
 		],
 		"timestamp"
 	);
 
-	// Group requests by week
+	// Group requests by week (service Sunday bucket).
+	// A request submitted on Sunday morning belongs to the *next* Sunday.
 	const requestsGroupedByWeek: Record<string, TransportRequest[]> = {};
 	requestsList.forEach((r) => {
-		const end = new Date(r.timestamp);
-		// Find Sunday of that week
-		end.setDate(end.getDate() + (7 - end.getDay()));
-		end.setHours(10, 59, 0, 0); // Have a uniform time
-
-		const start = new Date(end);
-		// Start from Monday
-		start.setDate(end.getDate() - 6);
-
-		// MMM DD, YYYY
-		const dateFormatter = new Intl.DateTimeFormat(
-			"en-US", { timeZone: "America/Edmonton", dateStyle: "medium" }
-		)
-		const k = `${dateFormatter.format(start)} – ${dateFormatter.format(end)}`;
-		// Add request to correct week bucket
+		const serviceSunday = getServiceSunday(new Date(r.timestamp));
+		const k = formatWeekLabel(serviceSunday);
 		if (k in requestsGroupedByWeek) {
 			requestsGroupedByWeek[k].push(r);
 		} else {

@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import Table from "@/app/ui/components/table";
 import type { WeeklyReport } from "@/app/actions/generate_report";
-import { parseSundayKey, getNearestSunday } from "@/app/utils/util";
+import { parseSundayKey, getNearestSunday, getWeekStart } from "@/app/utils/util";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
 const CSV_COLUMNS: { key: keyof WeeklyReport; label: string }[] = [
@@ -25,6 +25,7 @@ const CSV_COLUMNS: { key: keyof WeeklyReport; label: string }[] = [
   { key: "picked", label: "Picked" },
   { key: "notPicked", label: "Not Picked" },
   { key: "pending", label: "Pending" },
+  { key: "cancelled", label: "Cancelled" },
   { key: "firstService", label: "1st Service" },
   { key: "secondService", label: "2nd Service" },
   { key: "pickupRate", label: "Pickup Rate" },
@@ -79,17 +80,28 @@ export default function ReportsView({
 
   const chartData = useMemo(
     () =>
-      reports.map((r) => ({
-        sunday: r.sundayKey,
-        requests: r.totalRequests,
-        picked: r.picked,
-      })),
+      reports.map((r) => {
+        // Label each point by its submission-window start (previous Sunday)
+        // so it visually matches the Requests page's "Sun – Sat" week label.
+        const serviceSunday = parseSundayKey(r.sundayKey);
+        const weekStart = serviceSunday
+          ? getWeekStart(serviceSunday)
+          : new Date();
+        const dd = String(weekStart.getDate()).padStart(2, "0");
+        const mmm = weekStart.toLocaleDateString("en-US", { month: "short" });
+        return {
+          sunday: `${dd} ${mmm} ${weekStart.getFullYear()}`,
+          requests: r.totalRequests,
+          picked: r.picked,
+        };
+      }),
     [reports],
   );
 
   const kpis: Kpi[] = useMemo(() => {
     const total = reports.reduce((s, r) => s + r.totalRequests, 0);
     const picked = reports.reduce((s, r) => s + r.picked, 0);
+    const cancelled = reports.reduce((s, r) => s + r.cancelled, 0);
     const passengers = reports.reduce(
       (s, r) => s + r.totalPassengersPicked,
       0,
@@ -97,8 +109,9 @@ export default function ReportsView({
     const rate = total > 0 ? picked / total : 0;
     return [
       { label: "Total Requests", value: String(total) },
-      { label: "Picked", value: String(picked) },
-      { label: "Pickup Rate", value: `${(rate * 100).toFixed(1)}%` },
+      { label: "Successful", value: String(picked) },
+      { label: "Success Rate", value: `${(rate * 100).toFixed(1)}%` },
+      { label: "Cancelled", value: String(cancelled) },
       { label: "Passengers Picked", value: String(passengers) },
     ];
   }, [reports]);
@@ -162,7 +175,7 @@ export default function ReportsView({
       )}
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {kpis.map((k) => (
           <div
             key={k.label}
@@ -205,6 +218,7 @@ export default function ReportsView({
                   borderRadius: "8px",
                   color: "var(--foreground)",
                 }}
+                labelFormatter={(label) => String(label)}
               />
               <Legend />
               <Line
@@ -245,6 +259,7 @@ export default function ReportsView({
               picked: "Picked",
               notPicked: "Not Picked",
               pending: "Pending",
+              cancelled: "Cancelled",
               firstService: "1st Service",
               secondService: "2nd Service",
               pickupRate: "Pickup Rate",
