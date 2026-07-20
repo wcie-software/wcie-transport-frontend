@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import Table from "@/app/ui/components/table";
 import type { WeeklyReport } from "@/app/actions/generate_report";
-import { parseSundayKey, getNearestSunday } from "@/app/utils/util";
+import { parseSundayKey, getNearestSunday, getWeekStart } from "@/app/utils/util";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
 const CSV_COLUMNS: { key: keyof WeeklyReport; label: string }[] = [
@@ -82,10 +82,10 @@ export default function ReportsView({
       reports.map((r) => {
         // Label each point by its submission-window start (previous Sunday)
         // so it visually matches the Requests page's "Sun – Sat" week label.
-        const [month, day, year] = r.sundayKey.split("-").map(Number);
-        const serviceSunday = new Date(year, month - 1, day);
-        const weekStart = new Date(serviceSunday);
-        weekStart.setDate(serviceSunday.getDate() - 7);
+        const serviceSunday = parseSundayKey(r.sundayKey);
+        const weekStart = serviceSunday
+          ? getWeekStart(serviceSunday)
+          : new Date();
         const dd = String(weekStart.getDate()).padStart(2, "0");
         const mmm = weekStart.toLocaleDateString("en-US", { month: "short" });
         return {

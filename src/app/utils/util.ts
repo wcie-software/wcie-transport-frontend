@@ -58,6 +58,43 @@ export function getNearestSunday(date: Date): Date {
 }
 
 /**
+ * Given a submission date, returns the service Sunday it belongs to.
+ * A request submitted on Sunday morning belongs to the *next* Sunday
+ * (not the current one), per the week model where the submission window
+ * for service Sunday S is [S-7 00:00, S 00:00).
+ */
+export function getServiceSunday(submissionDate: Date): Date {
+  const service = new Date(submissionDate);
+  const daysUntilSunday = (7 - service.getDay()) % 7;
+  service.setDate(service.getDate() + daysUntilSunday);
+  service.setHours(11, 59, 0, 0);
+  return service;
+}
+
+/**
+ * Returns the submission-window start (previous Sunday 00:00) for a given
+ * service Sunday. This is the first day a request can be submitted for
+ * that service Sunday.
+ */
+export function getWeekStart(serviceSunday: Date): Date {
+  const start = new Date(serviceSunday);
+  start.setDate(serviceSunday.getDate() - 7);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+/**
+ * Returns the submission-window end (service Sunday 00:00, exclusive)
+ * for a given service Sunday. This is the exclusive upper bound for
+ * `timestamp < end` Firestore queries.
+ */
+export function getWeekEnd(serviceSunday: Date): Date {
+  const end = new Date(serviceSunday);
+  end.setHours(0, 0, 0, 0);
+  return end;
+}
+
+/**
  * Formats a Date into the canonical Sunday key `M-D-YYYY` (no padding),
  * matching the document ID used for `schedules` and `assigned-routes`.
  */
@@ -66,23 +103,47 @@ export function formatSundayKey(date: Date): string {
 }
 
 /**
- * Returns the submission window for the week whose service Sunday is `sunday`.
+ * Returns the Firestore query range for a single service Sunday's submission
+ * window: `[S-7 00:00, S 00:00)`. Use with `timestamp >= start && timestamp < end`.
  *
- * A request submitted during [previous Sunday 00:00, service Sunday 00:00)
- * is for `sunday`'s service. So a Sunday-morning submission belongs to the
- * *next* Sunday's week, not the current one.
- *
- * `start` is the previous Sunday 00:00 (inclusive), `end` is the service
- * Sunday 00:00 (exclusive). Both are `YYYY/MM/DD` strings suitable for
- * Firestore `timestamp` range queries used with `>=` and `<`.
+ * A request submitted during this window is for `sunday`'s service. A
+ * Sunday-morning submission belongs to the *next* Sunday's week.
  */
 export function getWeekRange(sunday: Date): { start: string; end: string } {
-  const start = new Date(sunday);
-  start.setDate(start.getDate() - 7);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(sunday);
-  end.setHours(0, 0, 0, 0);
-  return { start: defaultFormatter(start), end: defaultFormatter(end) };
+  return {
+    start: defaultFormatter(getWeekStart(sunday)),
+    end: defaultFormatter(getWeekEnd(sunday)),
+  };
+}
+
+/**
+ * Returns the Firestore query range covering multiple service Sundays
+ * (inclusive). Use with `timestamp >= start && timestamp < end`.
+ */
+export function getMultiWeekRange(
+  firstServiceSunday: Date,
+  lastServiceSunday: Date,
+): { start: string; end: string } {
+  return {
+    start: defaultFormatter(getWeekStart(firstServiceSunday)),
+    end: defaultFormatter(getWeekEnd(lastServiceSunday)),
+  };
+}
+
+/**
+ * Formats the human-readable week label for a service Sunday as
+ * "MMM DD, YYYY – MMM DD, YYYY" spanning the submission window
+ * (previous Sunday → Saturday). Used by the Requests screen.
+ */
+export function formatWeekLabel(serviceSunday: Date): string {
+  const weekStart = getWeekStart(serviceSunday);
+  const weekEnd = new Date(serviceSunday);
+  weekEnd.setDate(serviceSunday.getDate() - 1);
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Edmonton",
+    dateStyle: "medium",
+  });
+  return `${dateFormatter.format(weekStart)} – ${dateFormatter.format(weekEnd)}`;
 }
 
 /**
