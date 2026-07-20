@@ -205,6 +205,16 @@ export default function ReportsView({
                   borderRadius: "8px",
                   color: "var(--foreground)",
                 }}
+                labelFormatter={(label) => {
+                  const [month, day, year] = String(label).split("-").map(Number);
+                  if (!month || !day || !year) return String(label);
+                  const dd = String(day).padStart(2, "0");
+                  const monthName = new Date(year, month - 1, day).toLocaleDateString(
+                    "en-US",
+                    { month: "short" },
+                  );
+                  return `${dd} ${monthName} ${year}`;
+                }}
               />
               <Legend />
               <Line
