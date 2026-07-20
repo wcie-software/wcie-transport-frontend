@@ -12,10 +12,12 @@ import {
 
 /**
  * Per-week transportation report row.
- * - `picked` / `notPicked` / `pending` come from `request.status`
- *   (successful / failed / normal), matching the Requests screen's coloring.
+ * - `picked` / `notPicked` / `pending` / `cancelled` come from `request.status`
+ *   (successful / failed / normal / cancelled), matching the Requests screen's
+ *   coloring. Cancelled is its own bucket and counts toward `totalRequests`.
  * - `totalPassengersPicked` is enriched from `pickup_info.passengers_picked`
- *   for successful requests (joined via `transport_id`).
+ *   for successful requests (joined via `transport_id`). Cancelled requests
+ *   do not contribute to passengers picked.
  * - `adults` = `no_of_seats - no_of_children` (approximation; no gender data today).
  * - `pickupRate` = `picked / totalRequests` (0 if no requests).
  * - Week window is [previous Sunday 00:00, service Sunday 00:00): a request
@@ -29,6 +31,7 @@ export type WeeklyReport = {
   picked: number;
   notPicked: number;
   pending: number;
+  cancelled: number;
   firstService: number;
   secondService: number;
   pickupRate: number;
@@ -48,13 +51,14 @@ export type GenerateReportsResult = {
  * For each week (service Sunday = S):
  * 1. Query `requests` by `timestamp` in [S-7 00:00, S 00:00) — i.e. the
  *    previous Sunday through Saturday 23:59. A request submitted on
- *    Sunday morning belongs to the *next* Sunday's week. Cancelled
- *    requests are excluded.
+ *    Sunday morning belongs to the *next* Sunday's week. All statuses
+ *    are included; `cancelled` is bucketed separately.
  * 2. Query `pickup_info` by `pickup_time == S` (drivers confirm pickups
  *    on the service Sunday itself). Used only to enrich the
- *    `totalPassengersPicked` total.
+ *    `totalPassengersPicked` total for successful requests.
  * 3. Classify each request via `request.status`:
- *    `successful` → picked, `failed` → notPicked, `normal` → pending.
+ *    `successful` → picked, `failed` → notPicked,
+ *    `cancelled` → cancelled, else (`normal`) → pending.
  */
 export async function generateReports(
   startSundayKey: string,
@@ -110,23 +114,21 @@ async function buildWeekReport(
     .toLocaleDateString("en-US")
     .replaceAll("/", "-");
 
-  const requests = (
-    await fdb.queryCollection<TransportRequest>(
-      FirestoreCollections.Requests,
-      TransportRequestSchema,
-      [
-        { field: "timestamp", operator: ">=", value: start },
-        { field: "timestamp", operator: "<", value: end },
-      ],
-      "timestamp",
-    )
-  ).filter((r) => r.status !== "cancelled");
+  const requests = await fdb.queryCollection<TransportRequest>(
+    FirestoreCollections.Requests,
+    TransportRequestSchema,
+    [
+      { field: "timestamp", operator: ">=", value: start },
+      { field: "timestamp", operator: "<", value: end },
+    ],
+    "timestamp",
+  );
 
   // pickup_info is only used to enrich the passengers-picked total.
-  // Picked / not-picked / pending counts come from `request.status`,
-  // which is the same field the Requests screen colors by.
-  // Query the full submission window (not just service Sunday) so we
-  // don't miss pickups confirmed on a different day.
+  // Picked / not-picked / pending / cancelled counts come from
+  // `request.status`, which is the same field the Requests screen colors
+  // by. Query the full submission window (not just service Sunday) so
+  // we don't miss pickups confirmed on a different day.
   const pickups = await fdb.queryCollection<PickupInfo>(
     FirestoreCollections.PickupInfo,
     PickupInfoSchema,
@@ -151,6 +153,7 @@ async function buildWeekReport(
   let picked = 0;
   let notPicked = 0;
   let pending = 0;
+  let cancelled = 0;
   let firstService = 0;
   let secondService = 0;
   let totalPassengersPicked = 0;
@@ -174,6 +177,8 @@ async function buildWeekReport(
       }
     } else if (r.status === "failed") {
       notPicked += 1;
+    } else if (r.status === "cancelled") {
+      cancelled += 1;
     } else {
       pending += 1;
     }
@@ -191,6 +196,7 @@ async function buildWeekReport(
     picked,
     notPicked,
     pending,
+    cancelled,
     firstService,
     secondService,
     pickupRate,
