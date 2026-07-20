@@ -6,7 +6,6 @@ import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { FirestoreAdminHelper } from "../utils/firestore_admin";
 import {
-  defaultFormatter,
   getWeekRange,
   parseSundayKey,
 } from "@/app/utils/util";
@@ -110,7 +109,6 @@ async function buildWeekReport(
   const sundayKey = sunday
     .toLocaleDateString("en-US")
     .replaceAll("/", "-");
-  const sundayDateOnly = defaultFormatter(sunday);
 
   const requests = (
     await fdb.queryCollection<TransportRequest>(
@@ -127,12 +125,14 @@ async function buildWeekReport(
   // pickup_info is only used to enrich the passengers-picked total.
   // Picked / not-picked / pending counts come from `request.status`,
   // which is the same field the Requests screen colors by.
+  // Query the full submission window (not just service Sunday) so we
+  // don't miss pickups confirmed on a different day.
   const pickups = await fdb.queryCollection<PickupInfo>(
     FirestoreCollections.PickupInfo,
     PickupInfoSchema,
     [
-      { field: "pickup_time", operator: ">=", value: sundayDateOnly },
-      { field: "pickup_time", operator: "<=", value: sundayDateOnly },
+      { field: "pickup_time", operator: ">=", value: start },
+      { field: "pickup_time", operator: "<", value: end },
     ],
   );
 
@@ -166,8 +166,11 @@ async function buildWeekReport(
       if (r.service_number === 1) firstService += 1;
       else if (r.service_number === 2) secondService += 1;
       if (r.documentId) {
+        // Prefer the passengers_picked recorded by the driver; fall back
+        // to the requested seat count when no pickup_info doc exists
+        // (e.g. legacy data, or a missing/failed write).
         totalPassengersPicked +=
-          passengersByTransportId.get(r.documentId) ?? 0;
+          passengersByTransportId.get(r.documentId) ?? seats;
       }
     } else if (r.status === "failed") {
       notPicked += 1;
