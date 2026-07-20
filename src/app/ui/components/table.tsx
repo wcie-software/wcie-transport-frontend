@@ -41,7 +41,7 @@ export default function Table<Type>({ headerMap, body, fieldFormatter, fieldStyl
 							<tr key={index}>
 								{Object.keys(headerMap).map((k) => {
 									const key = k as keyof typeof r;
-									const value = String(r[key] || "");
+									const value = String(r[key] ?? "");
 									return (
 										<td
 											key={k + value}
