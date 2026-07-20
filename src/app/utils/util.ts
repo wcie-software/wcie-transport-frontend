@@ -77,25 +77,44 @@ export function getServiceSunday(submissionDate: Date): Date {
 
 /**
  * Returns the submission-window start (previous Sunday 00:00) for a given
- * service Sunday. This is the first day a request can be submitted for
- * that service Sunday.
+ * service Sunday. The returned Date is anchored at noon MST so that
+ * `defaultFormatter` (which uses `America/Edmonton`) produces the correct
+ * `YYYY/MM/DD` regardless of the server's local timezone.
  */
 export function getWeekStart(serviceSunday: Date): Date {
-  const start = new Date(serviceSunday);
-  start.setDate(serviceSunday.getDate() - 7);
-  start.setHours(0, 0, 0, 0);
-  return start;
+  // serviceSunday was constructed by parseSundayKey at noon MST, so its
+  // Edmonton date is unambiguous. Subtract 7 days in UTC to keep the
+  // date arithmetic timezone-independent.
+  const startUtc = Date.UTC(
+    serviceSunday.getUTCFullYear(),
+    serviceSunday.getUTCMonth(),
+    serviceSunday.getUTCDate() - 7,
+  );
+  return mstDateFromUtc(startUtc);
 }
 
 /**
  * Returns the submission-window end (service Sunday 00:00, exclusive)
- * for a given service Sunday. This is the exclusive upper bound for
- * `timestamp < end` Firestore queries.
+ * for a given service Sunday. The returned Date is anchored at noon MST so
+ * that `defaultFormatter` produces the correct Edmonton `YYYY/MM/DD`.
  */
 export function getWeekEnd(serviceSunday: Date): Date {
-  const end = new Date(serviceSunday);
-  end.setHours(0, 0, 0, 0);
-  return end;
+  const endUtc = Date.UTC(
+    serviceSunday.getUTCFullYear(),
+    serviceSunday.getUTCMonth(),
+    serviceSunday.getUTCDate(),
+  );
+  return mstDateFromUtc(endUtc);
+}
+
+/**
+ * Constructs a Date at noon MST (UTC-7) from a UTC epoch. Noon MST
+ * avoids day-boundary shifts in any timezone. `Intl.DateTimeFormat` with
+ * `timeZone: "America/Edmonton"` then reads this as the intended date.
+ */
+function mstDateFromUtc(utcMs: number): Date {
+  // MST is UTC-7. Noon MST = 19:00 UTC.
+  return new Date(utcMs - 7 * 60 * 60 * 1000 + 19 * 60 * 60 * 1000);
 }
 
 /**
@@ -108,10 +127,8 @@ export function formatSundayKey(date: Date): string {
 
 /**
  * Returns the Firestore query range for a single service Sunday's submission
- * window: `[S-7 00:00, S 00:00)`. Use with `timestamp >= start && timestamp < end`.
- *
- * A request submitted during this window is for `sunday`'s service. A
- * Sunday-morning submission belongs to the *next* Sunday's week.
+ * window: `[S-7 00:00, S 00:00)` in Edmonton time. Use with
+ * `timestamp >= start && timestamp < end`. The bounds are timezone-independent.
  */
 export function getWeekRange(sunday: Date): { start: string; end: string } {
   return {
@@ -122,7 +139,7 @@ export function getWeekRange(sunday: Date): { start: string; end: string } {
 
 /**
  * Returns the Firestore query range covering multiple service Sundays
- * (inclusive). Use with `timestamp >= start && timestamp < end`.
+ * (inclusive) in Edmonton time.
  */
 export function getMultiWeekRange(
   firstServiceSunday: Date,
@@ -137,12 +154,17 @@ export function getMultiWeekRange(
 /**
  * Formats the human-readable week label for a service Sunday as
  * "MMM DD, YYYY – MMM DD, YYYY" spanning the submission window
- * (previous Sunday → Saturday). Used by the Requests screen.
+ * (previous Sunday → Saturday). Times are in Edmonton.
  */
 export function formatWeekLabel(serviceSunday: Date): string {
   const weekStart = getWeekStart(serviceSunday);
-  const weekEnd = new Date(serviceSunday);
-  weekEnd.setDate(serviceSunday.getDate() - 1);
+  const weekEnd = mstDateFromUtc(
+    Date.UTC(
+      serviceSunday.getUTCFullYear(),
+      serviceSunday.getUTCMonth(),
+      serviceSunday.getUTCDate() - 1,
+    ),
+  );
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Edmonton",
     dateStyle: "medium",
@@ -151,15 +173,21 @@ export function formatWeekLabel(serviceSunday: Date): string {
 }
 
 /**
- * Parses a `M-D-YYYY` Sunday key into a Date at 11:59 local time.
- * Returns null if the string is malformed.
+ * Parses a `M-D-YYYY` Sunday key into a Date anchored at noon MST. Using
+ * noon MST makes the date unambiguous regardless of the server's local
+ * timezone; `Intl.DateTimeFormat` with `America/Edmonton` will read the
+ * intended calendar date. Returns null if the string is malformed.
  */
 export function parseSundayKey(key: string): Date | null {
   const parts = key.split("-").map(Number);
   if (parts.length !== 3 || parts.some(isNaN)) return null;
   const [month, date, year] = parts;
   if (!month || !date || !year) return null;
-  return new Date(year, month - 1, date, 11, 59, 0, 0);
+  // Noon MST = 19:00 UTC. Use Date.UTC to construct, then add the offset
+  // so that Intl.DateTimeFormat(timeZone: "America/Edmonton") reads the
+  // intended Y/M/D.
+  const utcMs = Date.UTC(year, month - 1, date) + 19 * 60 * 60 * 1000;
+  return new Date(utcMs);
 }
 
 /**
