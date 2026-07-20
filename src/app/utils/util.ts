@@ -65,7 +65,11 @@ export function getNearestSunday(date: Date): Date {
  */
 export function getServiceSunday(submissionDate: Date): Date {
   const service = new Date(submissionDate);
-  const daysUntilSunday = (7 - service.getDay()) % 7;
+  // Sunday submissions roll to next Sunday (+7); all other days roll to
+  // the upcoming Sunday. `(7 - day) % 7` would yield 0 for Sunday, so we
+  // fall back to 7 in that case.
+  const daysUntilSunday =
+    service.getDay() === 0 ? 7 : 7 - service.getDay();
   service.setDate(service.getDate() + daysUntilSunday);
   service.setHours(11, 59, 0, 0);
   return service;
