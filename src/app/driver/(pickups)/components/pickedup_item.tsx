@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function PickedUpItem({ item }: { item: TransportRequest }) {
     return (
-        <div className="bg-card-dark/40 rounded-xl border border-white/5 p-4 flex items-center justify-between opacity-80">
+        <div className="bg-gray-50 dark:bg-neutral-900/60 rounded-xl border border-gray-200 dark:border-white/10 p-4 flex items-center justify-between">
             <div className="flex flex-row gap-4 items-center">
                 {item.status === "successful"
                     ? (
@@ -18,9 +18,9 @@ export function PickedUpItem({ item }: { item: TransportRequest }) {
                         </div>
                     )}
                 <div>
-                    <h4 className="font-bold text-slate-200">{item.full_name}</h4>
+                    <h4 className="font-bold text-foreground">{item.full_name}</h4>
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-500 uppercase font-mono">
+                        <span className="text-xs text-slate-600 dark:text-slate-400 uppercase font-mono">
                             {item.status === "successful" ? "Picked Up" : "Failed"}
                         </span>
                         {/* <span className="text-[10px] text-slate-600">•</span> */}
@@ -29,14 +29,14 @@ export function PickedUpItem({ item }: { item: TransportRequest }) {
                 </div>
             </div>
             <div className="text-right flex flex-col gap-2 items-end">
-                <p className="text-[10px] text-slate-500 uppercase tracking-tighter">
+                <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-tighter">
                     {item.status === "successful" ? "Verified" : "No Show"}
                 </p>
                 <div className="flex items-center gap-2">
                     <Link href={item.google_maps_link} target="_blank"
-                        className="size-8 rounded-full bg-tertiary/20 border border-tertiary/30 flex items-center justify-center active:scale-95 transition-transform"
+                        className="size-8 rounded-full bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 flex items-center justify-center active:scale-95 transition-transform"
                         title="Open in Google Maps">
-                        <MapPinIcon className="text-tertiary" width={16} height={16} />
+                        <MapPinIcon className="text-slate-700 dark:text-slate-300" width={16} height={16} />
                     </Link>
                 </div>
             </div>
