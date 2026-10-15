@@ -3,7 +3,12 @@ import { Driver, DriverSchema } from "@/app/models/driver";
 import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { FirestoreAdminHelper } from "@/app/utils/firestore_admin";
-import { defaultFormatter } from "@/app/utils/util";
+import {
+  formatSundayKey,
+  getNearestSunday,
+  getWeekRange,
+  parseSundayKey,
+} from "@/app/utils/util";
 import { Schedule, ScheduleSchema } from "@/app/models/schedule";
 import { DriverRoutes, DriverRoutesSchema } from "@/app/models/fleet_route";
 import AssignmentsView from "@/app/admin/(dashboard)/assignments/views/assignments_view";
@@ -18,33 +23,25 @@ export default async function AssignmentsPage({
 }) {
   const params = await searchParams;
 
-  // Attempt to get date from url search param
-  let month, date, year;
-  try {
-    [month, date, year] = params?.timestamp?.split("-").map(parseFloat)!;
-  } catch (e) {
-    // Fallback to today's date
-    const today = new Date();
-    [month, date, year] = [
-      today.getMonth() + 1,
-      today.getDate(),
-      today.getFullYear(),
-    ];
+  // Resolve the service Sunday for this view. A submission window for
+  // service Sunday S is [S-7 00:00, S 00:00), so Sunday submissions roll
+  // to the *next* Sunday. Parse the canonical M-D-YYYY key when provided,
+  // otherwise fall back to the nearest upcoming Sunday.
+  let serviceSunday: Date;
+  const parsedSunday = params?.timestamp
+    ? parseSundayKey(params.timestamp)
+    : null;
+  if (parsedSunday) {
+    serviceSunday = parsedSunday;
+  } else {
+    serviceSunday = getNearestSunday(new Date());
   }
 
-  // Construct date manually to mitigate date to string conversion issues
-  const endDate = new Date(year, month - 1, date, 10, 59, 59);
-  // Ensure it falls on a Sunday
-  if (endDate.getDay() !== 0) {
-    endDate.setDate(endDate.getDate() + (7 - endDate.getDay()));
-  }
+  // M-D-YYYY canonical Sunday key used for schedule/assignment docs.
+  const timestamp = formatSundayKey(serviceSunday);
 
-  const startDate = new Date(endDate);
-  // Start on Monday
-  startDate.setDate(endDate.getDate() - 6);
-
-  // M-D-YYYY
-  const timestamp = endDate.toLocaleDateString("en-US").replaceAll("/", "-");
+  // Submission window for this service Sunday: [S-7, S) in Edmonton time.
+  const { start: rangeStart, end: rangeEnd } = getWeekRange(serviceSunday);
 
   const service = parseInt(params?.service_number ?? "1");
   const serviceNumber = isNaN(service) ? 1 : service;
@@ -62,12 +59,12 @@ export default async function AssignmentsPage({
         {
           field: "timestamp",
           operator: ">=",
-          value: defaultFormatter(startDate),
+          value: rangeStart,
         },
         {
           field: "timestamp",
-          operator: "<=",
-          value: defaultFormatter(endDate),
+          operator: "<",
+          value: rangeEnd,
         },
       ],
       "timestamp", // Sort by time
