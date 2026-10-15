@@ -30,7 +30,7 @@ export default function PickupItem({ pickup, active = false, onPickupSuccessful,
     }
 
     return (
-        <div className="bg-card-dark rounded-xl border border-white/5 overflow-hidden shadow-2xl">
+        <div className="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-md dark:shadow-2xl">
             <div className="p-4 space-y-4">
                 <div className="flex justify-between items-start">
                     <div>
