@@ -6,6 +6,8 @@ import { getFirebaseAdmin } from "@/app/actions/firebase_server_setup";
 import { FirestoreCollections } from "@/app/utils/firestore";
 import { FirestoreAdminHelper } from "../utils/firestore_admin";
 import {
+  addEdmontonDays,
+  formatSundayKey,
   getWeekRange,
   parseSundayKey,
 } from "@/app/utils/util";
@@ -53,9 +55,9 @@ export type GenerateReportsResult = {
  *    previous Sunday through Saturday 23:59. A request submitted on
  *    Sunday morning belongs to the *next* Sunday's week. All statuses
  *    are included; `cancelled` is bucketed separately.
- * 2. Query `pickup_info` by `pickup_time == S` (drivers confirm pickups
- *    on the service Sunday itself). Used only to enrich the
- *    `totalPassengersPicked` total for successful requests.
+ * 2. Query `pickup_info` by successful requests' `transport_id`, including
+ *    confirmations on service Sunday or another day. Used only to enrich
+ *    `totalPassengersPicked`.
  * 3. Classify each request via `request.status`:
  *    `successful` → picked, `failed` → notPicked,
  *    `cancelled` → cancelled, else (`normal`) → pending.
@@ -67,10 +69,13 @@ export async function generateReports(
   const startSunday = parseSundayKey(startSundayKey);
   const endSunday = parseSundayKey(endSundayKey);
 
-  if (!startSunday || !endSunday) {
+  if (
+    !startSunday || !endSunday ||
+    startSunday.getUTCDay() !== 0 || endSunday.getUTCDay() !== 0
+  ) {
     return {
       success: false,
-      message: "Invalid Sunday key format. Expected M-D-YYYY.",
+      message: "Invalid service Sunday. Expected a Sunday in M-D-YYYY format.",
     };
   }
 
@@ -86,13 +91,12 @@ export async function generateReports(
     const fdb = new FirestoreAdminHelper(db);
 
     const reports: WeeklyReport[] = [];
-    const cursor = new Date(startSunday);
-    cursor.setHours(0, 0, 0, 0);
+    let cursor = startSunday;
 
     while (cursor.getTime() <= endSunday.getTime()) {
       const week = await buildWeekReport(fdb, new Date(cursor));
       reports.push(week);
-      cursor.setDate(cursor.getDate() + 7);
+      cursor = addEdmontonDays(cursor, 7);
     }
 
     return { success: true, data: reports };
@@ -110,9 +114,7 @@ async function buildWeekReport(
   sunday: Date,
 ): Promise<WeeklyReport> {
   const { start, end } = getWeekRange(sunday);
-  const sundayKey = sunday
-    .toLocaleDateString("en-US")
-    .replaceAll("/", "-");
+  const sundayKey = formatSundayKey(sunday);
 
   const requests = await fdb.queryCollection<TransportRequest>(
     FirestoreCollections.Requests,
@@ -124,23 +126,29 @@ async function buildWeekReport(
     "timestamp",
   );
 
-  // pickup_info is only used to enrich the passengers-picked total.
-  // Picked / not-picked / pending / cancelled counts come from
-  // `request.status`, which is the same field the Requests screen colors
-  // by. Query the full submission window (not just service Sunday) so
-  // we don't miss pickups confirmed on a different day.
-  const pickups = await fdb.queryCollection<PickupInfo>(
-    FirestoreCollections.PickupInfo,
-    PickupInfoSchema,
-    [
-      { field: "pickup_time", operator: ">=", value: start },
-      { field: "pickup_time", operator: "<", value: end },
-    ],
+  // Join by request ID, not confirmation date: confirmations normally happen
+  // on service Sunday, outside the request's submission window. Firestore
+  // supports at most 30 values per `in` query.
+  const successfulIds = requests.flatMap((r) =>
+    r.status === "successful" && r.documentId ? [r.documentId] : [],
   );
+  const pickups: PickupInfo[] = [];
+  for (let i = 0; i < successfulIds.length; i += 30) {
+    pickups.push(
+      ...await fdb.queryCollection<PickupInfo>(
+        FirestoreCollections.PickupInfo,
+        PickupInfoSchema,
+        [{ field: "transport_id", operator: "in", value: successfulIds.slice(i, i + 30) }],
+      ),
+    );
+  }
 
   const passengersByTransportId = new Map<string, number>();
+  // Sort in memory to avoid requiring a new composite Firestore index.
+  pickups.sort((a, b) => b.pickup_time.localeCompare(a.pickup_time));
   for (const p of pickups) {
-    if (p.failure_reason == null) {
+    // Retain the latest successful duplicate instead of summing confirmations.
+    if (p.failure_reason == null && !passengersByTransportId.has(p.transport_id)) {
       passengersByTransportId.set(
         p.transport_id,
         p.passengers_picked ?? 0,
@@ -168,13 +176,10 @@ async function buildWeekReport(
       picked += 1;
       if (r.service_number === 1) firstService += 1;
       else if (r.service_number === 2) secondService += 1;
-      if (r.documentId) {
-        // Prefer the passengers_picked recorded by the driver; fall back
-        // to the requested seat count when no pickup_info doc exists
-        // (e.g. legacy data, or a missing/failed write).
-        totalPassengersPicked +=
-          passengersByTransportId.get(r.documentId) ?? seats;
-      }
+      // Preserve a recorded zero; fall back only when no successful pickup
+      // confirmation exists (including legacy requests without an ID).
+      totalPassengersPicked +=
+        (r.documentId ? passengersByTransportId.get(r.documentId) : undefined) ?? seats;
     } else if (r.status === "failed") {
       notPicked += 1;
     } else if (r.status === "cancelled") {

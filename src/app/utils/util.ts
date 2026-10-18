@@ -46,15 +46,11 @@ export function toTimestamp(date: Date): string {
 }
 
 /**
- * Returns the nearest Sunday (future or same day) for the given date.
- * If `date` is already a Sunday, returns it unchanged (time preserved).
+ * Returns the upcoming or current Edmonton Sunday, anchored at noon MST.
  */
 export function getNearestSunday(date: Date): Date {
-  const sunday = new Date(date);
-  if (sunday.getDay() !== 0) {
-    sunday.setDate(sunday.getDate() + (7 - sunday.getDay()));
-  }
-  return sunday;
+  const calendarDate = addEdmontonDays(date, 0);
+  return addEdmontonDays(calendarDate, (7 - calendarDate.getUTCDay()) % 7);
 }
 
 /**
@@ -64,15 +60,13 @@ export function getNearestSunday(date: Date): Date {
  * for service Sunday S is [S-7 00:00, S 00:00).
  */
 export function getServiceSunday(submissionDate: Date): Date {
-  const service = new Date(submissionDate);
+  const service = addEdmontonDays(submissionDate, 0);
   // Sunday submissions roll to next Sunday (+7); all other days roll to
   // the upcoming Sunday. `(7 - day) % 7` would yield 0 for Sunday, so we
   // fall back to 7 in that case.
   const daysUntilSunday =
-    service.getDay() === 0 ? 7 : 7 - service.getDay();
-  service.setDate(service.getDate() + daysUntilSunday);
-  service.setHours(11, 59, 0, 0);
-  return service;
+    service.getUTCDay() === 0 ? 7 : 7 - service.getUTCDay();
+  return addEdmontonDays(service, daysUntilSunday);
 }
 
 /**
@@ -82,15 +76,7 @@ export function getServiceSunday(submissionDate: Date): Date {
  * `YYYY/MM/DD` regardless of the server's local timezone.
  */
 export function getWeekStart(serviceSunday: Date): Date {
-  // serviceSunday was constructed by parseSundayKey at noon MST, so its
-  // Edmonton date is unambiguous. Subtract 7 days in UTC to keep the
-  // date arithmetic timezone-independent.
-  const startUtc = Date.UTC(
-    serviceSunday.getUTCFullYear(),
-    serviceSunday.getUTCMonth(),
-    serviceSunday.getUTCDate() - 7,
-  );
-  return mstDateFromUtc(startUtc);
+  return addEdmontonDays(serviceSunday, -7);
 }
 
 /**
@@ -99,12 +85,7 @@ export function getWeekStart(serviceSunday: Date): Date {
  * that `defaultFormatter` produces the correct Edmonton `YYYY/MM/DD`.
  */
 export function getWeekEnd(serviceSunday: Date): Date {
-  const endUtc = Date.UTC(
-    serviceSunday.getUTCFullYear(),
-    serviceSunday.getUTCMonth(),
-    serviceSunday.getUTCDate(),
-  );
-  return mstDateFromUtc(endUtc);
+  return addEdmontonDays(serviceSunday, 0);
 }
 
 /**
@@ -114,7 +95,13 @@ export function getWeekEnd(serviceSunday: Date): Date {
  */
 function mstDateFromUtc(utcMs: number): Date {
   // MST is UTC-7. Noon MST = 19:00 UTC.
-  return new Date(utcMs - 7 * 60 * 60 * 1000 + 19 * 60 * 60 * 1000);
+  return new Date(utcMs + 19 * 60 * 60 * 1000);
+}
+
+/** Adds calendar days in Edmonton, returning a Date anchored at noon MST. */
+export function addEdmontonDays(date: Date, days: number): Date {
+  const [year, month, day] = defaultFormatter(date).split("/").map(Number);
+  return mstDateFromUtc(Date.UTC(year, month - 1, day + days));
 }
 
 /**
@@ -122,7 +109,9 @@ function mstDateFromUtc(utcMs: number): Date {
  * matching the document ID used for `schedules` and `assigned-routes`.
  */
 export function formatSundayKey(date: Date): string {
-  return date.toLocaleDateString("en-US").replaceAll("/", "-");
+  return date.toLocaleDateString("en-US", {
+    timeZone: "America/Edmonton",
+  }).replaceAll("/", "-");
 }
 
 /**
@@ -158,13 +147,7 @@ export function getMultiWeekRange(
  */
 export function formatWeekLabel(serviceSunday: Date): string {
   const weekStart = getWeekStart(serviceSunday);
-  const weekEnd = mstDateFromUtc(
-    Date.UTC(
-      serviceSunday.getUTCFullYear(),
-      serviceSunday.getUTCMonth(),
-      serviceSunday.getUTCDate() - 1,
-    ),
-  );
+  const weekEnd = addEdmontonDays(serviceSunday, -1);
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Edmonton",
     dateStyle: "medium",
@@ -179,15 +162,22 @@ export function formatWeekLabel(serviceSunday: Date): string {
  * intended calendar date. Returns null if the string is malformed.
  */
 export function parseSundayKey(key: string): Date | null {
+  if (!/^\d{1,2}-\d{1,2}-\d{4}$/.test(key)) return null;
   const parts = key.split("-").map(Number);
-  if (parts.length !== 3 || parts.some(isNaN)) return null;
   const [month, date, year] = parts;
   if (!month || !date || !year) return null;
   // Noon MST = 19:00 UTC. Use Date.UTC to construct, then add the offset
   // so that Intl.DateTimeFormat(timeZone: "America/Edmonton") reads the
   // intended Y/M/D.
   const utcMs = Date.UTC(year, month - 1, date) + 19 * 60 * 60 * 1000;
-  return new Date(utcMs);
+  const parsed = new Date(utcMs);
+  // Reject invalid calendar dates instead of silently rolling into another month.
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== date
+  ) return null;
+  return parsed;
 }
 
 /**
