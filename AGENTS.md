@@ -41,6 +41,7 @@ Living reference for any developer or AI agent working on **WCIE Transport**. Ke
   - `getWeekStart(serviceSunday)` / `getWeekEnd(serviceSunday)` → noon-MST Dates for `[S-7, S)`
   - `getWeekRange(sunday)` / `getMultiWeekRange(first, last)` → `{ start, end }` `YYYY/MM/DD` strings for Firestore `>=` and `<` queries
   - `formatWeekLabel(serviceSunday)` → `"MMM DD, YYYY – MMM DD, YYYY"` (previous Sunday → Saturday)
+  - `addEdmontonDays(date, days)` → adds calendar days in Edmonton time, returning a noon-MST Date. Use for all week arithmetic (`getWeekStart`/`getWeekEnd`/`getNearestSunday`/`getServiceSunday` are built on it).
 - For the requests page and the reports page to agree on counts, both must bucket by `getServiceSunday(timestamp)` and use the same `getMultiWeekRange` / `getWeekRange` query bounds. The Vitest suite guards the primitives; both screens already use them.
 
 ## Firestore & Data Model Patterns
@@ -73,6 +74,9 @@ Living reference for any developer or AI agent working on **WCIE Transport**. Ke
 - Bucketing is `request.status`-driven: `successful` → `picked`, `failed` → `notPicked`, `cancelled` → `cancelled`, `normal` → `pending`. `cancelled` counts toward `totalRequests` but does not contribute to `passengersPicked`.
 - `passengersPicked` is enriched via `pickup_info.transport_id == request.documentId` for successful requests, with `no_of_seats` as fallback when no pickup_info doc exists.
 - Report view: `src/app/admin/(dashboard)/reports/` with `page.tsx` (server component) and `views/reports_view.tsx` (client). Adds: KPI cards (Total / Successful / Success Rate / Cancelled / Passengers Picked), recharts `LineChart` for requests vs picked, `Table` for weekly breakdown, CSV export, print.
+- Reports are labeled by **service Sunday** (the date the report row is for), not the previous Sunday. The submission window is `[S-7 00:00, S 00:00)` in Edmonton time; Sunday submissions roll to the next Sunday. `src/app/utils/report-utils.ts` holds shared range/label/CSV helpers.
+- `passengersPicked` joins `pickup_info` by `transport_id` (batched in groups of 30 for Firestore's `in` limit), so confirmations recorded on service Sunday or later are counted. The latest successful confirmation wins on duplicates; a recorded `0` is preserved.
+- Date iteration in `generateReports` and all report UI date handling use Edmonton-anchored helpers (`addEdmontonDays`, `formatSundayKey`, `parseSundayKey`, `getNearestSunday`) so server/browser timezone cannot shift the selected Sunday. `SundayDatePicker` accepts a `timeZone="America/Edmonton"` prop for consumers that need it.
 
 ## UI & UX Guardrails
 - Typography: Montserrat (body) + PT Serif (branding) via Next fonts. Apply with `font-[family-name:var(--font-mont)]`.
