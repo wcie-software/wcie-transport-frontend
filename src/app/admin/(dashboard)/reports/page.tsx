@@ -1,9 +1,5 @@
 import { generateReports } from "@/app/actions/generate_report";
-import {
-  formatSundayKey,
-  getNearestSunday,
-  parseSundayKey,
-} from "@/app/utils/util";
+import { getReportRange } from "@/app/utils/report-utils";
 import ReportsView from "@/app/admin/(dashboard)/reports/views/reports_view";
 
 export const dynamic = "force-dynamic";
@@ -15,19 +11,7 @@ export default async function ReportsPage({
 }) {
   const params = await searchParams;
 
-  const nearestSunday = getNearestSunday(new Date());
-
-  const endSunday = params.end ? parseSundayKey(params.end) : nearestSunday;
-  const startSunday = params.start
-    ? parseSundayKey(params.start)
-    : (() => {
-        const s = new Date(endSunday ?? nearestSunday);
-        s.setDate(s.getDate() - 7 * 7);
-        return s;
-      })();
-
-  const endKey = formatSundayKey(endSunday ?? nearestSunday);
-  const startKey = formatSundayKey(startSunday ?? nearestSunday);
+  const { startKey, endKey } = getReportRange(params);
 
   const result = await generateReports(startKey, endKey);
 

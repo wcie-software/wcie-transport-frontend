@@ -14,42 +14,12 @@ import {
 } from "recharts";
 import Table from "@/app/ui/components/table";
 import type { WeeklyReport } from "@/app/actions/generate_report";
-import { parseSundayKey, getNearestSunday, getWeekStart } from "@/app/utils/util";
+import { formatSundayKey, parseSundayKey, getNearestSunday } from "@/app/utils/util";
+import { formatReportSunday, reportsToCsv } from "@/app/utils/report-utils";
 import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 
-const CSV_COLUMNS: { key: keyof WeeklyReport; label: string }[] = [
-  { key: "sundayKey", label: "Sunday" },
-  { key: "totalRequests", label: "Total Requests" },
-  { key: "adults", label: "Adults" },
-  { key: "children", label: "Children" },
-  { key: "picked", label: "Picked" },
-  { key: "notPicked", label: "Not Picked" },
-  { key: "pending", label: "Pending" },
-  { key: "cancelled", label: "Cancelled" },
-  { key: "firstService", label: "1st Service" },
-  { key: "secondService", label: "2nd Service" },
-  { key: "pickupRate", label: "Pickup Rate" },
-  { key: "totalPassengersPicked", label: "Passengers Picked" },
-];
-
-function toCsvCell(value: unknown): string {
-  const s = String(value ?? "");
-  return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
-}
-
 function downloadCsv(rows: WeeklyReport[]) {
-  const header = CSV_COLUMNS.map((c) => c.label).join(",");
-  const body = rows
-    .map((r) =>
-      CSV_COLUMNS.map((c) => {
-        if (c.key === "pickupRate") {
-          return `${(r.pickupRate * 100).toFixed(1)}%`;
-        }
-        return toCsvCell(r[c.key]);
-      }).join(","),
-    )
-    .join("\n");
-  const csv = `${header}\n${body}`;
+  const csv = reportsToCsv(rows);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -80,21 +50,11 @@ export default function ReportsView({
 
   const chartData = useMemo(
     () =>
-      reports.map((r) => {
-        // Label each point by its submission-window start (previous Sunday)
-        // so it visually matches the Requests page's "Sun – Sat" week label.
-        const serviceSunday = parseSundayKey(r.sundayKey);
-        const weekStart = serviceSunday
-          ? getWeekStart(serviceSunday)
-          : new Date();
-        const dd = String(weekStart.getDate()).padStart(2, "0");
-        const mmm = weekStart.toLocaleDateString("en-US", { month: "short" });
-        return {
-          sunday: `${dd} ${mmm} ${weekStart.getFullYear()}`,
-          requests: r.totalRequests,
-          picked: r.picked,
-        };
-      }),
+      reports.map((r) => ({
+        sunday: formatReportSunday(r.sundayKey),
+        requests: r.totalRequests,
+        picked: r.picked,
+      })),
     [reports],
   );
 
@@ -118,14 +78,8 @@ export default function ReportsView({
 
   function updateRange(newStart: Date, newEnd: Date) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(
-      "start",
-      newStart.toLocaleDateString("en-US").replaceAll("/", "-"),
-    );
-    params.set(
-      "end",
-      newEnd.toLocaleDateString("en-US").replaceAll("/", "-"),
-    );
+    params.set("start", formatSundayKey(newStart));
+    params.set("end", formatSundayKey(newEnd));
     router.push(`?${params.toString()}`);
   }
 
@@ -153,20 +107,32 @@ export default function ReportsView({
 
       <div className="flex flex-col md:flex-row gap-4 print:hidden">
         <div className="flex flex-col gap-1">
-          <label className="text-xs">Start Sunday</label>
+          <label htmlFor="report-start-sunday" className="text-xs">Start Service Sunday</label>
           <SundayDatePicker
+            id="report-start-sunday"
             date={startDate}
+            timeZone="America/Edmonton"
+            includeLabel={false}
             onDateSelected={(d) => updateRange(d, endDate)}
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs">End Sunday</label>
+          <label htmlFor="report-end-sunday" className="text-xs">End Service Sunday</label>
           <SundayDatePicker
+            id="report-end-sunday"
             date={endDate}
+            timeZone="America/Edmonton"
+            includeLabel={false}
             onDateSelected={(d) => updateRange(startDate, d)}
           />
         </div>
       </div>
+
+      <p className="text-sm">
+        Reports are grouped by service Sunday. Each Sunday includes requests
+        submitted from the previous Sunday through Saturday, in Edmonton time.
+        Requests submitted on Sunday belong to the following service Sunday.
+      </p>
 
       {errorMessage && (
         <div className="bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-lg print:hidden">
@@ -192,7 +158,7 @@ export default function ReportsView({
       {/* Trend chart */}
       <div className="bg-tertiary rounded-xl p-4 border border-white/5 print:hidden">
         <h3 className="text-lg font-semibold mb-4">
-          Weekly Trend: Requests vs Picked
+          Weekly Trend by Service Sunday: Requests vs Picked
         </h3>
         {chartData.length === 0 ? (
           <p className="text-gray-500 py-8 text-center">
@@ -252,7 +218,7 @@ export default function ReportsView({
         ) : (
           <Table<WeeklyReport>
             headerMap={{
-              sundayKey: "Sunday",
+              sundayKey: "Service Sunday",
               totalRequests: "Total",
               adults: "Adults",
               children: "Children",
@@ -267,6 +233,7 @@ export default function ReportsView({
             }}
             body={tableBody}
             fieldFormatter={(k, v) => {
+              if (k === "sundayKey") return formatReportSunday(v);
               if (k === "pickupRate") {
                 const n = parseFloat(v);
                 return isNaN(n) ? v : `${(n * 100).toFixed(1)}%`;
