@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import ReportsView from "./reports_view";
+import ReportsView from "@/app/admin/(dashboard)/reports/views/reports_view";
 import type { WeeklyReport } from "@/app/actions/generate_report";
 import { parseSundayKey } from "@/app/utils/util";
 

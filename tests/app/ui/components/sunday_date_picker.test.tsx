@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import SundayDatePicker from "./sunday_date_picker";
+import SundayDatePicker from "@/app/ui/components/sunday_date_picker";
 import { parseSundayKey } from "@/app/utils/util";
 
 describe("SundayDatePicker Edmonton display", () => {

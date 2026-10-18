@@ -17,12 +17,12 @@ Living reference for any developer or AI agent working on **WCIE Transport**. Ke
 - Type-check: `npx tsc --noEmit`.
 - Lint: `npx next lint --dir src` (no ESLint config yet — falls back to Next defaults). No Prettier; follow existing spacing/class order.
 - Emulators: `npm run firebase` (Firestore + Auth). Set `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST` in your shell and `NEXT_PUBLIC_DEBUG_URL` for client fetches to route to the emulator.
-- Single test file: `npx vitest src/app/utils/util.test.ts` (or any matching glob).
+- Single test file: `npx vitest tests/app/utils/util.test.ts` (or any matching glob).
 - Add packages with `npm install --save-exact`; bundler resolution is `bundler` so prefer ESM-compatible builds.
 
 ## Testing
-- Vitest is configured (`vitest.config.ts`, `npm test`). Tests live next to source: `src/**/*.test.ts(x)`.
-- 22 tests currently cover the week primitives in `src/app/utils/util.ts` (see "Week model" below). Run `npm test` after any change to week helpers.
+- Vitest is configured (`vitest.config.ts`, `npm test`). Tests live in `tests/`, mirroring the `src/app` structure: `tests/**/*.test.ts(x)`.
+- 84 tests currently cover week primitives, report generation, and report UI helpers (see "Week model" below). Run `npm test` after any change to week helpers.
 - No component/integration tests yet. When adding them, prefer Vitest; mock `firebase-admin` rather than running against real Firestore.
 - Manual regression for new features: `npm run dev`, log in as admin + driver, exercise request submission, admin dashboard, driver pickups.
 
